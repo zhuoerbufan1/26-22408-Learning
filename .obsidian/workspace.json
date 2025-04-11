@@ -39,14 +39,12 @@
             "id": "ae6a57175d4e64cf",
             "type": "leaf",
             "state": {
-              "type": "markdown",
+              "type": "pdf",
               "state": {
-                "file": "复试/操作系统实战.md",
-                "mode": "source",
-                "source": false
+                "file": "26PDFS/复试/d2l-zh-pytorch.pdf"
               },
-              "icon": "lucide-file",
-              "title": "操作系统实战"
+              "icon": "lucide-file-text",
+              "title": "d2l-zh-pytorch"
             }
           }
         ],
@@ -107,7 +105,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200
+    "width": 365.5
   },
   "right": {
     "id": "ee1ba97547e52fe7",
@@ -133,13 +131,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "复试/操作系统实战.md",
+                "file": "26PDFS/复试/d2l-zh-pytorch.pdf",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "操作系统实战 的大纲"
+              "title": "d2l-zh-pytorch 的大纲"
             }
           },
           {
@@ -150,6 +148,54 @@
               "state": {},
               "icon": "lines-of-text",
               "title": "Quiet Outline"
+            }
+          },
+          {
+            "id": "72315d1aceda6737",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "26PDFS/复试/d2l-zh-pytorch.pdf",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "d2l-zh-pytorch 的反向链接列表"
+            }
+          },
+          {
+            "id": "89e5899ade009468",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "26PDFS/复试/d2l-zh-pytorch.pdf",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "d2l-zh-pytorch 的出链列表"
+            }
+          },
+          {
+            "id": "4b39056a1e7f3144",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "标签"
             }
           }
         ]
@@ -172,18 +218,42 @@
   },
   "active": "67a5ec63f2880cdb",
   "lastOpenFiles": [
-    "center.md",
-    "复试/操作系统实战.md",
-    "数学/数学要背的东西.md",
-    "数学/模拟.md",
-    "数学/真题.md",
-    "数学/强化.md",
-    "数学/基础.md",
-    "README.md",
-    "数学/数学要背的东西 1.md",
-    "复试/计算机体系基础.md",
     "复试/动手学深度学习.md",
-    "复试",
-    "数学"
+    "英语/外刊阅读.md",
+    "26PDFS/数学/真题/考研数学真题分类/分类题目和答案/答案/高数第九章手写答案10.31号/第二类曲面积分.pdf",
+    "26PDFS/数学/真题/考研数学真题分类/分类题目和答案/答案/高数第九章手写答案10.31号/第一类曲面积分.pdf",
+    "26PDFS/数学/真题/考研数学真题分类/分类题目和答案/答案/高数第九章手写答案10.31号/第二类曲线积分.pdf",
+    "26PDFS/数学/真题/考研数学真题分类/分类题目和答案/答案/高数第九章手写答案10.31号/二重积分：直角坐标系计算.pdf",
+    "26PDFS/数学/真题/考研数学真题分类/分类题目和答案/答案/高数第九章手写答案10.31号/二重积分：极坐标计算.pdf",
+    "26PDFS/数学/真题/考研数学真题分类/分类题目和答案/答案/高数第九章手写答案10.31号/第一类曲线积分.pdf",
+    "26PDFS/数学/真题/考研数学真题分类/分类题目和答案/答案/高数第九章手写答案10.31号/场论.pdf",
+    "26PDFS/数学/真题/考研数学真题分类/分类题目和答案/答案/高数第九章手写答案10.31号/二重积分的定义与性质.pdf",
+    "26PDFS/数学/真题/考研数学真题分类/分类题目和答案/答案/高数第九章手写答案10.31号/二重积分：对称性.pdf",
+    "26PDFS/数学/真题/考研数学真题分类/分类题目和答案/答案/高数第九章手写答案10.31号/二重积分：交换积分次序或坐标系.pdf",
+    "26PDFS/专业课/814and912一些资料/数据结构/西交教材和题/本校【课后作业】.jpg",
+    "英语/单词.md",
+    "专业课/计组/习题/2 第二章习题 - 指令系统.md",
+    "专业课/计组/7 微程序设计.md",
+    "专业课/计组/习题/6 第六章习题 - 中央处理器.md",
+    "专业课/计组/习题/4 第四章习题 - 总线与IO系统.md",
+    "专业课/计组/习题/3 第三章习题 - 存储器.md",
+    "专业课/数据结构/1 王道第一章习题 复杂度.md",
+    "专业课/数据结构/数据结构学习笔记/数据结构（6）：Huffman树和Huffman编码.md",
+    "专业课/数据结构/数据结构学习笔记/数据结构（12）：查找 - 折半和分块查找.md",
+    "专业课/数据结构/数据结构学习笔记/排序.md",
+    "专业课/数据结构/数据结构学习笔记/查找.md",
+    "专业课/数据结构/数据结构学习笔记/数据结构（5）：二叉排序树和平衡树.md",
+    "专业课/数据结构/数据结构学习笔记/数据结构（1）- 排序与进位制.md",
+    "专业课/计组/3 存储器.md",
+    "专业课/计组/2 指令系统.md",
+    "复试/操作系统实战.md",
+    "复试/计算机体系基础.md",
+    "数学/基础.md",
+    "数学/模拟.md",
+    "数学/强化.md",
+    "数学/真题.md",
+    "专业课/计组/习题/7 第七章习题 - 控制器.md",
+    "专业课/计组/习题/5 第五章习题 - 数据表示与运算.md",
+    "专业课/计组/6 中央处理器.md"
   ]
 }
