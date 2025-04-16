@@ -8,17 +8,17 @@
         "type": "tabs",
         "children": [
           {
-            "id": "67ccf765259fbb3a",
+            "id": "e4eac560cfea938f",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "专业课/数据结构/数据结构学习笔记/排序.md",
+                "file": "专业课/数据结构/2 王道第二章习题 线性表.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "排序"
+              "title": "2 王道第二章习题 线性表"
             }
           }
         ]
@@ -78,7 +78,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 337.5
+    "width": 274.5
   },
   "right": {
     "id": "ee1ba97547e52fe7",
@@ -175,7 +175,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 317.5
+    "width": 369.5
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -191,10 +191,15 @@
   },
   "active": "67a5ec63f2880cdb",
   "lastOpenFiles": [
+    "26PDFS/专业课/数据结构/A9Rc2osb4_1ysx066_gzw.tmp",
+    "英语/外刊阅读.md",
+    "26PDFS/英语/外刊/A9Rxiqzb_13uzhnl_5z8.tmp",
+    "英语/单词.md",
     "数学/基础/函数，极限，连续.md",
-    "数学/真题.md",
-    "数学/易错点.md",
     "数学/数学要背的东西.md",
+    "数学/易错点.md",
+    "专业课/数据结构/数据结构学习笔记/排序.md",
+    "数学/真题.md",
     "专业课/计组/习题/1 第一章习题 - 基本框架.md",
     "专业课/计组/习题/7 第七章习题 - 控制器.md",
     "专业课/计组/习题/4 第四章习题 - 总线与IO系统.md",
@@ -206,14 +211,11 @@
     "专业课/计组/2 指令系统.md",
     "专业课/数据结构/2 王道第二章习题 线性表.md",
     "26PDFS/专业课/数据结构/A9Rwf5tie_uypvec_1s0.tmp",
-    "专业课/数据结构/数据结构学习笔记/排序.md",
     "专业课/数据结构/数据结构学习笔记/查找.md",
     "专业课/数据结构/1 王道第一章习题 复杂度.md",
     "26PDFS/专业课/数据结构/2025王道数据结构考研复习指导 (王道论坛) (Z-Library).pdf",
-    "英语/外刊阅读.md",
     "26PDFS/英语/外刊/A9Rhzvoah_24e4r8_ik4.tmp",
     "26PDFS/英语/外刊/135 Supreme Betrayal of Justice.pdf",
-    "英语/单词.md",
     "数学/模拟.md",
     "Assets/image-14.png",
     "Assets/image-13.png",
@@ -233,9 +235,7 @@
     "26PDFS/英语/外刊/A9Rw5gsmm_1fj1wqp_n4k.tmp",
     "26PDFS/英语/外刊/135 Supreme Betrayal of Justice.pdf.baiduyun.p.downloading",
     "26PDFS/英语/外刊/135 Supreme Betrayal of Justice words.docx",
-    "26PDFS/英语/外刊/135 Supreme Betrayal of Justice words.docx.baiduyun.p.downloading",
     "英语/写作积累.md",
-    "README.md",
-    "专业课/计组/7 微程序设计.md"
+    "README.md"
   ]
 }
