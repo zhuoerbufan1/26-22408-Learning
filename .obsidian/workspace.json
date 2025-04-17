@@ -78,7 +78,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 274.5
+    "width": 200
   },
   "right": {
     "id": "ee1ba97547e52fe7",
@@ -175,7 +175,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 369.5
+    "width": 333.5
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -191,13 +191,20 @@
   },
   "active": "67a5ec63f2880cdb",
   "lastOpenFiles": [
-    "26PDFS/专业课/数据结构/A9Rc2osb4_1ysx066_gzw.tmp",
-    "英语/外刊阅读.md",
-    "26PDFS/英语/外刊/A9Rxiqzb_13uzhnl_5z8.tmp",
-    "英语/单词.md",
     "数学/基础/函数，极限，连续.md",
+    "英语/外刊阅读.md",
+    "26PDFS/英语/外刊/A9R60d3da_1e1qc2z_hsw.tmp",
+    "英语/写作积累.md",
+    "26PDFS/英语/外刊/134 Trump’s Triumph.pdf",
+    "英语/单词.md",
+    "26PDFS/英语/外刊/134 Trump’s Triumph.pdf.baiduyun.p.downloading",
+    "26PDFS/数学/高数/A9Rp4zqpq_hyp0am_860.tmp",
+    "26PDFS/英语/26版考研词汇闪过.pdf",
     "数学/数学要背的东西.md",
     "数学/易错点.md",
+    "专业课/数据结构/2 王道第二章习题 线性表.md",
+    "26PDFS/专业课/数据结构/A9Rc2osb4_1ysx066_gzw.tmp",
+    "26PDFS/英语/外刊/A9Rxiqzb_13uzhnl_5z8.tmp",
     "专业课/数据结构/数据结构学习笔记/排序.md",
     "数学/真题.md",
     "专业课/计组/习题/1 第一章习题 - 基本框架.md",
@@ -209,13 +216,9 @@
     "26PDFS/专业课/814and912一些资料/计组/简答题/其他人版本/~$计组简答题.docx",
     "26PDFS/专业课/814and912一些资料/计组/简答题/其他人版本/计组简答题汇总.pdf",
     "专业课/计组/2 指令系统.md",
-    "专业课/数据结构/2 王道第二章习题 线性表.md",
     "26PDFS/专业课/数据结构/A9Rwf5tie_uypvec_1s0.tmp",
     "专业课/数据结构/数据结构学习笔记/查找.md",
     "专业课/数据结构/1 王道第一章习题 复杂度.md",
-    "26PDFS/专业课/数据结构/2025王道数据结构考研复习指导 (王道论坛) (Z-Library).pdf",
-    "26PDFS/英语/外刊/A9Rhzvoah_24e4r8_ik4.tmp",
-    "26PDFS/英语/外刊/135 Supreme Betrayal of Justice.pdf",
     "数学/模拟.md",
     "Assets/image-14.png",
     "Assets/image-13.png",
@@ -232,10 +235,6 @@
     "Assets/image-6.png",
     "Assets/image-5.png",
     "专业课/数据结构/5 王道第五章习题 树.md",
-    "26PDFS/英语/外刊/A9Rw5gsmm_1fj1wqp_n4k.tmp",
-    "26PDFS/英语/外刊/135 Supreme Betrayal of Justice.pdf.baiduyun.p.downloading",
-    "26PDFS/英语/外刊/135 Supreme Betrayal of Justice words.docx",
-    "英语/写作积累.md",
     "README.md"
   ]
 }
