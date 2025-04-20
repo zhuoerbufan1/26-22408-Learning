@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "数学/基础/1 函数，极限，连续.md",
+                "file": "专业课/数据结构/2 王道第二章习题 线性表.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "1 函数，极限，连续"
+              "title": "2 王道第二章习题 线性表"
             }
           },
           {
@@ -49,8 +49,7 @@
               "title": "3 王道第三章习题 栈，队列和数组"
             }
           }
-        ],
-        "currentTab": 2
+        ]
       }
     ],
     "direction": "vertical"
@@ -218,22 +217,28 @@
       "omnisearch:Omnisearch": false
     }
   },
-  "active": "5ce09c7082020599",
+  "active": "67a5ec63f2880cdb",
   "lastOpenFiles": [
-    "26PDFS/专业课/数据结构/A9R1aek22w_1uwbzuf_k6k.tmp",
-    "专业课/数据结构/5 王道第五章习题 树.md",
-    "专业课/数据结构/3 王道第三章习题 栈，队列和数组.md",
-    "专业课/数据结构/2 王道第二章习题 线性表.md",
     "专业课/数据结构/1 王道第一章习题 复杂度.md",
-    "26PDFS/专业课/数据结构/2025王道数据结构考研复习指导 (王道论坛) (Z-Library).pdf",
-    "26PDFS/英语/外刊/A9R1nic9ri_1uwbzpy_k6k.tmp",
     "英语/外刊阅读.md",
-    "英语/单词.md",
     "数学/基础/2 一元函数微分学.md",
+    "专业课/数据结构/3 王道第三章习题 栈，队列和数组.md",
+    "专业课/数据结构/数据结构学习笔记/数据结构（3）- 栈与队列.md",
+    "专业课/数据结构/2 王道第二章习题 线性表.md",
+    "专业课/数据结构/数据结构复习题目集.md",
+    "26PDFS/专业课/数据结构/2025王道数据结构考研复习指导 (王道论坛) (Z-Library).pdf",
+    "复试/操作系统实战.md",
+    "复试/计算机体系基础.md",
+    "复试/动手学深度学习.md",
+    "英语/单词.md",
     "数学/易错点.md",
     "数学/数学要背的东西.md",
-    "26PDFS/数学/高数/A9R39l4ui_1uwbzo8_k6k.tmp",
+    "数学/基础/复盘题目汇总.md",
     "数学/基础/1 函数，极限，连续.md",
+    "26PDFS/专业课/数据结构/A9R1aek22w_1uwbzuf_k6k.tmp",
+    "专业课/数据结构/5 王道第五章习题 树.md",
+    "26PDFS/英语/外刊/A9R1nic9ri_1uwbzpy_k6k.tmp",
+    "26PDFS/数学/高数/A9R39l4ui_1uwbzo8_k6k.tmp",
     "26PDFS/英语/外刊/A9R60d3da_1e1qc2z_hsw.tmp",
     "英语/写作积累.md",
     "26PDFS/英语/外刊/134 Trump’s Triumph.pdf",
@@ -241,7 +246,6 @@
     "26PDFS/数学/高数/A9Rp4zqpq_hyp0am_860.tmp",
     "26PDFS/英语/26版考研词汇闪过.pdf",
     "26PDFS/专业课/数据结构/A9Rc2osb4_1ysx066_gzw.tmp",
-    "26PDFS/英语/外刊/A9Rxiqzb_13uzhnl_5z8.tmp",
     "专业课/数据结构/数据结构学习笔记/排序.md",
     "数学/真题.md",
     "专业课/计组/习题/1 第一章习题 - 基本框架.md",
@@ -251,13 +255,8 @@
     "专业课/计组/习题/2 第二章习题 - 指令系统.md",
     "专业课/计组/习题/简答题 & 计算题.md",
     "专业课/计组/2 指令系统.md",
-    "专业课/数据结构/数据结构学习笔记/查找.md",
-    "数学/模拟.md",
     "Assets/image-14.png",
     "Assets/image-13.png",
-    "复试/动手学深度学习.md",
-    "复试/计算机体系基础.md",
-    "复试/操作系统实战.md",
     "Assets/image-12.png",
     "Assets/image-11.png",
     "Assets/image-10.png",
