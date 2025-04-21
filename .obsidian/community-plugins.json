@@ -6,10 +6,10 @@
   "obsidian-outliner",
   "omnisearch",
   "obsidian-latex-suite",
-  "obsidian-image-auto-upload-plugin",
   "editing-toolbar",
   "better-export-pdf",
   "obsidian-annotator",
   "easy-typing-obsidian",
-  "obsidian-linter"
+  "obsidian-linter",
+  "obsidian-image-auto-upload-plugin"
 ]
