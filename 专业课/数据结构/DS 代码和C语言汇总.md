@@ -1,4 +1,46 @@
+## C 语言
 
+### 结构体的定义和声明
+
+```c
+struct Student {
+    char name[50];
+    int age;
+    float gpa;
+};
+
+//声明一个结构体变量student1
+struct Student student1;
+
+//声明一个指向结构体变量的指针
+struct Student* pstu;
+
+
+```
+### typedef 作用
+
+`typedef` 一般用于简化类型声明，可以用自己定义的名字来代替一个类型
+
+比如在结构体中：
+
+```c
+
+//这里使用了typedef之后struct后面跟不跟结构体的名字都无所谓
+//反正是用TreeNode代替了整个结构体，PTreeNode代替了整个结构体指针
+typedef struct Node{
+	int val;
+	Node* left;
+	Node* right;
+}TreeNode, *PTreeNode;
+
+```
+
+于是后面就可以用 `TreeNode` 来代替 `struct Node` 声明变量了，以及可以用 `PTreeNode` 来声明指向 `struct Node` 的指针
+
+```
+TreeNode root; // 等价于 struct Node root
+PTreeNode root1; //等价于 struct Node * root1
+```
 ## 树
 
 ### 树的双亲表示法
@@ -191,3 +233,41 @@ int find(int S[], int x){
 ```
 
 在一次搜索的过程中，将搜索路径上的每个点的父结点都更改为根结点，这样在下次寻找的过程中就不用再往前回溯了，于是就将后面的搜索复杂度降低到几乎常数级别
+## 图
+
+### 图的邻接矩阵存储代码
+
+```c
+#define MAX 100 //顶点的最多个数
+typedef struct{
+	char Vex[MAX];//存放顶点
+	int Edge[MAX][MAX];//数组存放边
+	int vnum, arcnum;//图的顶点数和边数
+}Graph;
+```
+
+这个存储结构是整个图的存储结构
+### 图的邻接表存储
+
+```c
+//顶点的数据结构
+typedef struct VNode{
+	VertexType data;//这个是顶点信息
+	ArcNode* first;//指向这个顶点的第一条弧
+}Vnode, AdjList[MAX];//顶点数组
+
+//边的数据结构
+typedef struct ArcNode{
+	int adjvex;//这个边指向哪个顶点
+	struct ArcNode* next;//指向下一条弧的指针
+	
+}ArcNode;
+
+//用邻接表表示的图
+typedef struct{
+	AdjList vertices;//存储的顶点数组
+	int vexnum, arcnum;//图的顶点和边的个数
+}Graph;
+```
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250507171329.png)
