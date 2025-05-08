@@ -271,3 +271,142 @@ typedef struct{
 ```
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250507171329.png)
+
+
+### 图的 BFS
+
+```c
+bool visited[MAX];//访问标记数组
+
+//从顶点v开始广搜G
+void BFS(Graph G, int v){
+	visited(v);//访问顶点v
+	visited[v] = true;//对v进行标记
+	
+	Enqueue(Q, v);//将顶点v加入到队列中
+	
+	//如果队列不为空，一直循环
+	while(!isEmpty(Q)){
+		Dequeue(Q, v);//队列头的顶点弹出，赋值给v
+		
+		//取出v的所有没有访问过的邻接点，访问，加入到队列中
+		while(w = FirstNeighbor(G, v); w >= 0; w = NextNeighbor(G, v, w)){
+			//如果v的这个邻接点之前没有访问过，则访问，同时将这些点加入到队列中
+			if(!visited[w]){
+				visit(w);
+				visited[w] = true;
+				EnQueue(Q, w);
+			}
+		}
+	}
+}
+
+	
+		
+//还要防止图不是连通的情况，扫描数组，从每个没有遍历的顶点开始BFS
+void BFSreverse(Graph G){
+	//先对图的访问数组进行初始化
+	for(int i = 0; i < G.vexnum; i ++){
+		visited[i] = false;
+	}
+	initQueue(Q);//初始化辅助队列
+	//从visited数组中的false开始遍历
+	for(int i = 0; i < G.vexnum; i ++){
+		if(!visited[i])
+			BFS(G, i);
+	}
+}	
+```
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250508172017.png)
+
+
+### 图的 DFS
+
+```c
+bool visited[MAX];
+
+//从顶点v开始DFS图G
+void DFS(Graph G, int v){
+	visit(v);//访问顶点v
+	visited[v] = ture;//将顶点v标记访问过
+	
+	//开始深搜
+	for(w = FirstNeighbor(G, v); w >= 0; w = NextNeighbor(G, v, w)){
+	// 如果v连接的结点w没有被访问过,继续DFS
+		if(!visited[w]){
+			DFS(G, w);
+		}
+	}
+}
+
+
+//避免非连通的图
+
+void DFSTravese(Graph G){
+	for(int v = 0; v < G.vexnum; v ++){
+		visited[v] = false;
+	}
+	//与BFS类似，从每个没有遍历过的顶点开始DFS
+	for(int v = 0; v < G.vexnum; v ++){
+		if(!visited[v])
+			DFS(v);
+	}
+}
+
+```
+
+### Prim 算法
+
+```c
+假设初始时有T, S两个集合，图的所有顶点初始在S集合中，结果顶点集是T
+dist[N]表示每个点到连通部分T的距离，初始时为无穷
+    
+随机加入S中的一个点到T中，更新其余点到T中的距离
+ for(i = 0; i < n; i++)
+ {
+     t <- 找到集合S距离集合T最近的点;
+     t加入到集合T中，用t更新其他点到集合T的距离;
+     从S中剔除点t
+ }
+```
+
+### 最短路径 - BFS 算法
+
+```c
+//求顶点u到其他顶点的最短路径
+//d[i]表示从顶点u到顶点i的最短路径
+//path[i]表示顶点i在最短路径上的直接前驱
+void BFS_MIN_Distance(Graph G){
+	for(int i = 0; i < G.vexnum; i ++){
+		d[i] = 0x3f3f3f3f;
+		path[i] = -1;
+	}
+}
+
+bool visited[MAX];//访问标记数组
+
+//从顶点v开始广搜G
+void BFS(Graph G, int v){
+	visited(v);//访问顶点v
+	visited[v] = true;//对v进行标记
+	
+	Enqueue(Q, v);//将顶点v加入到队列中
+	
+	//如果队列不为空，一直循环
+	while(!isEmpty(Q)){
+		Dequeue(Q, v);//队列头的顶点弹出，赋值给v
+		
+		//取出v的所有没有访问过的邻接点，访问，加入到队列中
+		while(w = FirstNeighbor(G, v); w >= 0; w = NextNeighbor(G, v, w)){
+			//如果v的这个邻接点之前没有访问过，则访问，同时将这些点加入到队列中
+			if(!visited[w]){
+				visit(w);
+				visited[w] = true;
+				EnQueue(Q, w);
+			}
+		}
+	}
+}
+
+```
