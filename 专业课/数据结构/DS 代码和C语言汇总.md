@@ -378,35 +378,45 @@ dist[N]表示每个点到连通部分T的距离，初始时为无穷
 //d[i]表示从顶点u到顶点i的最短路径
 //path[i]表示顶点i在最短路径上的直接前驱
 void BFS_MIN_Distance(Graph G){
+	//初始化所有顶点距离源点的距离
 	for(int i = 0; i < G.vexnum; i ++){
 		d[i] = 0x3f3f3f3f;
-		path[i] = -1;
+		path[i] = -1; 
 	}
-}
-
-bool visited[MAX];//访问标记数组
-
-//从顶点v开始广搜G
-void BFS(Graph G, int v){
-	visited(v);//访问顶点v
-	visited[v] = true;//对v进行标记
-	
-	Enqueue(Q, v);//将顶点v加入到队列中
-	
-	//如果队列不为空，一直循环
+	d[u] = 0;
+	visited[u] = ture;
+	EnQueue(Q, u);
 	while(!isEmpty(Q)){
-		Dequeue(Q, v);//队列头的顶点弹出，赋值给v
-		
-		//取出v的所有没有访问过的邻接点，访问，加入到队列中
-		while(w = FirstNeighbor(G, v); w >= 0; w = NextNeighbor(G, v, w)){
-			//如果v的这个邻接点之前没有访问过，则访问，同时将这些点加入到队列中
+		DeQueue(Q, u);
+		for(w = FirstNeighbor(G, u); w >= 0; w = NextNeighbor(G, u, w)){
 			if(!visited[w]){
-				visit(w);
+				//从u访问u的所有邻接点，距离当然是u到源点的距离加一
+				d[w] = d[u] + 1;
+				//从u访问u的所有邻接点，将这些点加入到队列中
+				//这些点都是从u过来的，所以路径的上一个顶点就是u了
+				path[w] = u;
 				visited[w] = true;
-				EnQueue(Q, w);
+				EnQueue(Q, w);//将顶点w加入队列中
+				
 			}
 		}
 	}
 }
-
 ```
+
+
+### Floyd 算法
+
+```c
+
+for(int k = 1; k <= n; k ++)
+	for(int i = 1; i <= n; i ++)
+		for(int j = 1; j <= n; j ++)
+			d[i][j] = min(d[i][j], d[i][k] + d[k][j]);
+			
+```
+
+### 拓扑排序的代码实现
+
+### 逆拓扑排序的代码实现
+
