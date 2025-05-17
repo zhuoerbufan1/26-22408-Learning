@@ -489,3 +489,8 @@ void bsearch(int l, int r, int t){
 
 ### 红黑树的结点定义代码
 
+
+## 排序
+
+### 插入排序
+
