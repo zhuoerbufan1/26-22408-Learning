@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "数学/易错点 && 需要理解的东西.md",
+                "file": "专业课/计组/理解 & 题目/5 中央处理器.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "易错点 && 需要理解的东西"
+              "title": "5 中央处理器"
             }
           }
         ]
@@ -78,7 +78,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 326.5
+    "width": 256.5
   },
   "right": {
     "id": "ee1ba97547e52fe7",
@@ -175,7 +175,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 234.5
+    "width": 315.5
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -191,13 +191,17 @@
   },
   "active": "cce31afda5980eae",
   "lastOpenFiles": [
+    "数学/易错点 && 需要理解的东西.md",
     "数学/需要记住的数学结论.md",
+    "26PDFS/数学/[带目录]25李艳芳900题解析册（数一）.pdf",
+    "26PDFS/数学/[带目录]25李艳芳900题解析册（数一）.pdf.crdownload",
+    "26PDFS/数学/25数学一李艳芳900题题本.pdf",
+    "26PDFS/数学/GAY论/概率论与数理统计基础讲义.pdf",
     "专业课/计组/理解 & 题目/5 中央处理器.md",
     "专业课/计组/理解 & 题目/4 指令系统.md",
     "26PDFS/专业课/计组/深入理解计算机系统 (Randal E. Bryant, David R. O’Hallaron) (Z-Library) (1).pdf",
     "专业课/计组/理解 & 题目/3 存储系统.md",
     "复试/算法上机.md",
-    "数学/易错点 && 需要理解的东西.md",
     "数学/数学快速复习提纲.md",
     "数学/有疑问的东西.md",
     "英语/真题.md",
@@ -222,10 +226,6 @@
     "26PDFS/数学/真题/考研数学真题分类/做题本/【做题本】A4版25考研真题一本通（高数）.pdf",
     "26PDFS/数学/真题/考研数学真题分类/做题本/【做题本】平板版25考研真题一本通（线代）.pdf",
     "数学/1 基础/6 微分方程.md",
-    "26PDFS/数学/高数/A9Ruqcnlv_3343rb_5gw.tmp",
-    "26PDFS/数学/高数/A9Ruvr9gi_1go6qrv_53s.tmp",
-    "26PDFS/数学/2023张宇考研数学《基础30讲》 (张宇) (Z-Library).pdf",
-    "26PDFS/数学/线代/A9Rld0aow_ewgjdc_g9g.tmp",
     "专业课/数据结构/理解&题目/文章封面.jpg",
     "26PDFS/专业课/814and912一些资料/数据结构/西交教材和题/本校【课后作业】.jpg",
     "Pasted image 20250421181842.png",
