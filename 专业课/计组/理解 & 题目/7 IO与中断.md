@@ -147,7 +147,7 @@ INTR 与 IF 进行异或之后送入 CPU 的内部中断判断逻辑，如果 IF
 
 对于不同的外部设备，他们由 CPU 设置不同的中断屏蔽字，**当执行他们的中断服务程序的时候会将中断屏蔽字写入到 IMR 中，此时所有其他设备发送的中断请求都会先与自己的中断屏蔽字的每一位进行一个与操作，没有被屏蔽的中断请求再送到中断响应电路中进行请求优先级排序**
 
-中断屏蔽字可以动态的改变中断优先级；但是中断屏蔽字只有在 CPU 运行服务程序的时候才能设置，当 CPU 执行主程序的时候仍然采用的是中断响应的优先级
+中断屏蔽字可以动态的改变中断处理的优先级；但是中断屏蔽字只有在 CPU 运行服务程序的时候才能设置，当 CPU 执行主程序的时候仍然采用的是中断响应的优先级
 
 ### 中断识别与中断号
 
@@ -261,7 +261,35 @@ CPU 发送当前中断结束命令 EOI 给中断控制器，中断控制器清�
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250629202635.png)
 
+### 中断服务程序的基本结构
 
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250630175137.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250630175147.png)
+
+
+### DMA 方式与中断方式传输数据的区别
+
+（1）在传输数据的过程中中断技术是 CPU 执行程序来进行数据传输，所以涉及到原来程序的现场保护问题；而 DMA 是硬件传输数据，所以 DMA 在传输数据中不涉及现场保护
+
+（2）CPU 对中断请求的响应是在指令执行结束之后（指令执行周期结束后，并不是指令周期之后）；而 CPU 对 DMA 请求的响应则是在指令的机器周期结束后
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250630181303.png)
+
+（3）中断过程传输数据需要 CPU 的干预，依靠 CPU 执行程序传输，占用的是 CPU 时间；DMA 方式则是依靠硬件传输数据，不占用 CPU 时间
+
+（4）DAM 方式只能用于数据传送，中断方式还可以用于进行异常的处理
+
+### DMA 方式过程
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250630210343.png)
+
+首先在最开始的预处理阶段，这个阶段 CPU 是按照查询方式来进行初始化的，这个阶段是运行程序如果有读写 IO 的需求之后会运行下面的代码：
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250630210507.png)
+通过一个线程利用程序查询方式来对 DMA 控制器初始化
+
+下面摘自谭志虎的计组书：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250630210620.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250630210643.png)
 
 
 ## 题目
@@ -318,3 +346,155 @@ IO 指令作用就是将 CPU 的指令传递给 IO 设备，但是实际上是�
 
 这里通信总线是连接计算机系统之间的总线，一个具体的例子是手机通过数据线连接到 USB 接口上，USB 接口就是 IO 接口，其通过数据线这样一个通信总线连接另外一个计算机设备：手机
 
+### 5 CPU 检测响应中断和 DMA 请求的时机问题
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250630174558.png)
+
+I:
+显然正确
+
+II:
+对于外部中断请求 CPU 确实是在一条指令结束的时候进行检查响应；但是对于内部的异常不受到这个制约，因为内部异常有可能就是当前执行的指令引起的
+
+III:
+DMA 的请求检测和响应会发生在任何一个机器周期的结束，以 5 级流水线为例，取指，译码，执行，访存，写回，哪个机器周期结束都会进行 DMA 检测和响应
+
+IV：
+并不是，中断服务程序的最后一个指令是 ret 指令，这个指令不是无条件转移指令，ret 指令的含义是从栈中弹出旧的 PC 值，并赋给 PC 寄存器这个值
+
+V:
+显然错，是根据判优电路才对
+
+### 6 软中断与软中断指令的概念
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250630180158.png)
+
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250630181630.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250630182412.png)
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250630182036.png)
+
+这里的 D 就是执行 INT 指令
+
+### 7 对于中断响应的理解
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250630182802.png)
+
+A：
+采用硬件更可靠一些，不会被打断，所以 A 正确
+
+B：
+显然错误
+
+C：
+中断响应并没有占多少 CPU 的时间，处理器处理速度提高主要看 CPU 处理别的程序的时间，你加快了中断响应的处理时间不会对 CPU 的整体速度有明显的提升影响
+
+D：
+显然错
+
+### 8 中断控制器中 IRR 中断寄存器的作用
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250630192014.png)
+
+A：
+显然错误，一些优先级高的中断必须受到处理
+
+剩下选项不多说了，这里按照一个结论记住，这是谭志虎书的原话：
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250630192120.png)
+
+C 正确
+
+### 9 关于中断屏蔽字的作用
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250630193332.png)
+
+A：
+纯纯胡扯，请求优先级没有这个概念
+
+B：
+响应优先级是由中断控制器中的响应优先电路决定的，中断屏蔽字不能改变
+
+C：
+中断屏蔽字只能将这个中断请求直接屏蔽，不让其请求传给 CPU，都不被 CPU 响应了又哪里来的执行顺序
+
+D：
+中断服务程序执行完的次序，其实就是处理优先级，你先处理了当然就先执行完毕（垃圾题目，不用在意）
+
+### 10 中断方式和 DMA 方式 CPU 和外设各自的工作特点
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250630193704.png)
+
+
+外设的工作是指外设准备数据的过程
+
+中断方式在外设准备数据的时候 CPU 和外设当然是并行工作的
+
+当外设准备好了数据之后通知 CPU，CPU 通过执行中断服务程序来进行数据传输，此时 CPU 的传送就是与主程序串型工作的，主程序暂停，然后 CPU 去传数据
+
+DMA 方式中
+
+外设准备数据就不说了，当然是并行工作的
+
+传数据的时候虽然 DMA 会占用总线，但是这只会影响 CPU 访存，如果主程序没有访存的指令需求，则此时主程序的执行也不会暂停，所以传输数据与主程序执行也是并行的
+
+### 11 程序查询方式的细节理解
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250630194819.png)
+
+
+A：
+程序查询方式是完全由 CPU 执行程序来完成数据交换的，没有硬件查询方式
+
+B：
+错误，CPU 通过执行程序来完成数据传送
+
+C：
+这个是正确的，修改主存地址的原因是 CPU 会将主存中的数据传送给 IO 接口，数据一个个传送当然要不停修改主存地址
+
+这里的计数器是为了计数自己传送的数据是否传送完全，肯定得用计数器，要不然不知道主存中的其他数据是否是自己要传送的数据
+
+比如独占查询方式中的一个查询打印机的例子：
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250630200019.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250630200033.png)
+
+
+
+D：
+这个是独占查询的方式，还有一种定时查询，CPU 固定时间查询一次状态寄存器的状态信息
+
+
+
+D：
+错误，非屏蔽中断不能被屏蔽，必须被响应
+
+### 13 DMA 传输数据单位的理解
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250630202819.png)
+每启动一次 DMA 传送应该传送的是数据块
+
+对于周期窃取方式，每窃取一个总线周期传送的是一个字，但是整个 DMA 阶段传送的应该是一个数据块，一个具体的例子如下所示：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250630203835.png)
+
+这道题目 C 是错误的
+
+A：
+显然正确，IO 设备每准备好一个字的数据就会通知 DMA，然后 DMAC 控制器就会请求总线一次
+
+B：
+是的，这个是唐朔飞书上的原话，因为 DMA 连接的是高速外设，如果不及时响应 DMA 的总线请求，这里数据就容易丢失，所以 CPU 访存会让步 DMA 的总线请求
+
+C：
+错误，在总线窃取形式的 DMA 和 CPU 访存中只有 DMA 需要传数据的时候 CPU 才不能使用总线访存
+
+D：显然正确
+
+### 14 DMA 请求总线时机的理解
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250630212518.png)
+
+A：
+显然正确
+
+B：
+在流水线中
