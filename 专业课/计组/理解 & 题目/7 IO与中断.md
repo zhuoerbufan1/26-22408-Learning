@@ -71,6 +71,19 @@
 同软盘的分析过程，1 s 内 CPU 取走 4 MB 数据，所以查询次数就是 0.25 M 次，使用的时钟周期个数就是 100 M 个时钟周期；占用 1 s 的时钟周期总数就是 20%
 
 你 CPU 20%的时间都用来处理键盘的 IO 操作，这个占比是无法忍受的，所以键盘这类快速的外设使用查询方式进行数据控制就非常不合适
+
+### 软件中断与硬件中断
+
+软件中断是指异常中的故障和自陷；硬件中断是指异常中的终止和外部中断
+
+### 内部异常与外部中断
+
+异常是 CPU 内部的引起的中断事件，其包括故障，自陷，终止
+
+外部中断就是外部 IO 向 CPU 发送的硬件中断请求（如鼠标点击和键盘输入）
+
+在袁书的教材中，一般用异常指 CPU 的内部异常，中断指外部中断
+
 ### 中断控制器的基本结构
 
 中断控制器本身也是一个 IO 设备，CPU 可以访问其 IO 接口配置其功能，比如设置其中断屏蔽字寄存器 IMR，它也被称为可编程中断控制器，其基本结构如下所示：
@@ -155,7 +168,11 @@ INTR 与 IF 进行异或之后送入 CPU 的内部中断判断逻辑，如果 IF
 
 中断号是计算机统一分配的，对于可屏蔽的中断源，其中断号由中断控制器提供，通过数据总线传给 CPU 的，对于不可屏蔽的中断源以及异常的中断号是集成在 CPU 中预先设置好的
 
+### CPU 检测响应外部中断的时机
 
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250701193854.png)
+
+这里的中断请求引脚，比如 Intel 中的 INTR 引脚
 ### 中断向量，中断向量表，向量地址，中断指针 + CPU 获得中断服务程序入口地址的过程
 
 中断向量是中断服务程序的入口地址以及程序状态字 PSW
@@ -266,6 +283,26 @@ CPU 发送当前中断结束命令 EOI 给中断控制器，中断控制器清�
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250630175137.png)
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250630175147.png)
 
+### 中断执行 IO 数据交换的完整过程（等到学完 OS 继续完善）
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250701190035.png)
+
+以上图为例，当 CPU 想要打印一个数据的时候，比如进程 P 1 遇到了一个 IO 指令，他会先把数据传给 IO 并同时启动 IO 进行打印工作，然后自己阻塞让 CPU 进行别的工作，比如进行进程 P 2 的工作，此时 CPU 仍然在工作，并且与 IO 打印机并行工作：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250701190601.png)
+
+当 IO 打印完成之后，就会给 CPU 发送中断请求，此时 CPU 就会保存进程 P 2 的断点，然后执行中断服务程序，在中断服务程序中 CPU 继续传一个数据给 IO 并启动 IO 工作，然后返回到进行 P 2 继续执行，一直到 IO 打印完了又发送一个中断请求，CPU 继续执行中断服务程序发送一个数据给 IO：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250701191316.png)
+
+注意，IO 每打印一个数据完了就会中断通知 CPU 传下一个数据，所有的数据不是一次中断全部传完的，而是 IO 打印一个，就中断传一个，接着再打印一个，然后打印完了再中断传一个，直到最后一个字符打印完了，IO 中断通知 CPU 执行中断服务程序，此时中断服务程序检查到数据已经打印完了，于是就不再传了，而是不再阻塞最开始的进程 P 1，然后让其进入就绪队列；**接着 CPU 继续返回到进行 P 2 执行，当 P 2 执行完了，再从就绪队列中取出别的进程执行（目前先这样理解分析，等学完 OS 继续完善）**
+
+
+### DMA 控制器的基本结构
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250701194443.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250701194702.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250701194715.png)
 
 ### DMA 方式与中断方式传输数据的区别
 
@@ -330,11 +367,14 @@ IO 指令的格式一般比较简单，不会像访存指令一样支持很多�
 ==第二题==
 
 IO 指令作用就是将 CPU 的指令传递给 IO 设备，但是实际上是先传递给 IO 接口中的 IO 端口，然后 IO 端口再将数据写到 IO 设备中
-### 3 
+### 3 IO 接口与 IO 设备交换的信息
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250627204459.png)
 
 
+ABC 都不用说了，确实是 IO 设备可以与 IO 接口交换的信息
+
+中断请求信号是 IO 接口发送给 CPU 的，而不是
 ### 4 通信总线的概念和三总线结构
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250627204547.png)
@@ -497,4 +537,60 @@ A：
 显然正确
 
 B：
-在流水线中
+在流水线中一个机器周期 = 存取周期，所以也可以说是在一个总线事物之后响应 DMA 请求，其实更严谨的就是在总线事物之后响应 DMA 请求
+
+CD 不多说
+
+### 15 中断请求响应处理占 CPU 时间比率的计算
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250701162949.png)
+
+假设最开始的时候发出了中断请求，为了让 CPU 尽可能少的去处理中断，所以 CPU 应该尽可能延迟才行，所以过了 50 ns，CPU 才进行响应和处理，然后花了 100 ns 进行响应和处理，接着再过 250 ns 又发送了一个中断请求，就这样循环下去：
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250701163817.png)
+我们这里看一个周期即可，结果就是 B
+
+其实这里跟中断请求的延迟没啥关系，CPU 只要在 IO 发出请求之后的 50 ns 之间处理即可，不管啥时候处理，一个周期内处理花费的时间是固定的 100 ns，所以总是 25%
+
+### 16 关于中断和异常的概念区分
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250701164125.png)
+
+A：
+正确
+B：
+显然错误，多重中断在保护完了现场之后就会开中断
+C：
+在教材和 408 中中断一般就指的是外部中断，如果是 CPU 内部引起的中断会用异常来指明
+
+D：
+显然正确
+
+
+### 17 DMA 前处理阶段的过程理解
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250701170118.png)
+
+I:
+正确，当有 DMA 请求的时候 CPU 会运行一段程序，按照程序查询的方式给 DMA 控制器设置各种参数
+
+II: 
+正确
+
+III:
+正确
+
+IV:
+显然正确
+
+### 18 外部中断和内部异常的各种例子
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250701170522.png)
+
+I:
+访存时缺页，这个确实是内部异常中的故障
+
+II:
+定时器到时，这个确实是外部中断，当个结论记住
+
+III：
+这个显然是外部 IO 引起的中断
