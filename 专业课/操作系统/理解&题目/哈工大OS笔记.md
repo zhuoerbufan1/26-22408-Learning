@@ -71,7 +71,7 @@ void printf(const char *fmt, ...) {
 
 这个函数的实现其实只有一行代码：`_syscall3(int, write, int, fd, const char *, buf, off_t, count)`
 
-`_syscall3()` 其实是一个定义在头文件 `unistd.h` 中的一个函数宏，这里的 3 的意思是 3 各参数：
+`_syscall3()` 其实是一个定义在头文件 `unistd.h` 中的一个函数宏，这里的 3 的意思是 3 个参数：
 
 ```c
 #define _syscall3(type, name, atype1, arg1, atype2, arg2, atype3, arg3) \
@@ -115,11 +115,125 @@ int write(int fd, const char * buf, off_t count)
 
 这是一段汇编内嵌 C 语言的代码，这里通过调用 `int 0x80` 触发了系统中断
 
-上述的内嵌汇编 `__NR_write` 就是具体的系统调用号，它封装在 `unistd.h` 这个文件中：
+上述的内嵌汇编 `__NR_write` 就是具体的系统调用号，它封装在 `unistd.h` 这个文件中，这个不是中断号，INT 0 x 80 才是中断号，系统根据  0 x 80 号的中断处理函数根据__NR_write 系统调用号来调用具体的处理函数
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250714161641.png)
 
 **`int 0x80` 这条指令的执行，就是从 IDT 表里找到中断处理程序去执行，执行完了再跳回来，这个就是大致过程**
+
+### IDT 表和门描述符是什么？
+
+==IDT 表==
+
+IDT 是一个由操作系统内核维护的​**​数据结构数组​**​，存储在内存中。每个条目（共 256 项）称为 ​**​门描述符​**​。
+
+​其职责就是告诉 CPU ​**​发生中断/异常时该跳转到哪个处理函数​**​，并指定执行所需的权限规则。
+
+IDT 表有点像中断向量表的意思
+
+
+
+==门描述符==
+
+一个 ​**​8 字节（64 位）数据结构​**​，存储在 IDT 表的每个条目中，定义了中断如何被处理。
+
+这个表项的作用是，提供​**​特权级校验 + 安全跳转​**​：
+    1. 验证调用者是否有权触发此中断（通过 `DPL` 字段）
+    2. 指定目标处理函数的地址（段选择符 `CS` + 偏移 `EIP`）
+    3. 控制执行时的行为（如是否屏蔽中断）
+
+它大致包含下面几个字段：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250716171324.png)
+
+下面来具体说说这些字段含义
+
+比如，举个例子在 OS 内核初始化的时候就会调用下面函数，对确定的中断号 0 x 80 号中断对应的 IDT 表项进行设置初始化，也就是上图的实际中断门描述符内容：
+
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250716163254.png)
+
+```cpp
+#define set_system_gate(n, addr) \
+    _set_gate(&idt[n],15,3,addr); //idt是中断向量表基址
+```
+
+n 就是中断号，比如 0 x 80，即设置 0 x 80 中断号对应的 IDT 的门描述符
+
+15 是门描述符中的 Type 字段，表示这个门描述符是陷阱门，对应系统调用和软中断，当 CPU 读取这个门描述符的时候会保持状态标志位的 IF 不变，表示允许中断嵌套
+
+3 是用来设置门描述符的 DPL，当应用程序触发系统调用，执行到 INT 0 x 80 的时候就会检查此时的 CPL = 3 <= DPL = 3，所以可以继续去调用处理函数
+
+addr 用来设置门描述符中段中断处理程序地址，会将其拆成高地址和低地址放在门描述符中也就是 system_call 字段内容，这里就是实际初始化函数传递的参数值 addr，只是分成了高低字节
+
+关键是内核代码段选择符，上述设置 0 x 80 号中断的代码实际会进一步宏展开，将门描述符中的内核代码选择符设置为 0 x 0008
+
+这里的内核代码选择符的作用是，当中断发生之后 CPU 会自动读取 IDT 中的这个中断号对应的门描述符，其会将内核代码段选择符 0 x 0008 设置为 CS 寄存器的值，将 system_call 的地址设置为 EIP 的值，在保护模式下，CS 的值并不会与 EIP 简单偏移相加得到实际中断处理程序的物理地址，而是通过 CS 这里的 0 x 0008，将其作为一个索引去查找 GDT 表中实际的代码段基址，从而得到实际的物理地址：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250716172835.png)
+
+另外，在根据 0 x 0008 去查找 GDT 表的时候会发现此时要执行的代码段的权限 DPL = 0，CPU 也会根据 0 x 0008 将 CPL 设置为 0，让其可以进入内核去执行中断处理函数代码
+
+这个就是内核代码段选择符的作用
+
+### `INT 0x80` 的中断初始化是怎样的？
+
+`INT 0x80` 对应的中断处理初始化简单来说就是在 IDT 表中（保护模式中 IDT 表代替了中断向量表）设置一些权限和中断处理程序地址，即设置中断门描述符
+
+具体来说，其会在操作系统内核初始化阶段调用下面的函数：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250716163254.png)
+
+这个函数有两个参数，0 x 80 是中断号，&system_call 是处理函数的地址
+
+`set_system_gate` 这个函数实现在 linux/include/asm/system. h 这里，它也是一个库函数
+
+这个库函数本质展开了两个宏，第一个宏又是一行函数：
+
+```cpp
+#define set_system_gate(n, addr) \
+    _set_gate(&idt[n],15,3,addr); //idt是中断向量表基址
+```
+
+这个函数中 `&idt` 就是 IDT 表的基址
+
+n 就是中断向量号，即 0 x 80，用 0 x 80 找到这个 IDT 表对应的表项，可以看到这里的 IDT 表是以数组的形式组织的
+
+addr 就是处理这个中断的处理函数地址
+
+3 是要设置门描述符的 DPL 的值
+
+15 是要设置的门描述符的类型
+
+这个 `_set_gate` 函数会继续展开成一个宏函数：
+
+```c
+#define _set_gate(gate_addr, type, dpl, addr) \
+__asm__ ("movw %%dx,%%ax\n\t" \
+         "movw %0,%%dx\n\t" \
+         "movl %%eax,%1\n\t" \
+         "movl %%edx,%2" \
+         : \
+         : "i" ((short) (0x8000+(dpl<<13)+ (type<<8))), \
+           "o" (*((char *) (gate_addr))),   \
+           "o" (*(4+(char *) (gate_addr))), \
+           "d" ((char *) (addr)),           \
+           "a" (0x00080000))
+```
+
+这是一个内嵌汇编的 C 语言程序，也是实际上对 IDT 表中对应的中断号的门描述符进行设置的代码
+
+参数含义如下：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250716170638.png)
+
+具体代码不解释了，这个函数整体功能会构造一个下面的门描述符：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250716171324.png)
+
+当触发 INT 0 x 80 中断的时候 CPU 会自动读取 IDT 表中的这个门描述符表项，并自动根据这些数据设置寄存器，然后跳转到中断处理程序执行
+
+这个就是中断初始化的结果，构造一个与 0 x 80 号中断有关的门描述符在 IDT 表中
 
 
 ### 用户级线程以及切换过程？
