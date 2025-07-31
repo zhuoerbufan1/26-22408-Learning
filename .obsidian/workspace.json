@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "专业课/操作系统/理解&题目/4 虚拟内存.md",
+                "file": "数学/有疑问的东西.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "4 虚拟内存"
+              "title": "有疑问的东西"
             }
           }
         ]
@@ -78,7 +78,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 261.5
+    "width": 282.5
   },
   "right": {
     "id": "ee1ba97547e52fe7",
@@ -175,7 +175,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 410.5
+    "width": 266.5
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -191,16 +191,21 @@
   },
   "active": "67a5ec63f2880cdb",
   "lastOpenFiles": [
+    "数学/1 基础/6 微分方程.md",
+    "数学/1 基础/5 二重积分.md",
+    "数学/1 基础/易错点 && 需要理解的东西.md",
+    "数学/1 基础/4 多元函数微分学.md",
+    "数学/需要记住的数学结论.md",
+    "数学/理解与易错点.md",
+    "26PDFS/数学/强化/A9Ryvfubc_1ejaiq6_7mk.tmp",
+    "数学/数学快速复习提纲.md",
+    "专业课/操作系统/理解&题目/4 虚拟内存.md",
+    "复试/算法上机.md",
     "26PDFS/专业课/OS/A9R1qszosw_1g5ubj4_bow.tmp",
     "专业课/操作系统/理解&题目/3 内存管理.md",
     "专业课/操作系统/理解&题目/2 进程与线程.md",
-    "专业课/操作系统/理解&题目/4 虚拟内存.md",
     "专业课/操作系统/理解&题目/哈工大OS笔记.md",
-    "数学/需要记住的数学结论.md",
     "数学/线性代数的条件处理.md",
-    "数学/理解与易错点.md",
-    "数学/1 基础/4 多元函数微分学.md",
-    "数学/数学快速复习提纲.md",
     "26PDFS/数学/强化/A9R1dro09u_1dmlxu_i74.tmp",
     "数学/线代满分计划.md",
     "26PDFS/数学/强化/A9Rmoo5oi_157w13j_4h8.tmp",
@@ -215,18 +220,13 @@
     "数学/2 强化/强化错题.md",
     "数学/2 强化/3 一元积分学.md",
     "26PDFS/数学/强化/A9R1h9qjq3_qkn6zo_4r4.tmp",
-    "数学/1 基础/易错点 && 需要理解的东西.md",
     "数学/1 基础/10 行列式.md",
     "数学/有疑问的东西.md",
-    "数学/证明题大观.md",
     "26PDFS/数学/强化/A9R1ko9txc_k8p6kb_lec.tmp",
     "26PDFS/专业课/OS/A9R1278ai3_1i3bykn_cys.tmp",
-    "专业课/数据结构/数据结构学习笔记/排序.md",
     "26PDFS/数学/强化/A9Rfildsd_8nvh7c_gl8.tmp",
     "26PDFS/数学/强化/A9R18rui6l_sr23v2_e7o.tmp",
     "26PDFS/数学/真题/李艳芳真题/数二2024版李艳芳真题.pdf",
-    "26PDFS/专业课/OS/计算机操作系统（慕课版） (汤小丹, 王红玲, 姜华, 汤子瀛) (Z-Library).pdf",
-    "26PDFS/专业课/OS/A9Rnamuv5_2f781x_bs0.tmp",
     "专业课/数据结构/理解&题目/文章封面.jpg",
     "26PDFS/专业课/814and912一些资料/数据结构/西交教材和题/本校【课后作业】.jpg",
     "Pasted image 20250421181842.png",
