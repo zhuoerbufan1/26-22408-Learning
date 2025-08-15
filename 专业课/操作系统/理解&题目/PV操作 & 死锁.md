@@ -679,6 +679,8 @@ writer(){
 
 这样就实现了比写进程后来的读进程一定在写进程之后进入文件的要求了，写进程就不会被饿死了
 
+### 哲学家进餐问题
+
 
 
 ## 408 真题
@@ -732,3 +734,139 @@ B{
 }
 ```
 
+### 2017 年
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250815142503.png)
+
+这是一个读者写者问题，三个全局变量看成三个临界资源，分别进行分析
+
+对于变量 x，只有进程 1 读，所以不用互斥关系
+
+对于变量 y，进程 1 读，进程 2 读，进程 3 写，这是一个读者写者的互斥关系，允许多个进程读，允许一个进程写
+
+对于变量 z，进程 2 读，进程 3 写，这就是一个普通的互斥关系
+
+所以对变量 y 和变量 z 者两组关系结合在一起就行了
+
+```
+semaphore mutex_y = 1;
+semaphore mutex_z = 1;
+int count = 0;
+semaphore mutex_count = 1;
+```
+
+```c
+thread1{
+	
+	P(mutex_count);
+	if(count == 0){
+		P(mutex_y);
+	}
+	count ++;
+	V(mutex_count);
+	
+	w = add(x, y);
+	
+	P(mutex_count);
+	count --;
+	if(count == 0){
+		V(mutex_y);
+	}
+	V(mutex_count);
+
+}
+```
+
+
+```c
+thread2{
+	
+	P(mutex_count);
+	if(count == 0){
+		P(mutex_y);
+	}
+	count ++;
+	V(mutex_count);
+	
+	P(mutex_z);
+	w = add(y, z);
+	V(mutex_z);
+	
+	P(mutex_count);
+	count --;
+	if(count == 0){
+		V(mutex_y);
+	}
+	V(mutex_count);
+
+}
+```
+
+
+```c
+thread3{
+	
+	P(mutex_z);
+	z = add(z, w);
+	V(mutex_x);
+	
+	P(mutex_y);
+	y = add(y, w);
+	V(mutex_y);
+
+}
+```
+
+==或者另外一种做法==
+
+单纯用普通的互斥关系来做
+
+对于变量 x，没有互斥关系
+
+对于变量 y，线程 1 和线程 2 之间没有互斥，线程 1 和线程 3 之间互斥，线程 2 和线程 3 之间互斥，所以关于这个资源的互斥得有两个互斥变量
+
+对于变量 z，就是线程 2 和线程 3 之间的互斥
+
+所以总的来说就建立三个互斥信号量即可
+
+```
+semaphore mutex_13 = 1;
+semaphore mutex_23 = 1;
+semaphore mutex_23z = 1;
+```
+
+```c
+thread1(){
+	P(mutex_13);
+	
+	w = add(x, y);
+	
+	V(mutex_13)
+}
+
+thread2(){
+	P(mutex_23);
+	
+	P(mutex_23z);
+	w = add(y, z);
+	V(mutex_23z);
+	
+	V(mutex_23);
+
+}
+
+thread3(){
+	
+	P(mutex_23z);
+	z = add(z, w);
+	V(mutex_23z);
+	
+	P(mutex_13);
+	P(mutex_23);
+	y = add(y, w);
+	V(mutex_23);
+	V(mutex_13);
+	
+}
+
+```
