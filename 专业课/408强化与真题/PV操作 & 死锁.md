@@ -779,6 +779,80 @@ process{//第i个哲学家
 
 ## 408 真题
 
+### 2009 年
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250819204400.png)
+
+```c
+semaphore empty = N;
+semaphore fullOdd = 0;
+semaphore fullEven = 0;
+semaphore mutex = 1;
+
+P1(){
+
+	while(true){
+		int num = produce();
+		P(empty);
+		P(mutex);
+		put();
+		if(num % 2 == 0){
+			V(fullEven);
+		}else{
+			V(fullOdd);
+		}
+		V(mutex);
+	}
+	
+}
+
+P2(){
+	while(true){
+		P(mutex);
+		P(fullOdd);
+		getodd();
+		V(mutex);
+		V(empty);
+		countodd();
+	}
+}
+
+P3(){
+	while(true){
+		P(mutex);
+		P(fullEven);
+		geteven();
+		V(mutex);
+		V(empty);
+		counteven();
+	
+	}
+}
+```
+
+
+一个互斥关系：所有进程访问这个区域互斥
+
+一个资源存在同步关系：空闲资源存在问题
+
+一个资源存在同步关系：奇数资源存在
+
+一个资源存在同步关系：偶数资源存在
+
+互斥关系：针对所有进程
+
+空闲资源存在：P 2 和 P 3 是生产者，P 1 是消费者
+
+奇数资源存在：P 1 是生产者，P 2 是消费者
+
+偶数资源存在：P 1 是生产者，P 3 是消费者
+
+**然后将这些互斥同步关系想办法弄在一起即可**，一个进程如果涉及多个同步关系，最简单的就是按序进行 PV 操作，这里进程 P 1 涉及两个同步关系，但不是按序，因为 P 1 生产数字是可能分奇偶的，所以 P 1 的每次 V 数字操作需要对数字进行区分，V 操作的时候用 if 语句区分一下即可
+
+P 2 和 P 3 好写，就是常见的消费者进程模板，只不过消费的是各自的数字类型资源
+
+
+
 ### 2011 年
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250814171342.png)
