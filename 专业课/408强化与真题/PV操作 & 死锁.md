@@ -777,6 +777,36 @@ process{//第i个哲学家
 
 在这种情况下，所有奇数号的哲学家都拿起左边的筷子之后，偶数号哲学家是无法拿起筷子的，于是一定有哲学家可以进餐，他释放了资源之后就不会死锁了
 
+## 死锁
+
+### 死锁是什么？与饥饿的差别是什么？
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250821161228.png)
+
+### 死锁产生的原因是什么？
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250821161244.png)
+
+### 死锁产生的 4 个必要条件是什么？分别是什么含义？
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250821161424.png)
+
+### 处理死锁-预防死锁-破坏请求保持条件是什么？
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250821161911.png)
+
+### 处理死锁-预防死锁-破坏不可抢占条件是什么？
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250821162225.png)
+
+### 处理死锁-预防死锁-破坏循环等待条件是什么？
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250821162507.png)
+
+### 处理死锁-避免死锁-安全状态和不安全状态是什么？
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250821162944.png)
+
+
 ## 408 真题
 
 ### 2009 年
@@ -857,7 +887,38 @@ P 2 和 P 3 好写，就是常见的消费者进程模板，只不过消费的�
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250814171342.png)
 
+### 2013 年
 
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250821154058.png)
+
+一个互斥关系：门，进门出门都需要互斥访问
+
+一个资源存在：参观博物馆，只允许 500 人参观，每个参观者既是生产者也是消费者
+
+```c
+
+semaphore mutex_door = 1;
+semaphore people = 500;
+
+cobegin
+	参观者进程i:
+{
+	P(people);
+	
+	P(mutex_door);
+	进门;
+	V(mutex_door);
+	
+	参观;
+	
+	P(mutex_door);
+	出门;
+	V(mutex_door);
+	
+	V(people);
+}
+coend
+```
 ### 2015 年
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250814163026.png)
@@ -1039,7 +1100,7 @@ thread3(){
 
 ```
 
-
+### 2019 年
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250816143025.png)
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250816143157.png)
@@ -1080,3 +1141,65 @@ process{
 将这两种情况综合一下，于是可以将 bowl 变量设置成 min (m, n - 1)，那么无论哪种情况都可以满足了
 
 这里将碗作为资格的原因主要是哲学家在吃饭的时候一定是碗和筷子同时存在的，同理上文中用资格来限制的时候哲学家在吃饭的时候一定是资格和筷子同时存在的，所以就可以将碗作为资格就可以了
+
+### 2020 年
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250821155516.png)
+
+
+这是一个非常简单的前后同步问题
+
+```
+semaphore mutex_ac = 0;
+semaphore mutex_bc = 0;
+semaphore mutex_ce = 0;
+semaphore mutex_de = 0;
+
+P1{
+	A
+	V(mutex_ac);
+	
+}
+
+P2{
+	B
+	V(mutex_bc);
+}
+
+P3{
+	P(mutex_ac);
+	P(mutex_bc);
+	C
+	V(mutex_ce);
+}
+
+P4{
+	D
+	V(mutex_de);
+
+}
+
+P5{
+	P(mutex_ce);
+	P(mutex_de);
+	E
+}
+```
+
+
+### 2021 年
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250821160322.png)
+
+### 2022 年
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250821160438.png)
+
+### 2023 年
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250821160520.png)
+
+### 2024 年
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250821160554.png)
+
