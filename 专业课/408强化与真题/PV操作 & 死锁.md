@@ -806,6 +806,26 @@ process{//第i个哲学家
 ### 处理死锁-避免死锁-安全状态和不安全状态是什么？
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250821162944.png)
 
+避免死锁与预防死锁还要更靠前一些
+
+### 处理死锁 - 避免死锁 - 银行家算法是什么？
+
+
+### 检测死锁 - 资源分配图是什么？
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250822172746.png)
+
+### 检测死锁 - 资源分配图的化简规则是什么？
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250822173027.png)
+
+这里不阻塞的意思是将进程所需的资源分配给他的话他可以顺序执行
+
+不独立的意思是他有一个请求边或者分配边，不是一个单独的点
+
+### 解除死锁-三个接触死锁的办法是什么？
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250822173340.png)
 
 ## 408 真题
 
@@ -886,6 +906,56 @@ P 2 和 P 3 好写，就是常见的消费者进程模板，只不过消费的�
 ### 2011 年
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250814171342.png)
+
+```
+semaphore mutex_num = 1;
+semaphore seat = 10;
+semaphore mutex_service = 0;
+semaphore mutex_call = 0;
+
+cobegin
+{
+	process 顾客i
+	{
+		P(seat);
+		P(mutex_num);
+		从叫号机取一个号码
+		V(mutex_num);
+		
+		
+		等待叫号
+		V(mutex_call);
+		
+		
+		P(mutex_service);
+		V(seat);
+		获取服务
+		
+	}
+	
+	process 营业员
+	{
+		while(true)
+		{
+			P(mutex_call);
+			叫号;
+			V(mutex_service);
+			给顾客服务;
+			
+		}
+	}
+}
+```
+
+一个互斥关系：每个顾客取号的时候叫号机是互斥的
+
+一个资源存在同步关系：座位资源存在，用户进程是消费者，也是生产者，用户会在获得服务之前释放座位 （或者营业员在给顾客服务之间会释放一个座位）
+
+一个前后同步关系：顾客必须等待叫号之后，营业员才能叫号，也就是没有人等待叫号的时候营业员是空闲的卡死在叫号之前才行
+
+一个前后同步关系：营业员必须叫号之后，顾客才能获得服务
+
+
 
 ### 2013 年
 
