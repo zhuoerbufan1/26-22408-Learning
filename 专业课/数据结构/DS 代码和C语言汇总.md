@@ -435,7 +435,7 @@ for(int k = 1; k <= n; k ++)
 
 ### 二分的模板
 
-二分模板是下面，找区间右侧性质的右端点
+二分模板是下面，找区间右侧性质的左端点
 
 ```cpp
 bool check(int mid){
@@ -446,7 +446,7 @@ void bsearch(int l, int r, int t){
     
     while(l < r){
     	int mid = l + r >> 1;
-        //找到区间中右侧性质的右端点，check函数必须满足右侧性质，
+        //找到区间中右侧性质的左端点，check函数必须满足右侧性质，
         if(check(mid)) r = mid;
     	else l = mid + 1;//mid不满足右侧性质，那么显然mid指向的是左边性质区域，我们应该向右缩小区域
     }
