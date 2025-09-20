@@ -837,67 +837,147 @@ B 树和 B+树的四点区别
 
 ## 散列表的基本概念
 
-散列表的概念
+### 散列表的概念
 
-散列函数（哈希函数）的概念
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250920101134.png)
 
-冲突的概念
+### 散列函数（哈希函数）的概念
 
-同义词的概念
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250920101158.png)
 
-减少冲突的两种方法
-	设计合理的散列函数
-	两种方法避免冲突
+### 冲突的概念
 
-散列表装填因子的概念
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250920101219.png)
+
+
+### 同义词的概念
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250920101236.png)
+
+
+### 减少冲突的两种方法
+
+
+设计合理的散列函数
+
+
+
+两种方法避免冲突
+	拉链发
+	开放定址法
+### 散列表装填因子的概念
+
+装填因子的定义：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250517131548.png)
+
+
+散列表的平均查找长度是与装填因子直接相关的，直观来看，装填因子越大，散列表就越满，于是就越容易发生冲突；并且当表长和表中元素达到一定数量之后平均查找长度和失败查找长度都可以与装填因子建立一个函数关系
 ## 散列函数的构造
 
-散列函数构造的四个注意事项
+### 散列函数构造的四个注意事项
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250920101547.png)
 
-除留余数法的散列函数构造原理和适用场景
+### 除留余数法的散列函数构造原理和适用场景
 
-除留余数法的质数选择规则
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250920101624.png)
 
-直接定址法的原理和适用场景
 
-直接定址法的优缺点
+### 除留余数法的质数选择规则
 
-数字分析法的原理和适用场景
+选择不大于散列表的长度 m 但是最接近或等于 m 的质数 p
 
-平方取中法的原理和适用场景
+### 直接定址法的原理和适用场景
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250920101720.png)
+
+
+### 直接定址法的优缺点
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250920101748.png)
+
+
+### 数字分析法的原理和适用场景
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250920101807.png)
+
+### 平方取中法的原理和适用场景
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250920101837.png)
 
 ## 处理冲突的方法 - 拉链法
 
-拉链法的基本原理
+### 拉链法的基本原理
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250920102105.png)
 
-拉链法的插入操作
+### 拉链法的插入操作
 
-拉链法的查找操作
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250920102125.png)
 
-拉链法的查找长度计算方法
+这里采用头插法插入到同一个空闲位置处
+### 拉链法的查找操作
 
-一个小细节：查找失败与空指针对比的时候不算进查找长度
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250920104454.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250920104540.png)
+
+### 拉链法的查找长度计算方法
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250920104611.png)
+
+
+### 一个小细节：查找失败与空指针对比的时候不算进查找长度
+
+
 
 ## 处理冲突的方法 - 开放定址法
 
-开放定址法的基本原理
+### 开放定址法的基本原理
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250920105029.png)
 
-发生第 i 次冲突后新的散列地址的计算公式，i 的取值范围，i = 0 和 i = m - 1 的含义
+### 发生第 i 次冲突后新的散列地址的计算公式，i 的取值范围，i = 0 和 i = m - 1 的含义
 
-线性探测法的基本原理
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250920105403.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250920105416.png)
 
-平方探测法的基本原理
+i = 0 表示第 0 次冲突之后下一次探测的位置（其实就是最开始 H(key) 探测的位置）
 
-双散列法的基本原理
+i = 1 表示第 1 次冲突之后下一次探测的位置是 H 1，式子中加上第一次冲突的偏移量 d 1
 
-伪随机法的基本原理
 
-开放定址法如何查找一个元素
+### 线性探测法的基本原理
 
-开放定址法如何删除一个元素
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250920105734.png)
 
-开放定址法删除元素的易错点
+上图的第一次是指发生了第一次冲突，而不是表示第一次冲突之后 H 0 表示第一次冲突之后探测的位置
 
+H 1 是第一次冲突之后探测的位置，在这个位置处发生了第二次冲突
+### 平方探测法的基本原理
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250920110012.png)
+
+
+### 双散列法的基本原理
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250920110103.png)
+
+### 伪随机法的基本原理
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250920110114.png)
+
+### 开放定址法如何查找一个元素
+
+如上图所示根插入操作类似
+### 开放定址法如何删除一个元素
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250920110343.png)
+
+### 开放定址法删除元素的易错点
+
+在删除元素的时候不能直接抹除这个元素，而是应该进行逻辑删除，如果直接抹除它变成一个空位置的话，在下次查找或者删除的过程中就会出错，比如下图，第三个位置处就是之前删除操作抹除的位置
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250920110438.png)
+
+### 一个小细节：开放定址法，查找失败的时候查找空的地方也要算比较一次
+
+这里与拉链法刚好相反
 # 排序
 
 ## 排序的基本概念
