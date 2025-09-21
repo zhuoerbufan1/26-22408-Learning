@@ -1,5 +1,97 @@
-## 理解
-### 数据传输控制方式与总线定时方式的区别
+# 梳理
+## 异常与中断
+
+### 中断系统包括哪些？
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250921102955.png)
+
+
+
+
+### 内部异常是指什么？包括哪些东西？
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250921101702.png)
+
+### 外部中断是指什么？
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250921101840.png)
+
+### 异常的处理过程是什么？
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250921103052.png)
+
+### 不同的内部异常的中断处在哪里？
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250921103147.png)
+
+终止的断点不考虑
+
+此外这里的断点实际上是 PC + 程序状态字，上图的中断处一般就是指 PC 的值
+
+
+### PC 和程序状态字在异常发生之后存放在哪里？
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250921104005.png)
+
+PC 和 PSWR 中的 PSW 一般都会被保存在栈中，在中断返回的时候恢复
+
+### 内部异常是如何进行软件识别的？
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250921104207.png)
+
+
+### 如果在执行异常处理程序中来了一个可屏蔽中断怎么办？
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250921104421.png)
+
+但是如果是不可屏蔽中断，那么上图的机制还是失效的，无法屏蔽不可屏蔽中断
+
+此外，对于外部中断，只有在指令执行完毕的中断检测周期才能检测到中断是否发生
+
+### 几个判断题
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250921104921.png)
+
+上面五个都正确
+
+（1）显然正确，如果都没中断请求信号，那还响应个毛线
+
+（2）正确，这里说了进入中断响应，那么一定是在 CPU 开中断的情况下才能进入中断响应，当然进入中断响应之后会关中断，但是这里说的是进入的时候；此外，对于不可屏蔽的中断它没有中断响应，一旦检测到直接进行处理，所以这里说的是不可屏蔽中断
+
+（3）（4）异常一般与当前指令执行有关，所以异常是在执行一条指令的过程中进行检测；而中断时指令执行结束之后的中断周期进行检测
+
+（5）中断屏蔽字（不是开关中断）以及响应优先级电路都在 CPU 外部，中断信号一旦通过了这些进入了 CPU，那此时 CPU 就检测到了中断信号，如果 CPU 处于开中断的状态的话此时是一定要进行响应的
+
+
+
+## 输入输出
+
+### IO 的基本职能有哪些？
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250921114422.png)
+
+
+### IO 接口的通用结构是什么？
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250921114604.png)
+
+
+### 数据缓冲寄存器和状态/控制寄存器的功能是是什么？
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250921115424.png)
+
+### 连接 IO 接口的地址线的作用是什么？
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250921115606.png)
+
+当 IO 准备好了数据之后放在了数据缓冲寄存器中，然后 CPU 发出地址线读取数据缓冲寄存器中某个寄存器地址中的数据
+
+### IO 数据传送控制方式是什么？
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250921115952.png)
+
+
+### 数据传输控制方式与总线定时方式的区别是什么？
 
 数据传输控制方式是 CPU 如何与外设协调完成一次数据传输；主要是 CPU 如何知道外设准备好了数据待传送交给 CPU，或者 CPU 如何知道外设准备好了接收数据
 
@@ -10,6 +102,144 @@
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250628130238.png)
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250628130447.png)
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250628130458.png)
+
+### 程序查询控制方式是什么？
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250921120151.png)
+
+### 定时查询和独占查询是什么？
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250921144046.png)
+
+
+### 程序中断控制方式是什么？
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250921144702.png)
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250921145230.png)
+
+
+CPU 中断响应之后执行中断服务处理程序来负责数据传输，在 CPU 执行中断处理程序的时候，只有一部分是与外设有关的，这部分结束之后外设可以重新启动准备数据了，剩下的数据处理交给中断服务程序来进行收尾
+
+
+
+### 中断响应和中断类型分别是通过什么类型的总线传递给 CPU？
+
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250629184225.png)
+
+中断请求以及 CPU 对中断响应的应答都是走控制总线
+
+而中断类型号传递到 CPU 是走数据总线
+
+### 中断的响应优先级与处理优先级的区别是什么？
+
+中断控制器的基本结果如下：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250629184225.png)
+
+响应优先级是 CPU 响应并处理中断请求的先后次序，其在硬件线路上是固定的，如上图的判优线路
+
+处理优先级是在中断嵌套中 CPU 实际处理中断的优先级，其由上图的屏蔽寄存器中的屏蔽字实现，屏蔽寄存器即 IMR
+
+根据上图可以看到，IMR 的每一位对应一个设备中断源，中断源为 1 的时候表示屏蔽这个中断源发送的中断请求，为 0 的时候表示允许发送
+
+对于不同的外部设备，他们由 CPU 设置不同的中断屏蔽字，**当执行他们的中断服务程序的时候会将中断屏蔽字写入到 IMR 中，此时所有其他设备发送的中断请求都会先与自己的中断屏蔽字的每一位进行一个与操作，没有被屏蔽的中断请求再送到中断响应电路中进行请求优先级排序**
+
+中断屏蔽字可以动态的改变中断处理的优先级；但是中断屏蔽字只有在 CPU 运行服务程序的时候才能设置，当 CPU 执行主程序的时候仍然采用的是中断响应的优先级
+
+
+### 中断屏蔽字以及作用是什么？
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250921150939.png)
+
+上图中有 1 2 3 4 一共四种中断源以及对应的中断服务程序，它们各自对应一个屏蔽字，当 CPU 执行这个中断服务程序的时候就会将屏蔽字写入到上图的 IMR 中，1 表示屏蔽，只有 0 表示不屏蔽，才能让其进入到后面的优先级排队电路进行排队
+
+
+### 一个关于多重中断的典型例题（中断源同时到达）
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250921151950.png)
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250629184225.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250629202635.png)
+在主程序执行的过程中 ABCD 四个中断同时到达，此时 IMR 中没有任何屏蔽字，所以这 4 个中断按照优先级排队项响应优先级进行响应
+
+很显然，A 在排队电路中的优先级最高，因此优先响应，A 响应的时候会进行关中断，保护主程序断点设置屏蔽字，然后开中断
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250921151950.png)
+
+A 开了中断之后设置了屏蔽字，此时 ABD 的中断源都无法进入排队电路，只有 C 可以进入，所以 A 会被 C 打断，CPU 会转而响应执行 C
+
+C 进行响应，保存的是 A 的断点，C 设置自己的屏蔽字，此时四种中断全被屏蔽，所以 C 可以顺利执行完自己的所有处理程序，然后恢复现场，由于 C是保护 A 的断点和现场，所以回到继续执行 A 的处理程序，并且 A 的屏蔽字也被恢复，BD 中断信号都被屏蔽，A 处理程序结束的时候，由于 A 之前保存的是主程序的断点和现场，所以 A 的处理程序结束之后回到的应该是主程序
+
+主程序是没有屏蔽字的，并且此时 A 和 C 已经处理完毕，所以此时 BD 两种中断信号进入排队电路进行优先级排队，先响应 B，设置 B 的中断屏蔽字，B 的屏蔽字设置之后无法屏蔽 D 的中断信号，所以 B 开中断之后 D 的中断信号进入 CPU，CPU 转而响应 D，保存 B 的断点和现场，设置 D 的屏蔽字
+
+D 的屏蔽字可以屏蔽 B 的中断信号，所以哪怕 D 开了中断，B 的中断信号也无法进入 CPU，所以 D 会一直执行完毕，然后恢复 B 的断点和现场，执行 B 的服务程序
+
+B 的服务程序执行完毕，回到主程序
+
+
+### 一个关于多重中断的例题（中断源先后到达）
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250921154913.png)
+
+
+一开始只有中断源 D，所以 CPU 会响应 D，设置 D 的屏蔽字，保存主程序的断点和现场，然后开中断
+
+接着 A 来了，由于 D 不能屏蔽 A，所以 A 的中断信号会进入 CPU，CPU 会转而响应 A
+
+CPU 保存 D 的断点和屏蔽字保存 D 的现场，然后设置 A 的屏蔽字以及继续执行 A 的服务程序
+
+然后 B 中断到达，但是 A 的屏蔽字可以屏蔽 B，所以 B 的信号无法进入排队电路，也无法进入 CPU，所以不影响
+
+然后 C 到达，A 无法屏蔽 C，所以 C 可以进入排队电路，CPU 转而响应 C
+
+CPU 保存 A 的断点和现场以及屏蔽字，设置 C 的屏蔽字，然后开中断，此时 ABD 虽然都有中断信号，但是都被 C 的屏蔽字屏蔽，无法进入排队电路，因此无法进入 CPU，所以 C 会完整执行完毕，然后恢复 A 的断点，现场和屏蔽字，继续执行 A
+
+A 的屏蔽字恢复之后继续屏蔽 B 和 D，所以 A 会执行完毕，A 当时保存的是 D 的断点和现场以及屏蔽字，所以 A 会恢复 D 的断点，现场和屏蔽字，转而执行 D
+
+D 的屏蔽字恢复之后可以屏蔽 B，所以 D 的中断服务程序会执行完毕，然后恢复主程序的断点，现场，回到主程序
+
+主程序没有屏蔽字，此时只有 B 的中断信号了，所以 CPU 会响应 B 的信号将 B 执行完毕
+
+然后再回到主程序
+
+### DMA 控制是什么？
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250921160252.png)
+
+
+### DMA 的三种方式是什么？
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250921160433.png)
+
+
+总线事务周期，其实就是一个总线周期，是总线传输一次数据的时间
+
+主存周期就是内存完成一次数据读取或者写入的时间
+
+
+
+### DMA 的基本过程是什么？
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250921161322.png)
+
+### DMA 访问主存使用的是实地址还是虚地址？
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250921161930.png)
+
+这里 DMA 使用物理地址还是虚拟地址是由 DMA 控制器中的字计数器自动 + 1 决定的，字计数器会导致地址在 CPU 初始化之后反复自动加一，这样如果 DMA 使用的是物理地址，那么存储器中需要交换的数据不大可能是连续跨页存储的，所以如果 DMA 使用物理地址那肯定只能在一个页面中交换数据
+
+如果 DMA 使用的是虚拟地址就好办了，直接用一个地址转换机构转换成物理地址，这样交换的数据就可以跨页存放了：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250921163757.png)
+
+### DMA 和 Cache 之间会有什么问题？如何解决？
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250921163910.png)
+
+
+# 理解
 
 ### 程序查询方式的理解和一个例题
 
@@ -72,9 +302,7 @@
 
 你 CPU 20%的时间都用来处理键盘的 IO 操作，这个占比是无法忍受的，所以键盘这类快速的外设使用查询方式进行数据控制就非常不合适
 
-### 软件中断与硬件中断
 
-软件中断是指异常中的故障和自陷；硬件中断是指异常中的终止和外部中断
 
 ### 内部异常与外部中断
 
@@ -146,21 +374,6 @@ INTR 与 IF 进行异或之后送入 CPU 的内部中断判断逻辑，如果 IF
 
 而不可屏蔽的中断的请求则是通过 NMI 引脚发送给 CPU，不可屏蔽的中断，比如掉电中断其优先级最高，CPU 必须响应，关中断操作对其无效
 
-### 中断的响应优先级与处理优先级
-
-中断控制器的基本结果如下：
-
-![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250629184225.png)
-
-响应优先级是 CPU 响应并处理中断请求的先后次序，其在硬件线路上是固定的，如上图的判优线路
-
-处理优先级是在中断嵌套中 CPU 实际处理中断的优先级，其由上图的屏蔽寄存器中的屏蔽字实现，屏蔽寄存器即 IMR
-
-根据上图可以看到，IMR 的每一位对应一个设备中断源，中断源为 1 的时候表示屏蔽这个中断源发送的中断请求，为 0 的时候表示允许发送
-
-对于不同的外部设备，他们由 CPU 设置不同的中断屏蔽字，**当执行他们的中断服务程序的时候会将中断屏蔽字写入到 IMR 中，此时所有其他设备发送的中断请求都会先与自己的中断屏蔽字的每一位进行一个与操作，没有被屏蔽的中断请求再送到中断响应电路中进行请求优先级排序**
-
-中断屏蔽字可以动态的改变中断处理的优先级；但是中断屏蔽字只有在 CPU 运行服务程序的时候才能设置，当 CPU 执行主程序的时候仍然采用的是中断响应的优先级
 
 ### 中断识别与中断号
 
@@ -330,7 +543,8 @@ P 1 被阻塞期间，IO 控制器触发中断的服务程序例子如下：
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250701194443.png)
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250701194702.png)
-![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250701194715.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250921161044.png)
+
 
 ### DMA 方式与中断方式传输数据的区别
 
