@@ -550,27 +550,82 @@ AOV 网的定义
 
 ## 关键路径
 
-AOE 网的概念（见 PPT）
+### AOE 网的概念（见 PPT）
 
-AOE 网的两个性质（见 PPT）
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250922193226.png)
 
-关键路径和关键活动的概念（见 PPT）
 
-活动的时间余量（见 PPT）
+### AOE 网的两个性质（见 PPT）
 
-求事件最早发生时间的过程（见 PPT）
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250922193236.png)
 
-求事件最迟发生时间的过程（见 PPT）
 
-求活动的最早开始时间的过程（见 PPT）
+### 关键路径和关键活动的概念（见 PPT）
 
-求活动的最晚开始时间的过程（见 PPT）
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250922193315.png)
 
-求活动的时间余量的过程（见 PPT）
+### 活动的最早开始时间和最晚开始时间是什么？
 
-求关键活动的过程（见 PPT）
+活动是指图上的弧，这个活动的开始时间与弧的起点时间和终点时间有关
 
-关键活动和关键路径的特性（4 条）（见 PPT）
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250922194131.png)
+
+### 时间的最早开始时间与最晚开始时间是什么？
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250922194259.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250922194307.png)
+
+### 活动的时间余量（见 PPT）活动的时间余量与关键路径的关系是什么？
+
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250922194335.png)
+
+也就是活动的最晚开始时间 - 最早开始时间
+### 求事件最早发生时间的过程（见 PPT）
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250922194539.png)
+
+也就是对于一个顶点 k，它的最早开始时间与所有指向它的顶点 j 的最早开始时间有关
+
+具体来说，就是所有指向它的顶点 j 的最早开始时间加上边的权值；这些数字中最大的那个是 k 的最早开始时间
+
+很显然，只有最大的那个边的活动完成之后，这个时间才能发生
+
+### 求事件最迟发生时间的过程（见 PPT）
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250922194954.png)
+
+这个过程记住即可
+
+### 求活动的最早开始时间的过程（见 PPT）
+
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250922195045.png)
+
+
+### 求活动的最晚开始时间的过程（见 PPT）
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250922195138.png)
+
+
+### 求活动的时间余量的过程（见 PPT）
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250922195158.png)
+
+
+### 求关键活动的过程（见 PPT）
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250922195228.png)
+
+
+### 关键活动和关键路径的特性（4 条）（见 PPT）
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250922195356.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250922195413.png)
+
+延长某个关键路径上的关键活动，则整个工期一定延长，因为关键路径就是从源点到汇点的最长路径，你这里延长了，整个关键路径一定延长
+
+但是缩短了某条关键路径上的关键活动时间，整个工期不一定缩短，因为另一个关键路径可能时间还是比它长
 # 查找
 
 ## 查找的基本概念

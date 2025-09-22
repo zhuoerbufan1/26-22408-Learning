@@ -20,7 +20,7 @@
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250921103052.png)
 
-### 不同的内部异常的中断处在哪里？
+### 不同的内部异常的中断处在哪里？（处理完异常之后返回到哪里？）
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250921103147.png)
 
@@ -155,7 +155,10 @@ CPU 中断响应之后执行中断服务处理程序来负责数据传输，在 
 
 上图中有 1 2 3 4 一共四种中断源以及对应的中断服务程序，它们各自对应一个屏蔽字，当 CPU 执行这个中断服务程序的时候就会将屏蔽字写入到上图的 IMR 中，1 表示屏蔽，只有 0 表示不屏蔽，才能让其进入到后面的优先级排队电路进行排队
 
+### 中断隐指令过程是如何找到中断处理程序的地址的？
 
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250922171235.png)
+这一步也是由硬件完成的，中断源会给出自己的中断号给 CPU，CPU 利用一个基地址寄存器，这个寄存器中存放的是中断向量表的起始地址，CPU 拿到中断号之后利用类似数组一样的原理，通过中断号 * 偏移 + 基地址找到中断服务程序的地址 
 ### 一个关于多重中断的典型例题（中断源同时到达）
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250921151950.png)
