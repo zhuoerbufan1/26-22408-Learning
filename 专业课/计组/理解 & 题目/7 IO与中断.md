@@ -226,6 +226,7 @@ D 的屏蔽字恢复之后可以屏蔽 B，所以 D 的中断服务程序会执�
 ### DMA 的基本过程是什么？
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250921161322.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250927125040.png)
 
 ### DMA 访问主存使用的是实地址还是虚地址？
 
@@ -241,6 +242,29 @@ D 的屏蔽字恢复之后可以屏蔽 B，所以 D 的中断服务程序会执�
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250921163910.png)
 
+### DMA 控制器的基本结构是什么？
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250701194443.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250701194702.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250921161044.png)
+
+### DMA 的预处理阶段的详细过程是什么？
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250927124044.png)
+
+### DMA 传送数据阶段的详细过程是什么？
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250927124149.png)
+
+DMA 在这个阶段每次传送的是一个字，具体来说就是 IO 接口中的 IO 端口中的一个字数据（IO 接口中的数据缓冲寄存器中的一个字），每当外设准备好了一个字之后，就通知 DMA 控制器，由 DMA 控制器发出总线请求，传输一个字，传输完毕交出总线控制权
+### DMA 后处理阶段的详细过程是什么？
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250927124219.png)
+### DMA 在数据传送阶段使用周期窃取方式传送数据的过程是什么？
+
+简单来说，就是当外设准备好了数据之后就会通知 DMA 挪用总线的几个存取周期，来完成这次请求总线的数据传送（一般来说，如果 IO 端口的数据长度与数据总线的长度一样的话，使用一个总线周期就能完成一次 DMA 字传送）
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250927124417.png)
 
 # 理解
 
@@ -541,12 +565,6 @@ P 1 被阻塞期间，IO 控制器触发中断的服务程序例子如下：
 
 中断方式读或者写数据都需要 CPU 作为中间媒介
 
-
-### DMA 控制器的基本结构
-
-![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250701194443.png)
-![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250701194702.png)
-![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250921161044.png)
 
 
 ### DMA 方式与中断方式传输数据的区别
