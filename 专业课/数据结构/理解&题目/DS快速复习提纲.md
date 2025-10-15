@@ -27,13 +27,40 @@
 
 # 串 (KMP 算法)
 
-模式串和主串的概念（见 PPT）
 
-朴素的模式匹配算法代码实现（见 PPT）
+### 模式串和主串的概念（见 PPT）
 
-朴素模式匹配算法的时间复杂度（见 PPT）
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251015152918.png)
 
-KMP 算法的代码实现（见 PPT）
+
+### 朴素的模式匹配算法代码实现（见 PPT）
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251015153142.png)
+
+假如模式串的长度是 m，主串的长度是 n，n > m
+
+朴素算法的思想就是按顺序选择主串中长度为 m 的子串，然后与模式串进行比较
+
+如果用双指针的算法来处理就是：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251015153604.png)
+
+这里 i - j + 2 的含义是：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251015153651.png)
+
+当不匹配的时候如上图所示，实际上 j 的值就是两个指针往右移动的次数，此时 j = 2，对于 i 来说则是 i 指向了起点（本轮是 3）往后的第 j（2）个单位 4 处
+
+所以 i - j 的意思是让 i 回到起点的前面一个位置，上图的 2 处，然后再 + 2 的含义是 i 再往后移动两个位置到了下一个字串的位置，上图的 4
+
+然后 j = 1，模式串也从头开始
+### 朴素模式匹配算法的时间复杂度（见 PPT）
+
+其时间复杂度就是 mn 的
+
+
+
+### KMP 算法的代码实现（见 PPT）
 
 ```cpp
 
@@ -54,15 +81,129 @@ int index_KMP(SString S, SString T, int next[]){
 	return 0;
 }
 ```
+j == 0 不是初始条件，而是当模式串的第一个字符与目标串不匹配的时候会让 j 指向 0；进入循环之后 i ++, j ++，此时 j 指向模式串的第一个字符，由于 i 上一次循环指向的字符与模式串的第一个不匹配，所以这一次直接让 i 往后指向了一个字符；两者重新开始匹配
+
+退出循环有两种情况
+
+（1）j <= T.length 时退出循环，说明此时 i > S.length；意味着目标串都遍历完了也没有匹配到，此时匹配失败
+
+（2）j > T.length 时退出循环，只有两者匹配了 j 才会++，当 j > T.length 说明模式串一定全部匹配完了，此时 i 指向主串匹配最后一个字符的下一个位置，减去模式串的长度就是匹配的起始位置
+
+当匹配失败的时候主串中的 i 指针不往后回溯（直接记住），j 指针得往前回溯，或者说 i，j 指针不动模式串得往后滑动，让 j 往前指，j 指向的新位置由 next 数组来确定（直接记住）
+### KMP 算法的思想是什么？
 
 
-KMP 算法的复杂度（见 PPT）
+KMP 算法规定了一个 `next[j]` 数组，当 `s.ch[i]`，与 `T.ch[j]` 不匹配的时候，不再执行 `i - j + 2`，以及 `j = 1`，而是 i 不动，j 按照 next 数组进行移动（这是规定，直接记住，不用知道为什么），比如下面的例子，规定，这些规定就是 next 数组在代码中的作用，这里不用知道为什么这样规定下文来说明如果计算 next 数组
 
-next 数组的含义（见 PPT）
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251015155129.png)
 
-next 数组的求法（见 PPT）
+这里，按照下图，在某一次字串匹配中，当第 5 个元素匹配失败之后，按照规则 i 不动，j 移动到 2，
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251015155213.png)
 
-KMP 算法的进一步优化，nextval 数组的求法（见理解）
+当然也可以看作模式串往右滑动，让 j 指向模式串第 2 个元素，然后继续向右匹配：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251015155336.png)
+
+### KMP 算法的复杂度（见 PPT）
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251015154101.png)
+
+
+### next 数组的含义（见 PPT）
+
+next 数组就是上文当某次匹配失败的时候 j 移动的规则，即
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251015155442.png)
+
+比如上文的 j = 5 的时候是第 5 个元素匹配失败，此时就是 `j = next[j]`，我们事先通过计算 next[5] = 2，所以匹配失败之后 j = next[5] = 2 了
+### next 数组的求法（见 PPT）
+
+
+==next[1]和 next 2]==
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251015155655.png)
+
+==其他 next==
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251015155744.png)
+
+以下图为例：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251015155952.png)
+
+当求 `next[3]` 的时候，以模式串为标准，next[3]就是模式串的第 3 个位置没有匹配上，但是第 1，2 个位置匹配上了，所以就画出上图的情况，上图就是模式串前两个匹配上，但是第 3 个没有匹配上的情形，也可以画成下图：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251015160327.png)
+
+然后往右移动模式串，上文情况是模式串移动过了分界线，j 指向了 1，所以 next[3] = 1：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251015160450.png)
+
+**再看一种移动模式串没有越过分界线，对的上的情况**
+
+这是第 5 个元素不匹配的时候，需要计算 next[5]，此时前 4 个元素都匹配上的情况：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251015160546.png)
+
+往后移动模式串的时候分界线之前的模式串可以对的上了（g 对应了 g）：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251015160622.png)
+
+此时 j 指向了第二个元素，所以 next[5] = 2
+
+==再看一个完整的例子==
+
+**（1）next[1]和 next[2]无脑写 0 和 1：**
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251015160909.png)
+
+**（2）算 next[3]**
+
+此时模式串的前两个字符匹配上了，所以往后移动模式串
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251015160938.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251015161055.png)
+模式串移动过了分界线，j 指向第一个元素，所以 next[3]=1
+
+**（4）算 next [4]**
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251015161139.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251015161148.png)
+
+能对上的时候 j 指向 2，所以 next [4] = 2
+
+**（5）算 next[5]**
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251015162220.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251015162231.png)
+
+这里 j 指向 3 的时候分界线前面的就可以对上了，所以 next[5] = 3
+
+**(6) 算 next[6]**
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251015162321.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251015162330.png)
+
+
+### KMP 算法的进一步优化，nextval 数组的求法（见理解）
+
+这里的优化主要是优化 next 数组，将 next 数组替成 nextval 数组，然后上述 KMP 算法的代码不变，用 nextval 数组来更改 j 指针即可
+
+优化的思路是 nextval[1]无脑写零
+
+对于 next[j] = k，我们这里的优化思路是，看 next[j]此时 j 对应的模式串字母 m[j]与此时 j 将要跳转的 k 对应的字母 m[k]是否相等
+
+（1）如果相等，由于主串的 i 是不变的，那么 j 指向的 m[j]与主串没有匹配，所以 j 跳转的 k 指向的 m[k]也必然与主串匹配不上，所以指向模式串的指针应该再跳一步，跳到 k 指向的 m[k]匹配失败后应该跳转的位置，即令 `nextval[j] = nextval[next[j](=k)]`
+
+（2）如果不相等，那么保持不变，即 `nextval[j] = next[j]`
+
+==优化代码如下：==
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250502163637.png)
+
+
+==举例如下：==
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250502163618.png)
 
 
 # 树
