@@ -558,12 +558,18 @@ in 指针会指向一个空的缓冲区，out 会指向一个满的缓冲区，I
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250915191833.png)
 
+一般来说SCAN移动到底的时候才会反向移动，但是可以优化为移动到一侧的最远端请求就可以反向移动，此时就称为LOOK调度了
 
 ### CSCAN 调度算法是什么？
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250915191951.png)
 
-如果是 CLOOK 调度，则往右或者往左的时候都不会到达边界，而只是到达最远的发出请求的磁道
+移动到最底端的时候再回到最开始的起始端，这两个都是最远边界，这个是CSCAN
+
+如果是 CLOOK 调度，则往右或者往左的时候都不会到达边界，而只是到达最远的发出请求的磁道，此时CSCAN就变成了CLOOK
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251017180753.png)
+
 
 
 # 理解
