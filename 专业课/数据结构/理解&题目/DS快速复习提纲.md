@@ -521,7 +521,7 @@ n 个结点的完全二叉树的高度 h 的两种推导？一种以满二叉树
 
 ## 图的基本概念
 
-### 图的定义，图的顶点集和边集的特点
+### 图的定义，图的顶点集和边集的特点（空或者非空）
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250910122031.png)
 顶点集不能为空，但是边集可以为空
 ### 有向图和无向图
@@ -530,6 +530,7 @@ n 个结点的完全二叉树的高度 h 的两种推导？一种以满二叉树
 ### 弧尾和弧头的概念
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250910122126.png)
 
+弧头就是箭头方向
 ### 简单图和多重图的概念
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250910122139.png)
@@ -580,43 +581,87 @@ n 个结点的完全二叉树的高度 h 的两种推导？一种以满二叉树
 
 ### 子图的概念
 
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251024192346.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251024192442.png)
+
+
 ### 生成子图的概念
 
-### 连通分量的概念
+生成子图就是保证顶点和原来的图顶点一样，边是原来的图的子集
+
+### 连通分量的概念（包含两点）
+
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251024192506.png)
+
+
 	是一个连通的子图
 	这个子图尽可能的大
 
-### 强连通分量的概念
+### 强连通分量的概念（包含两点）
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251024192530.png)
+
+
 	是一个强连通的子图
 	这个子图尽可能的大
 
 ### 连通图的生成树的概念
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251024192614.png)
+
+
 	包含全部顶点
 	是连通的
 	边尽可能的少（固定个数）
 
-### 生成树的边的个数
+连通图的生产树的边的个数固定是 n - 1
+### 连通图生成树的边的个数
+
+固定是 n - 1
 
 ### 生成森林的概念
+
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251024192712.png)
+
 	由非连通图的各个连通分量生成的生成树构成
 
 ### 边的权和带权图
 
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251024192737.png)
+
+
 ### 图的带权路径长度概念
+
+一条路径上的所有边的权值之和
 
 ### 无向完全图的概念，边的个数
 
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251024192821.png)
+
+
 ### 有向完全图的概念，边的个数
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251024192838.png)
+
 
 ### 稀疏图和稠密图的概念
 
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250930170450.png)
 
-
+稀疏和稠密是在顶点个数一定，考察的边的情况下的概念，稀疏就是边很少
 ### 树和图的关系，n 个结点的树的边的个数
 
-### 有回路的图的边的特点
+树是没有回路而且连通的无向图
+
+n 个顶点的树，它的边的个数必为 n - 1
+
+### 图的边数大于什么了有回路？
+
+
+因此对于一个无向图来说，如果边的个数 > n- 1，则一定会出现回路
 
 ## 图的存储
 
@@ -838,23 +883,39 @@ Floyd 算法的时间复杂度
 
 ## 拓扑排序
 
-AOV 网的定义
+### AOV 网的定义
 
-在 DAG 图中输出拓扑排序的过程
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251024080619.png)
 
-拓扑排序判断环的原理
 
-拓扑排序的代码实现（两种 BFS 和 DFS）
+### 在 DAG 图中输出拓扑排序的过程
 
-拓扑排序代码的时间复杂度
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251024080648.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251024080704.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251024080717.png)
 
-逆拓扑排序的定义
+### 拓扑排序判断环的原理
 
-逆拓扑排序的代码实现
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251024080758.png)
 
-逆拓扑排序的 DFS 代码实现
+也就是拓扑排序输出到最后面，图不为空，说明图里面有顶点，并且没有入度为0的顶点
 
-根据 DFS 拓扑排序判断环的代码
+那就说明整个图出现了环路
+
+### 拓扑排序的代码实现（两种 BFS 和 DFS）
+
+### 拓扑排序代码的时间复杂度
+
+### 逆拓扑排序的定义
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251024081007.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251024081025.png)
+
+### 逆拓扑排序的代码实现
+
+### 逆拓扑排序的 DFS 代码实现
+
+### 根据 DFS 拓扑排序判断环的代码
 
 ## 关键路径
 
@@ -878,7 +939,7 @@ AOV 网的定义
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250922194131.png)
 
-### 时间的最早开始时间与最晚开始时间是什么？
+### 事件的最早开始时间与最晚开始时间是什么？
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250922194259.png)
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250922194307.png)
@@ -897,7 +958,7 @@ AOV 网的定义
 
 具体来说，就是所有指向它的顶点 j 的最早开始时间加上边的权值；这些数字中最大的那个是 k 的最早开始时间
 
-很显然，只有最大的那个边的活动完成之后，这个时间才能发生
+很显然，只有最大的那个边的活动完成之后，这个事件才能发生
 
 ### 求事件最迟发生时间的过程（见 PPT）
 
@@ -925,15 +986,97 @@ AOV 网的定义
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250922195228.png)
 
+### 求关键路径上的事件的另一种做法
 
+其实只要对于一个事件，有ve[i] = vl[i]，那么这个事件就是关键路径上的事件
 ### 关键活动和关键路径的特性（4 条）（见 PPT）
 
-![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250922195356.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251024172807.png)
+
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250922195413.png)
 
 延长某个关键路径上的关键活动，则整个工期一定延长，因为关键路径就是从源点到汇点的最长路径，你这里延长了，整个关键路径一定延长
 
 但是缩短了某条关键路径上的关键活动时间，整个工期不一定缩短，因为另一个关键路径可能时间还是比它长
+
+### 多源点多汇点的AOE网络关键路径求解（求解AOE 网络关键路径的加强版算法）
+
+多源点多汇点可以通过加一个超级源点（连接多个源点的边权为0）、一个超级汇点（连接多个汇点的边权为0）的方式转换为单源点和单汇点
+
+在这种情况下，增加了超级汇点和超级源点的AOE网表达的含义和原来的AOE网所表达的含义就是一样的，求增加了超级汇点和超级源点的AOE网的关键路径过程，就是求原来的多源点多汇点的图的关键路径的过程，这两者等价
+
+对于带超级源点的图来说，它的超级源点的ve[vb] = 0，所以对于原图中的多个源点，这些源点只会有超级源点指向它，所以这些多个源点的ve[i] = 0（超级源点的 ve[i]  + 边权 0）
+
+**所以对于带多个源点的图，我们应该手动模拟带超级源点的最开始几步的过程，即，将这些汇点的ve[i] 全部设置成0，然后按照拓扑序列的顺序求ve[i]数组**
+
+对于带超级汇点的图来说，最后一步，求超级汇点的ve[i]，实际上是ve[i]数组中的最大值 L，然后加上边权0，因为是多个汇点指向超级汇点，按照算法一定是多个汇点的 ve[i] + 边权 0 取大的结果，所以超级汇点的 ve[i]一定 = 0；然后求解数组vl【】，在求解vl【】的最开始几步，是先将超级汇点的vl[i]设置成它本身的ve[i]，然后求解所有指向超级汇点的点的vl[i]，这些点实际上是原图中的多个汇点，这些汇点的vl[i]，在带超级汇点的图中，按照求解算法，会被全部设置成 L
+
+**所以对于带多个汇点的图，我们应该手动模拟带超级汇点的最开始几步求解vl【】的过程，即将这些多个汇点的vl[i]全部设置成L，然后按照逆拓扑序列的顺序求解 vl 数组**
+
+==代码实现==
+
+这个代码的目的就是求解关键路径上的顶点的个数（事件的个数），我们默认在这个图上加了一个超级源点和超级汇点，得到了一个等价的 AOE 网，并模拟了这个等价的 AOE 网求解 ve 和 vl 的前几步过程
+
+此外，如果一个事件的最早开始时间和最晚开始时间相等的话，则这个点就是关键路径上的点
+
+[晴问算法](https://sunnywhy.com/camp/3415/model/4144?itemId=3417)
+
+```cpp
+/**
+ * @param G: 邻接矩阵，表示有向无环图，按二维数组的方式用下标即可访问内部元素
+ * @param n: 图中顶点的数量
+ * @param p: 图的拓扑序列，长度为n，包含0到n-1的所有整数
+ * @return: 返回一个整数，表示图的关键节点数量
+ */
+
+int countCriticalNodes(int** G, int n, int p[]) {
+    int ans = 0;
+    //首先求拓扑排序中每个事件的最早发生时间
+    int ve[n];
+    
+    //模拟带超级源点的图的前几步过程，这里将所有点的ve全部设置成0
+    //这样不仅多个源点的ve被设置成了0，其他内部点的ve也全部设置成了0，但是内部点设置成0不要紧
+    //按照算法内部点一定有一个点指向它，所有指向它的点 + 边权取大之后是结果，这里0就是最小一定会被更新
+    //所以一定可以得到内部点的ve的正确结果
+    for(int i = 0; i < n; i ++) ve[i] = 0;
+    int L = 0;
+
+    for(int i = 0; i < n; i ++){
+        int v = p[i];
+        for(int j = 0; j < n; j ++){
+            if(G[j][v] != 0){
+                ve[v] = max(ve[v], ve[j] + G[j][v]);
+            }
+        }
+        L = max(L, ve[v]);
+    }
+
+    //计算每个事件的最晚发生时间
+    int vl[n];
+	
+	//模拟带超级汇点的求解vl数组的前几步过程，这里将所有点的vl全部设置成1
+	//这里不仅将多个汇点的vl设置成了L，其他内部点的vl也设置成了L，但是内部点设置成L不要紧
+	//内部点一定会指向一个点，按照算法，所有它指向的点的vl-边权取小之后就是结果，这里L就是最大的一定会被更新
+	//所以一定可以得到内部点的vl的正确结果
+    for(int i = 0; i < n; i ++) vl[i] = L;
+    for(int i = n - 1; i >= 0; i --){
+        int v = p[i];
+        for(int j = 0; j < n; j ++){
+            if(G[v][j] != 0){
+                vl[v] = min(vl[v], vl[j] - G[v][j]);
+            }
+        }
+        if(ve[v] == vl[v]) ans ++;
+    }
+    return ans;
+
+  
+  
+
+}
+```
+
+
 # 查找
 
 ## 查找的基本概念
@@ -1204,7 +1347,7 @@ n 个结点的平衡二叉树的最大深度量级
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250910131133.png)
 
 
-### B 树的定义
+### B 树的定义（三个方面）
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250910131228.png)
 
@@ -1219,6 +1362,11 @@ n 个结点的平衡二叉树的最大深度量级
 （1）根结点和非根非叶结点的关键字个数限制和子树限制
 （2）叶结点的结构和位置
 （3）非叶结点的结构，包括关键字之间关系和子树指向的关键字之间的关系
+
+（1）根结点的关键字个数是 `[1, m-1]`，非根非叶结点关键字个数是 $\left[ \left\lceil  \frac{m}{2}  \right\rceil-1, m - 1 \right]$
+（2）根结点的子树个数是 `[2, m]`，非根非叶节点子树个数是 $\left[ \left\lceil  \frac{m}{2}  \right\rceil, m \right]$
+（3）叶结点在最后一层，并且在同一层，叶结点相当于外部的结点，不带信息
+（4）非叶结点中的关键字有序排列，且指向的子树的关键字与结点内部关键字也是有序排列的，这里可以降序也可以升序
 
 ### B 树种叶子结点和终端结点的定义（外部结点也会当作 B 树中的结点）
 
@@ -1237,38 +1385,38 @@ n 个结点的平衡二叉树的最大深度量级
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251022162857.png)
 
 
-### B 树的核心特性 (4点)
+### B 树的核心特性 (4点) B 树的定义
 
- **根结点的子树个数范围，关键字的个数范围**
+ #### **根结点的子树个数范围，关键字的个数范围**
 
 根结点的关键字可以只有一个，关键字最多m - 1个，所以关键字的范围是 `[1, m - 1]`，所以子树个数的范围是 `[2, m]`
 
 
-**其他非叶结点的子树个数范围，关键字数的范围**
+#### **其他非叶结点的子树个数范围，关键字数的范围**
 
 其他非叶节点的关键最多限制和根结点一样，最多m - 1个，但是要求关键字最少是 $\left\lceil  \frac{m}{2}  \right\rceil -1$ 个
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251022163124.png)
 
 
-**任意结点的子树高度**
+#### **任意结点的子树高度**
 
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251022163136.png)
 
 
-**每个结点的关键字的值与子树的值的关系**
+#### **每个结点的关键字的值与子树的值的关系**
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251022163147.png)
 
 
-### n 个关键字，m 阶 b 树的最小高度和最大高度
+### n 个关键字，m 阶 b 树的最小高度和最大高度（按照表格进行推导）
 
-最小高度就是让关键字尽可能填满B树的每个结点，从根结点开始，每个结点都有m - 1个关键字
+最小高度就是让关键字尽可能填满B树的每个结点，从根结点开始，每个结点都有m - 1个关键字，在这种情况下 h 不能再小了，再小就填不下 n 个固定的关键字了，所以 h >= 这个高度
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251022163221.png)
 
-最大高度就是让关键字尽可能少填结点，即每个结点的关键字尽可能少，此时根结点只有一个关键字，引出2个分叉，其他结点有 $\left\lceil  \frac{m}{2}  \right\rceil-1$ 个关键字，引出 $\left\lceil  \frac{m}{2}  \right\rceil$ 个分叉
+最大高度就是让关键字尽可能少填结点，即每个结点的关键字尽可能少，此时根结点只有一个关键字，引出2个分叉，其他结点有 $\left\lceil  \frac{m}{2}  \right\rceil-1$ 个关键字，引出 $\left\lceil  \frac{m}{2}  \right\rceil$ 个分叉，这种情况下 h 不能再高了，再高完全没有意义了，所以 h <= 这个高度
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251022163609.png)
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251022165721.png)
@@ -1281,9 +1429,9 @@ n 个结点的平衡二叉树的最大深度量级
 
 ### n 个关键字的 b 树的失败结点个数
 
-B 树种的叶子结点是失败的结点
+B 树的叶子结点是失败的结点
 
-B 树的关键字简单理解来说是用来分割区间的，n 个关键字那就是将区间划分成了 n + 1 个区间，落在这 n  + 1 个区间种的数就是查找失败，就是落在叶子结点上，所以叶子结点的个数就是 n + 1 个：
+B 树的关键字简单理解来说是用来分割区间的，n 个关键字那就是将区间划分成了 n + 1 个区间，落在这 n  + 1 个区间种的数就是查找失败，就是落在叶子结点上，**所以叶子结点的个数就是 n + 1 个**：
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250517092922.png)
 
@@ -1712,6 +1860,9 @@ $$
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250910132215.png)
 
+从下标 1 开始，对于一个下标 i 的结点，左儿子的下标是 2 i，右儿子的下标是 2 i + 1
+
+最后一个内部结点的下标是 n/2
 ### 大根堆和小根堆的定义
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250910132308.png)
@@ -1766,7 +1917,7 @@ void down(int u){
         swap(q[u], q[t]);
         //调整之后此时编号t的结点元素是原来的根结点元素，此时继续向下调整
         
-        //由于是从下到上进行调整，原来根结点的三角结构中根结点u的两个子树都是稳定的，然后t指向两个儿子中的最大的儿子编号，将根结点u（根结点）与t结点进行交换之后，t结点元素变成原来的根结点元素，此时t结点的子树元素发生改变，可能是不稳定的，所以需要调整t结点这个子树
+        //由于是从下到上进行调整，原来根结点的三角结构中根结点u的两个子树都是稳定的，然后t指向两个儿子中的最大的儿子编号，将根结点u（根结点）与t结点进行交换之后，t结点元素变成原来的根结点元素，此时t结点的子树元素发生改变（变小），可能是不稳定的，所以需要调整t结点这个子树
         down(t);
     }
 }
@@ -1828,7 +1979,7 @@ void heap_sort(){
 
 ### 大根堆排序的时间复杂度
 
-排序的时候需要每次从根结点向下调整，每次调整的过程最多对比树的高度，所以总的复杂度就是 O (logn)
+排序的时候需要每次从根结点向下调整，每次调整的过程最多对比树的高度，所以总的复杂度就是 O (nlogn)
 
 ### 大根堆的稳定性
 
@@ -1848,7 +1999,8 @@ void heap_sort(){
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250910140244.png)
 
-### （大）小跟队删除元素的过程
+大根堆的插入操作也是这样，先将元素插入到堆的末尾，如果这个元素比父节点元素大，则一路上升，一直到无法继续上升
+### （大）小根堆删除元素的过程
 
 直接用最后一个元素替代这个元素的位置，然后从这个位置开始向下 down 操作：
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250910140400.png)
@@ -1885,7 +2037,7 @@ void heap_sort(){
 ### m -路归并选出一个合适的元素的比较次数
 
 
-比较 m - 1 次如上图所示
+比较 m - 1 次如上图所示，并且是每选出一个元素都需要比较 m- 1 次
 
 ### 2 路归并排序过程中一趟是指什么？
 
