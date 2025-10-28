@@ -571,25 +571,67 @@ void dfs(TreeNode* root){
 
 ### 结点的权定义
 
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251028081825.png)
+
+
 ### 结点的带权路径长度定义
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251028081836.png)
+
 
 ### 树的带权路径长度 WPL 的定义
 
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251028081844.png)
+
+
 ### 哈夫曼树（最优二叉树）的定义
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251028081856.png)
+
 
 ### 哈夫曼树的构造过程
 
-### 哈夫曼树的几个特点
-	### 叶结点特点
-	### 结点总数特点
-	### 度为 1 的结点特点
-	### 唯一性
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251028081923.png)
+
+
+### 哈夫曼树的叶结点特性
+
+每个初始结点都将成为叶结点，并且结点的权值越小，离根结点的距离越大
+
+### 哈夫曼树的结点总数特点
+
+最终哈夫曼树的结点总数一定是 2 n - 1
+
+### 哈夫曼树的度为 1 的结点特点
+
+哈夫曼树中没有度为 1 的结点
+
+### 哈夫曼树的唯一性
+
+哈夫曼树不唯一，但是树的最小带权路径长度一定唯一
+
 
 ### 固定长度编码和可变长度编码的定义
 
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251028082313.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251028082333.png)
+
+
 ### 前缀编码的定义
 
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251028082420.png)
+
+
 ### 对字符集进行哈夫曼编码的过程
+
+对于一个字符集 a，b，c，d，e...。
+
+假设有下面一串字符 aabbccdddeeeeee
+
+将字符出现的频度作为字符结点的权值，然后按照构造哈夫曼树的过程构造一个哈夫曼树，从这棵树的根结点开始，往左走就是 0，往右走就是 1，然后从根结点到叶结点的路径就是这个叶结点字符的编码了
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251028082457.png)
+
 
 ## 并查集
 
@@ -1224,6 +1266,19 @@ int countCriticalNodes(int** G, int n, int p[]) {
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250928172831.png)
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250928172838.png)
 
+### 二分查找树的构造过程（按照 mid 下取整的方式）
+
+这里可以不用老实计算 mid 的具体数值
+
+mid 下取整，如果整个结点的个数是奇数个，则等分
+如果整个结点的个数是偶数个，则左边结点个数比右边结点个数少 1
+按照这个规律直接划分结点即可
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251028083144.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251028083441.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251028083449.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251028083500.png)
+
 
 ### 二分查找成功和失败的 ASL 的计算（一颗具体的树的计算方式）
 
@@ -1283,6 +1338,8 @@ int countCriticalNodes(int** G, int n, int p[]) {
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250928174525.png)
 
 ### n 个元素二分查找判定树，查找失败的时候的最多比较次数
+
+查找失败就是查找到空结点，注意空结点不用再比较一次，所以比较最多次数就是树的高度次
 
 最多比较次数就是查找道最后一层了
 
@@ -1952,7 +2009,7 @@ $$
 
 辅助空间复杂度是 O (1) 的
 
-
+因为有分组的处理，因此**希尔排序是不稳定的**
 ## 冒泡排序
 
 冒泡排序的思想和代码实现
@@ -1993,7 +2050,12 @@ $$
 ### 一趟排序与一次划分的定义区别（408 为准）
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251027085944.png)
+快速排序的第一趟会有一个正确的元素处于正确的位置上（左边元素比其小，右边元素比其大），并且将数组划分为两个部分
+第二趟结束后第一趟划分的两个部分分别会有元素处于正确的位置上（左边元素比其小，右边元素比其大）
 
+快速排序每一趟都至少会有一个元素被放在正确的位置上
+
+而快速排序的一次划分则是针对一个部分数组，这个数组中有一个元素会被放在正确的位置上，但是一趟排序可能包含多个划分
 ## 简单选择排序
 
 ### 选择排序的思想
