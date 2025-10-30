@@ -805,7 +805,7 @@ process{//第i个哲学家
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250821161228.png)
 
-### 死锁产生的原因是什么？
+### 死锁产生的原因是什么？（2 点）
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250821161244.png)
 
