@@ -708,7 +708,19 @@ void dfs(TreeNode* root){
 将字符出现的频度作为字符结点的权值，然后按照构造哈夫曼树的过程构造一个哈夫曼树，从这棵树的根结点开始，往左走就是 0，往右走就是 1，然后从根结点到叶结点的路径就是这个叶结点字符的编码了
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251028082457.png)
+### k叉哈夫曼树的性质
 
+（1）k叉哈夫曼树中只会有叶结点和度为k的结点，即n0和nk
+
+（2）根据度和结点总数的关系有n0 + nk = k * nk + 1
+
+### k 叉哈夫曼树如何进行合并？
+
+根据上文，nk = (n0 - 1) /(k - 1)
+
+由于nk的个数是整数个，所以n0- 1必须可以整除k - 1，这里的n0就是最开始的结点，如果给定的这些结点个数-1不能整除k-1，那就得加上权值为0的虚结点
+
+然后按照 k 个结点 k 个结点这样合并即可，与哈夫曼树类似，哈夫曼树是 2 个结点 2 个结点合并
 
 ## 并查集
 
@@ -1295,6 +1307,7 @@ Floyd 算法的时间复杂度
 
 ### 拓扑排序的代码实现（两种 BFS 和 DFS）
 
+
 ### 拓扑排序代码的时间复杂度
 
 ### 逆拓扑排序的定义
@@ -1637,35 +1650,73 @@ mid 下取整，如果整个结点的个数是奇数个，则等分
 
 ![](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251020165022.png)
 
-### 二叉排序树的结点定义
 
 
+### 二叉排序树的构造操作
 
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251103094526.png)
 
-### 二叉排序树的查找操作以及代码实现
-
-### 二叉排序树的插入操作以及代码实现
-
-### 二叉排序树的构造操作以及代码实现
 
 ### 二叉排序树的删除操作（三种情况）
-	### 删除结点是叶结点
-	### 删除结点只有左子树或者右子树
-	### 删除结点有左子树和右子树
 
-### 一颗二叉排序树最好情况的最多查找次数是多少
+
+**删除结点是叶结点：直接删除**
+
+ **删除结点只有左子树或者右子树：子树上移直接替换这个结点：**
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251103094809.png)
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251103094858.png)
+
+
+**删除结点有左子树和右子树**
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251103094936.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251103094954.png)
+
+或者直接前驱：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251103095045.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251103095055.png)
+
+ ### 一颗二叉排序树最好情况的最多查找次数是多少
+
+一颗二叉排序树的最多查找次数就是树的高度
+
+最好情况，就是 n 个结点的二叉树的最少高度，也就是 $h = \lceil \log_{2}(n + 1) \rceil$
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251103100026.png)
 
 ### 一个二叉排序树最坏情况的最多查找次数是多少
 
+最坏情况，排成了一个链条：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251103100052.png)
+
+
 ### 二叉排序树最好情况下的查找复杂度量级是多少
+
+O (logn)
 
 ### 二叉排序树最坏情况下的查找复杂度量级是多少
 
-### 二叉排序树最好情况下的平均查找长度量级是多少
+O (n)
+
+ ### 二叉排序树最好情况下的平均查找长度量级是多少
+
+O (logn)
 
 ### 二叉排序树最坏情况下的平均查找长度量级是多少
 
+O (n)
+
 ### 二叉排序树平均查找长度的计算（给定一个确定的二叉排序树的平均查找长度的计算方法）
+
+
+其实就是每棵树的结点的高度乘这个结点的概率：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251103102523.png)
+
 
 ## 平衡二叉树（AVL）
 
@@ -1738,6 +1789,11 @@ mid 下取整，如果整个结点的个数是奇数个，则等分
 ![](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251026211041.png)
 
 最大深度量级以及平均查找长度都是树的高度的量级，所以都是 log 2 n 级别
+
+
+### 平衡二叉树的删除操作
+
+
 
 ## 红黑树（RBT）的定义和基本性质
 
@@ -2712,22 +2768,83 @@ $$
 
 ## 基数排序
 
-基数排序的分配和收集过程是什么
+### 基数排序的分配和收集过程是什么
 
-基数排序的 r 是指什么
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251103145845.png)
 
-基数排序如何得到递增的序列
+假如有上面的一串 3 位数字，如果想要将他们进行递减排序
 
-基数排序如何得到递减的序列
+这里 d = 3，就是每个关键字的位数，这里是 3 位
+r = 9，这里是关键字的每一位的取值，从 0 ~ 9
 
-基数排序的时间复杂度
+首先将 r 分为 9 ~ 0，从高到低排布，如上图所示（因为是要递减排序）形成一个个的队列
 
-基数排序的稳定性
+**（1）对个位进行一趟分配和回收**
 
-基数排序的使用场景
+这里的一趟分配是指，按照上图的原来数字顺序，将数字按照个位串到各个队列上，形成一次分配，每次都是从队尾进入到各个队列
 
-基数排序中的 d 和 r 分别是指什么
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251103150332.png)
 
+由于是倒序，所以一趟收集就是从 r 大的队列开始，从队头依次将元素取出：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251103150446.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251103150458.png)
+
+**（3）然后，再按照这个得到的个位的顺序，对十位进行一次分配和收集**
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251103150604.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251103150622.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251103150643.png)
+
+**（4）第四趟，再按照百位进行分配和收集**
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251103150737.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251103150756.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251103150809.png)
+
+这样就得到了递减的序列了
+### 基数排序的 r 是指什么
+
+r 是关键字每个位的范围，上文中就是 3 位关键字，每一位的范围都是 0 ~ 9，所以 r  = 0 ~ 9，一个 10 个队列，这 3 位就在这 10 个队列上进行分配和回收
+
+### 基数排序如何得到递增的序列
+
+收集的时候按照从小的队列到大的队列收集即可
+
+### 基数排序如何得到递减的序列
+
+收集的时候按照从大的队列到小的队列收集即可
+
+### 基数排序的时间复杂度
+
+假设关键字是 d 位，每一位的范围都是 r，一共 n 个关键字
+
+一共需要 d 趟，每一趟需要进行 n 次分配，以及 r 次收集，所以复杂度就是 O (d (n + r))
+
+### 基数排序的稳定性
+
+稳定的
+
+### 基数排序的使用场景
+
+它适用于 d 和 r 比较小，但是 n 比较大的场景，因为此时 d (n + r) 的复杂度会小于 n^2
+
+但是如果 d 比较大，n 比较小，那么 d（n + r）复杂度就会大于 n^2
+
+### 基数排序中的 d 和 r 分别是指什么
+
+d 就是关键字的位数，r 是关键字每一位的范围
+
+假设基数排序进行了 k 趟，则趟数越靠后的关键字的位优先级越高，比如上面的 3 位关键字排序，最后一趟的百位优先级最高，基数排序达到的效果就是关键字位优先级高的先决定排序，如果关键字位相同，则看下一位
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250520174450.png)
+
+这道题，显然 k 1 的优先级更高，所以 k 1 一定是靠后进行的，所以 AC 错
+
+这里要求 k 1 相同的情况下 k 2 小的应该在前面
+
+当刚开始进行 k 1 排序的时候是在一个按照 k 2 递增的序列上进行的，按照题意进行排序，意思是对于 k 1 相等的前后两个元素此时不应该改变他们按照 k 2 的递增位序，也就是不应该改变 k 1 相等的两个元素之间在刚开始进行 k 1 排序的时候的位序，那 k 1 用一个稳定的排序算法即可
+
+所以 D 正确
 ## 外部排序
 
 磁盘和内存交换数据的基本过程
