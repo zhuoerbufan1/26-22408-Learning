@@ -64,29 +64,7 @@ PC 和 PSWR 中的 PSW 一般都会被保存在栈中，在中断返回的时候
 
 
 
-## 输入输出 - IO 接口
 
-### IO 的基本职能有哪些？
-
-![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250921114422.png)
-
-
-### IO 接口的通用结构是什么？
-
-![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250921114604.png)
-
-
-### 数据缓冲寄存器和状态/控制寄存器的功能是是什么？
-
-![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250921115424.png)
-
-（1）数据寄存器用来与主存和 CPU 传送数据
-（2）状态寄存器用于存放来自 CPU 的控制命令（命令字），这个同样用数据总线进行传输
-### 连接 IO 接口的地址线的作用是什么？
-
-![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250921115606.png)
-
-当 IO 准备好了数据之后放在了数据缓冲寄存器中，然后 CPU 发出地址线读取数据缓冲寄存器中某个寄存器地址中的数据
 ## IO 数据传送控制方式 - 程序查询方式
 ### IO 数据传送控制方式是什么？
 

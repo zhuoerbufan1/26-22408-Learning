@@ -457,20 +457,49 @@ in 指针会指向一个空的缓冲区，out 会指向一个满的缓冲区，I
 
 
 
-## 硬件部分
+
+
+
+
+## 硬件部分 - IO 接口
+### IO 的基本职能有哪些？（4 个）
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250921114422.png)
 
 ### IO 接口（设备控制器）是什么？
+
+其实就是设备控制器，位于 CPU 和外设之间
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250926195838.png)
 
 
 
+### IO 接口的通用结构是什么？
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250921114604.png)
+
+
+### 数据缓冲寄存器和状态/控制寄存器的功能是是什么？
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250921115424.png)
+
+（1）数据寄存器用来与主存和 CPU 传送数据
+（2）状态寄存器用于存放来自 CPU 的控制命令（命令字），这个同样用数据总线进行传输
+### 连接 IO 接口的地址线的作用是什么？
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250921115606.png)
+
+当 IO 准备好了数据之后放在了数据缓冲寄存器中，然后 CPU 发出地址线读取数据缓冲寄存器中某个寄存器地址中的数据
 
 ### IO 接口有哪三个组成部分？分别有什么功能？
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250926195931.png)
 
+（1）与处理机的接口，主要与 CPU 通信，包括地址线，数据线，控制线，数据寄存器，控制/状态寄存器
 
+（2）与设备的接口，可以连接多个设备，对应多个与设备的接口，包括数据，状态，控制 3 类信号
+
+（3）控制逻辑，用于实现对设备的控制，CPU 通过数据线将命令传到控制寄存器，通过地址线转到 IO 接口，控制逻辑对地址进行译码，根据命令来控制外设
 
 ### IO 接口的两种模式，阻塞 IO 和非阻塞 IO 分别是什么含义？
 
@@ -487,6 +516,7 @@ in 指针会指向一个空的缓冲区，out 会指向一个满的缓冲区，I
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250926200043.png)
 
+控制和状态寄存器可以混用
 
 ### IO 端口有哪两种编址方式？
 
