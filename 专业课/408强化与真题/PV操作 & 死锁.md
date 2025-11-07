@@ -805,14 +805,21 @@ process{//第i个哲学家
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250821161228.png)
 
-### 死锁产生的原因是什么？（2 点）
 
-![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250821161244.png)
 
 ### 死锁产生的 4 个必要条件是什么？分别是什么含义？
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250821161424.png)
 
+### 死锁的三个处理方法是什么？
+
+（1）预防的避免死锁：确保系统不会出现死锁的情况
+（2）检测并解除死锁：
+（3）直接忽略死锁，装作没看见
+
+### 处理死锁-预防死锁-破坏互斥资源是什么？
+
+让某些互斥访问的资源变得共享，但是对于特定的资源这个方法不行
 ### 处理死锁-预防死锁-破坏请求保持条件是什么？
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250821161911.png)
@@ -823,6 +830,7 @@ process{//第i个哲学家
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250821162225.png)
 
+（1）提出新的要求不满足的时候，必须释放自己保持的所有资源，需要时再进行申请
 ### 处理死锁-预防死锁-破坏循环等待条件是什么？
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250821162507.png)
