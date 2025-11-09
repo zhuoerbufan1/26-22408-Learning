@@ -192,7 +192,8 @@ D 的屏蔽字恢复之后可以屏蔽 B，所以 D 的中断服务程序会执�
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250921160252.png)
 
-
+（1）DMA，直接存储器存取，这种方式主存和 IO 之间直接通过 DMA 总线进行数据交换
+（2）控制总线进行 DMA 传送的硬件接口成为 DMA 控制器
 ### DMA 的三种方式是什么？
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250921160433.png)
@@ -206,10 +207,10 @@ D 的屏蔽字恢复之后可以屏蔽 B，所以 D 的中断服务程序会执�
 
 ### DMA 的基本过程是什么？
 
-![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250921161322.png)
+
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250927125040.png)
 
-### DMA 访问主存使用的是实地址还是虚地址？
+### DMA 访问主存使用的是实地址还是虚地址？（暂定，这个知识点不完善）
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250921161930.png)
 
@@ -219,6 +220,8 @@ D 的屏蔽字恢复之后可以屏蔽 B，所以 D 的中断服务程序会执�
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250921163757.png)
 
+
+（1）最好是虚拟地址，因为这样 DMA 控制器中的字计数器直接 + 1 即可，不用考虑数据是否在主存中连续存放
 ### DMA 和 Cache 之间会有什么问题？如何解决？
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250921163910.png)
@@ -233,14 +236,24 @@ D 的屏蔽字恢复之后可以屏蔽 B，所以 D 的中断服务程序会执�
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250927124044.png)
 
+（1）CPU 执行一段初始化程序对 DMA 控制器进行各种初始化工作，包括
+（2）准备内存，申请内存缓冲区
+（3）传参数
+（4）启动 DMA
 ### DMA 传送数据阶段的详细过程是什么？
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250927124149.png)
 
-DMA 在这个阶段每次传送的是一个字，具体来说就是 IO 接口中的 IO 端口中的一个字数据（IO 接口中的数据缓冲寄存器中的一个字），每当外设准备好了一个字之后，就通知 DMA 控制器，由 DMA 控制器发出总线请求，传输一个字，传输完毕交出总线控制权
+
+（1）IO 接口中的 IO 端口一个字数据准备好了之后，通知 DMA 控制器，DMA 发出总线请求传输一个字
+（2）传输完成之后字计数器-1，并且修改主存地址，字计数器为 0 的时候结束传送
+（3）这个过程不需要 CPU 参与，只是 DMA 申请总线的时候优先级比 CPU 申请总线更高
 ### DMA 后处理阶段的详细过程是什么？
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250927124219.png)
+
+（1）DMA 控制器发出中断信号，转到中断处理程序，CPU 接管数据传送过程最后过程
+（2）对数据进行校验等等
 ### DMA 在数据传送阶段使用周期窃取方式传送数据的过程是什么？
 
 简单来说，就是当外设准备好了数据之后就会通知 DMA 挪用总线的几个存取周期，来完成这次请求总线的数据传送（一般来说，如果 IO 端口的数据长度与数据总线的长度一样的话，使用一个总线周期就能完成一次 DMA 字传送）
