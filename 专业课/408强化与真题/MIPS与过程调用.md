@@ -29,7 +29,7 @@ a 0 ~ a 3 是函数传递的形参保存的寄存器
 
 t 0 ~ t 7 是函数执行过程中保存的临时变量，当这个函数调用另一个函数的时候这些寄存器中的值可以不用保存
 
-a 0 ~ a 7 是函数执行过程中保存的临时变量，当这个函数调用另一个函数的时候这些寄存器中的值应该被保存
+s 0 ~ s 7 是函数执行过程中保存的临时变量，当这个函数调用另一个函数的时候这些寄存器中的值应该被保存
 
 ### MIPS 是如何开辟内存栈的？
 
@@ -125,6 +125,14 @@ MIPS 在内存中开辟一个栈，有栈底和栈顶，并且地址是从高到
 第二条：将地址保存到 sp 指向位置的下一个位置上
 第三条：将参数保存到 sp 指向的位置上
 
+### MIPS 中是如何访问数组元素的？
+
+假如数组中一个元素 4 B，按字节编址
+
+（1）一个寄存器存放数组的基地址 array
+（2）一个寄存器存放变量 i
+（3）array + 4 * i 就是第 i 个元素的地址，按照这个地址访问数组
+（4）访问完成之后 i ++
 ### 一个函数的 MISP 指令具体例子（能分析即可，不要求写出汇编）
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251119113448.png)
@@ -145,14 +153,95 @@ MIPS 在内存中开辟一个栈，有栈底和栈顶，并且地址是从高到
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251119115724.png)
 
-假设从主函数开始调用了函数 set_array，右侧是函数 set_array 的函数调用过程的完整汇编 MIPS 指令
+
+#### 初始化以及栈空间开辟
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251124152852.png)
+
+假设从主函数开始调用了函数 set_array，上图是开始初始化开辟栈空间的指令
 
 第一行：这里先开辟 set_array 的函数栈，这个栈的最开始的大小可以直接计算出来，set_array 这个函数中有 10 个 array 数组元素，所以是 40 B，再加上函数调用开头保存的 4 个寄存器的 4 B 的值，因此最开始的栈空间是 40 B + 16 B = 56 B，所以先让 sp 指针直接指向这个函数栈的开头了，即 sp - 56 的位置处：
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251119150120.png)
 
 
-第二行：这里需要保存 ra 中完成 set_array 函数之后的返回地址，它保存的地方是栈底，此时已经开辟了一个 56 B 的栈，并且 sp 指向了栈顶，所以栈底 4 B 的位置就是 sp - 52 处，因此将 ra 保存到这里
+第二行：这里需要保存 ra 中完成 set_array 函数之后的返回地址，它保存的地方是栈底，此时已经开辟了一个 56 B 的栈，并且 sp 指向了栈顶，所以栈底 4 B 的位置就是 sp - 52 处，因此将 ra 保存到这里：
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251124114759.png)
+
 
 第三行：同理，保存函数调用之前的 fp 指针内容到 ra 保存位置的下面（靠近栈顶方向），因此是 sp - 48 的位置处
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251124114829.png)
+
+第四行，第五行，分别保存 s 0 和 s 1 寄存器的值到栈中，依次向下保存（靠近栈顶方向）即可：
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251124115002.png)
+
+
+第六行，给 fp 栈顶指针重新赋值，让其指向保存的 ra 位置处，即 sp + 52 的位置处：
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251124115404.png)
+fp 栈顶指针指向的位置如下，它指向的是原来保存 ra 的位置处：
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251026180434.png)
+
+
+第七行，将当前栈顶指针指向的值赋给 s 1，并将其当作数组 array 的基地址，后续的数组就从这里开始往上递增存放在函数栈中：
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251124115954.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251124152146.png)
+
+
+
+
+
+
+第八行，这里 a 0 存放的是 num 的值，将其保存在寄存器 t 0 中，a 0 是上个函数传递的参数
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251124120534.png)
+
+
+第九行，将数值 0 保存在 s 0 中，当作下标 i，这里分别将寄存器 s 1，s 0 存储了数组基地址 array 和变量 i，这也是为什么最开始要先保存 s 0 和 s 1 的值到寄存器中，因为 s 0 和 s 0 寄存器可能上个函数仍然在使用，所以这里需要先保存，再使用
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251124120739.png)
+
+
+#### 进入循环
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251124121129.png)
+
+
+第一行：`slti $t1, $s0, 10`，这个指令的含义是如果 `s0 < 10`，也就是 i < 10 ，则将 t 1 置为 1，否则，t 1 置为 0，这个指令是用于循环中的条件判断，通过将 t 1 置为 0 或者 1 来判断 i 是否大于 10
+
+第二行：`beq $t1, $zero, exit`，这个指令的含义就是根据上一条指令条件判断的结果，判断 t 1 是否为 0，如果它等于 0，说明 i > =10 了，因此需要跳出循环
+
+第三行：`move $a0, $t0`，这里将 `t0` 的值赋值给 a 0，a 0 一般用于函数之间的形参传递，`t0` 在上文中存放的是数 num 的值，这里的含义就是将 num 作为参数传递到寄存器 `a0` 中
+
+第四行：`move $a1, $s0`，这里将 s 0 的值赋值给 a 1，同样利用寄存器 a 1进行参数传递，s 0 这里存放的就是变量 i 的值，将 i 作为参数进行传递
+
+第五行：`jal compare`，函数调用 compare，此时传递了两个参数，一个是数 num，一个是下标 i，compare 功能是如果 num >= i 则返回 1，否则返回 0
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251124151736.png)
+
+
+第六行：`sll $t1, $s0, 2`，函数调用完毕之后，将 s 0 的值扩大四倍，这里 s 0 就是变量 i，也就是 i 扩大 4 倍，放到寄存器 `t1` 中，这里扩大四倍的原因是变量 i 是+1 递增的，数组的每个元素占 4 B，扩大四个字节之后与基地址相加得到元素的地址
+
+第七行：`add $t1, $s1, $t1`，寄存器 s 1 中存放的是基地址，t 1 中是 i * 4 的结果，这里 s 1 + t 1，就是 array + 4 * i，来访存数组中的第 i 个元素，此时 t 1 中存放的就是第 i 个元素的地址
+
+第八行：`sw $v0, 0($t1)`，这一行将寄存器 v 0 中的数值存放到 `array[i]` 的下标地址中，这里寄存器 v 系列一般存放的是函数调用的结果即返回值，这里 v 0 存放的就是上面调用函数 compare 返回的数值
+
+第九行：`addi $s0, $s0, 1`，s 0 寄存器中存放的是变量 i 的值，这一行将变量 i + 1，来访问下一个元素
+
+第十行：`j for-loop`，回到循环的开始，继续循环
+
+#### 函数调用结束返回
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251124152001.png)
+此时这个函数的栈空间状态是：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251124152146.png)
+
+第一行指令 `lw $ra, 52($sp)`，恢复主函数的返回地址，调用结束之后就回到 $ra 寄存器中存放的主函数返回地址处继续执行
+
+第二行指令 `lw $fp, 48($sp)`，恢复主函数的栈底指针指向，让主函数的栈底指针重新指向主函数的栈底
+
+第三行指令 `lw $s0, 44($sp)`，恢复主函数所使用的寄存器 s 0 的数值
+
+第四行指令 `lw $s1, 40($sp)`，恢复主函数所使用的寄存器 s 1 的数值
+
+第五行指令 `addi $sp, $sp, 56`，恢复主函数的栈顶 sp，让 sp 重新指向主函数的栈顶，释放此时调用函数开辟的栈空间
+
+第六行指令 `jr $ra`，回到主函数的返回地址处继续执行
 
