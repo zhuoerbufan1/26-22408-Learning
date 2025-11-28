@@ -2011,9 +2011,9 @@ O (n)
 ### 红黑树的定义？
 
 （1）红黑树是二叉排序树
-（2）根结点和叶结点是黑色
-（3）每个红色结点的子结点必须是黑色的
-（4）从任意一个确定的结点出发，到每个叶结点的路径上黑色结点个数相同
+（2）根结点和叶结点是黑色（叶结点是 NULL 结点）
+（3）每个红色结点的子结点必须是黑色的，黑结点的子结点可以红也可以黑
+（4）从一个确定的结点出发，到每个叶结点的路径上黑色结点个数相同
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251122081344.png)
 
 ### 树的路径和路径长度定义？
@@ -2065,7 +2065,7 @@ O (n)
 
 #### n 个内部结点的红黑树的高度 h <= $2\log_{2}(n + 1)$
 
-
+直接记住即可
 
 ### 红黑树的查找操作和复杂度
 
@@ -2075,6 +2075,147 @@ O (n)
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251122090345.png)
 
 
+### 红黑树的插入操作
+
+
+
+#### 三个原则
+
+（1）插入的一定是红节点
+（2）染色就是红黑互换，即黑结点说它染色就是染成红的，或者红结点说他染色就是染成黑的
+（3）红黑树是一颗二叉排序树，所以最开始的时候按照二叉排序树插入红节点
+
+#### 插入的时候是空树
+
+（1）直接插入一个红色结点，然后加上两个黑的叶结点
+（2）然后根结点要求是黑的，所以染成黑的
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251128175202.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251128175213.png)
+
+#### 插入的时候父节点是黑色
+
+直接插入，不用调整
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251128175353.png)
+
+N：new，新节点
+P：parent，父节点
+S：sibling，叔叔结点
+PP：祖先结点
+
+#### 插入的时候父节点和叔叔结点全是红色
+
+由于父节点是红色，按照红黑树的定义，此时祖父一定是黑色结点，不可能是红色
+
+##### 祖父是根结点
+
+（1）祖父和父亲和叔叔染一次色
+（2）祖父再染一次色
+
+刚插入如下：
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251128175546.png)
+
+父亲，叔叔，祖父染一次色：
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251128175727.png)
+
+祖父再染一次色使其满足红黑树的根结点是黑结点定义：
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251128175759.png)
+
+##### 祖父不是根结点
+
+（1）祖父和父亲和叔叔染一次色，此时祖父结点变成了红节点
+（2）此时将祖父看成新插入的一个红色结点，继续向上调整
+
+左边是插入之后，右边是染色一次之后，后续就将 PP 结点看成一个新插入的结点，继续向上调整
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251128180149.png)
+
+#### 插入的时候父节点是红色，叔叔结点是黑色（包括空结点）
+
+（1）这个时候会分很多种情况，还需要旋转操作
+（2）祖父结点一定是黑色的
+##### 父节点是祖父的左孩子
+
+###### 插入结点是父节点的左孩子（LL 型）
+
+（1）对父亲和祖父进行染色
+（2）进行一次右旋（跟平衡二叉树差不多）
+
+
+插入如下，LL 型插入
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251128191127.png)
+
+首先进行一次染色：
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251128191328.png)
+
+右旋操作：
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251128191423.png)
+
+###### 插入结点时父节点的有孩子（LR 型）
+
+（1）对父节点进行左旋（跟平衡二叉树类似）
+（2）然后将父节点看作新插入的结点，回到 LL 型
+
+插入情况如下：
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251128191619.png)
+
+
+对父节点进行一次左旋：
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251128191712.png)
+
+##### 父节点是祖父的右孩子
+
+###### 插入结点是父节点的右孩子（RR 型）
+
+处理和上文类似
+（1）祖父，父亲染色
+（2）左旋一次
+
+插入情况：
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251128191849.png)
+
+染色一次：
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251128191911.png)
+
+左旋一次：
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251128191932.png)
+
+
+###### 插入结点是父节点的左孩子（RL 型）
+
+（1）先对父节点进行一次右旋
+（2）将父节点看作新插入的结点，回到 RR 型
+
+
+插入之后：
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251128192109.png)
+
+
+对父节点右旋一次：
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251128192136.png)
+
+回到了 RR 型了
+
+### 一个红黑树一次插入的例子：
+
+（1）插入结点是 B
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251128192559.png)
+
+（2）父亲和叔叔都是红色，因此祖父和父亲，叔叔染色一次，同时将祖父看成新插入的结点继续向上调整：
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251128192656.png)
+
+（3）K 的父亲是红色，叔叔是黑色，并且此时是 LL 型插入，因此父亲和祖父染色，并进行一次右旋：
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251128192821.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251128192831.png)
+
+以上就完成了结点 B 的插入操作
+
+### 一个红黑树完整插入例子：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251128194407.png)
+B 错误
+插入结果是：
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251128194421.png)
 
 ## B 树定义和性质
 
@@ -2360,11 +2501,18 @@ $$
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250920102125.png)
 
-这里采用头插法插入到同一个空闲位置处
+（1）这里采用头插法（或者尾插法，看题目描述）插入到同一个空闲位置处
+（2）哈希表的每个位置变成了一个头结点，并不存储元素，引出的链才存放元素
 
 ### 链地址法的删除操作
 
 直接删除
+
+### 拉链法的装填因子计算
+
+装填因子一律是填入表中的元素个数除以哈希表长度，下图的装填因子就是 12/13
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250920102125.png)
 ## 处理冲突的方法 - 开放定址法
 
 ### 二次堆积是什么？
