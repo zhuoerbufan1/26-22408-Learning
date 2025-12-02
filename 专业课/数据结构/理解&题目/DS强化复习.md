@@ -987,7 +987,9 @@ n 个顶点的树，它的边的个数必为 n - 1
 
 因此对于一个无向图来说，如果边的个数 > n- 1，则一定会出现回路
 
+### 保证图连通的最少边数是多少？
 
+n 个顶点保证连通最少边数是 n - 1 个；当边数 < n- 1 的时候一定不连通
 ## 图的存储 - 邻接矩阵
 
 ### 无向图的邻接矩阵是怎么存储的
@@ -2218,11 +2220,6 @@ B 错误
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251128194421.png)
 
 ## B 树定义和性质
-
-### m 叉查找树的概念和结构
-
-![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250910131111.png)
-![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250910131133.png)
 
 
 ### B 树的定义（三个方面）
