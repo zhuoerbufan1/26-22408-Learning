@@ -1,0 +1,243 @@
+{
+  "main": {
+    "id": "69a2c9b6e9ac35f3",
+    "type": "split",
+    "children": [
+      {
+        "id": "98ecdd36f475352b",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "7abf6bd3f0101652",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "政治/新时代.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "新时代"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "c8e9f78391e2514e",
+    "type": "split",
+    "children": [
+      {
+        "id": "f7a91fcb76b078ba",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "5a4d86762f7a8f39",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "搜索"
+            }
+          },
+          {
+            "id": "eb92f747004dd95e",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "书签"
+            }
+          },
+          {
+            "id": "5ce09c7082020599",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": true
+              },
+              "icon": "lucide-folder-closed",
+              "title": "文件列表"
+            }
+          }
+        ],
+        "currentTab": 2
+      }
+    ],
+    "direction": "horizontal",
+    "width": 202.5
+  },
+  "right": {
+    "id": "ee1ba97547e52fe7",
+    "type": "split",
+    "children": [
+      {
+        "id": "8b3c5d5390d119ba",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "67a5ec63f2880cdb",
+            "type": "leaf",
+            "state": {
+              "type": "git-view",
+              "state": {},
+              "icon": "git-pull-request",
+              "title": "Source Control"
+            }
+          },
+          {
+            "id": "05fd48118dbd60db",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "政治/新时代.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "新时代 的大纲"
+            }
+          },
+          {
+            "id": "b57947e1d897e827",
+            "type": "leaf",
+            "state": {
+              "type": "quiet-outline",
+              "state": {},
+              "icon": "lines-of-text",
+              "title": "Quiet Outline"
+            }
+          },
+          {
+            "id": "f4159e1a6883b990",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "专业课/数据结构/5 王道第五章习题 树.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "5 王道第五章习题 树 的反向链接列表"
+            }
+          },
+          {
+            "id": "1206f1bf9a81b206",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "专业课/数据结构/5 王道第五章习题 树.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "5 王道第五章习题 树 的出链列表"
+            }
+          },
+          {
+            "id": "3ec3f509f642d63a",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "标签"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 323.5
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "bases:创建新数据库": false,
+      "switcher:打开快速切换": false,
+      "graph:查看关系图谱": false,
+      "canvas:新建白板": false,
+      "daily-notes:打开/创建今天的日记": false,
+      "templates:插入模板": false,
+      "command-palette:打开命令面板": false,
+      "obsidian-git:Open Git source control": false,
+      "omnisearch:Omnisearch": false
+    }
+  },
+  "active": "67a5ec63f2880cdb",
+  "lastOpenFiles": [
+    "政治/近代史模拟题.md",
+    "政治/新时代.md",
+    "政治/真题近代史.md",
+    "政治/近代史.md",
+    "政治/毛的著作意义.md",
+    "政治/马原模拟题.md",
+    "政治/马原.md",
+    "政治/思修.md",
+    "专业课/计网/计网各个知识点详解.md",
+    "专业课/计网/计网强化笔记.md",
+    "专业课/计网/计网每日一题.md",
+    "专业课/408强化与真题/真题/2020年.md",
+    "专业课/408强化与真题/真题/2019年.md",
+    "专业课/专业课易错点.md",
+    "数学/证明题大观.md",
+    "专业课/最后组卷.md",
+    "数学/数学必背结论.md",
+    "数学/线代大观.md",
+    "专业课/数据结构/理解&题目/DS强化复习.md",
+    "专业课/模拟查漏补缺.md",
+    "专业课/一些待解决的问题.md",
+    "26PDFS/专业课/模拟/每日一题-12月3日.pdf",
+    "26PDFS/专业课/模拟/每日一题-12月3日.tmp",
+    "26PDFS/数学/线代铜/11.18复盘视频文件/复盘文件专题5和6.pdf",
+    "数学/数学处理方法.md",
+    "数学/有疑问的东西.md",
+    "数学/向量有关的结论汇总.md",
+    "数学/限时训练技巧.md",
+    "数学/微分算子法.md",
+    "26PDFS/专业课/模拟/每日一题-12月2日.pdf",
+    "26PDFS/专业课/模拟/每日一题-12月2日.tmp",
+    "26PDFS/数学/线代铜/11.18复盘视频文件/复盘文件专题1和2.pdf",
+    "26PDFS/数学/线代铜/11.18复盘视频文件/复盘文件专题1-4.pdf",
+    "26PDFS/数学/线代铜/高数计算复盘.pdf",
+    "26PDFS/数学/线代铜/高数计算复盘.pdf.baiduyun.p.downloading",
+    "26PDFS/专业课/模拟/每日一题-12月1日.pdf",
+    "Assets/image-3.png",
+    "Assets/image-6.png",
+    "26PDFS/英语/作文/26石雷鹏《作文冲刺背诵20篇》/需要打印的看这个.png",
+    "26PDFS/英语/作文/26石雷鹏《小作文笔记》/需要打印的看这个.png",
+    "26PDFS/英语/作文/26石雷鹏《高效技巧讲义》/需要打印的看这个.png",
+    "专业课/数据结构/理解&题目/文章封面.jpg",
+    "26PDFS/专业课/814and912一些资料/数据结构/西交教材和题/本校【课后作业】.jpg",
+    "Pasted image 20250421181842.png",
+    "Pasted image 20250421181850.png",
+    "Pasted image 20250421170103.png"
+  ]
+}
