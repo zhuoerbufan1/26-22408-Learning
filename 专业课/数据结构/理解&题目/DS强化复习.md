@@ -13,7 +13,7 @@
 ### 中缀表达式转后缀表达式的栈方法是什么？
 
 
-==中缀表达式栈模拟转后缀==
+
 
 从左到右遍历中缀表达式，输出成后缀表达式也是从左到右的构建过程
 
@@ -29,8 +29,6 @@
 ### 中缀表达式转前缀表达式的栈方法是什么？
 
 
-==中缀表达式栈模拟转前缀==
-
 从右到左遍历中缀表达式，输出成前缀表达式也是从右到左的构建过程
 
 在遍历过程中：
@@ -42,6 +40,9 @@
 （5）如果遍历完全完全，则弹出栈中所有元素，输出（除了括号）
 
 ### 后缀表达式的计算方式？
+
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251207080605.png)
 
 ## 队列
 
@@ -1425,7 +1426,6 @@ Kruskal 适用于稀疏图
 总的来说 Dijkstra 不能处理带负权的图
 ## Floyd 算法
 
-### Floyd 算法的代码
 
 
 
@@ -1723,7 +1723,14 @@ int countCriticalNodes(int** G, int n, int p[]) {
 ### 二分的适用条件
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250928172051.png)
+（1）有序
+（2）适合随机访问
 
+不满足以上两点的都不适合使用二分查找
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251207091007.png)
+
+上面四个数据结构都不适合
 ### 二分的模板 (Acwing 内容)
 
 
