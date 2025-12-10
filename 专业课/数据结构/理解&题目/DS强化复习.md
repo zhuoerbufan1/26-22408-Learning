@@ -1,11 +1,16 @@
 # 复杂度
 
-
 # 线性表
+
+### 头结点和头指针的概念
+
+单链表都是有头指针的；尾指针不一定有，头指针指向链表的第一个结点（无论有没有头结点）
 
 # 栈，队列，数组
 
 ## 栈
+
+
 
 ### 中缀表达式转后缀表达式和前缀表达式的快速方法是什么？
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250613145618.png)
@@ -763,8 +768,8 @@ void dfs(TreeNode* root){
 ```
 int find(int S[], int x){
 	
-	if(S[x] != -1) S[x] = find(S[x]);
-	if(S[x] == -1) return x;
+	if(S[x] >= 0) S[x] = find(S[x]);
+	if(S[x] < 0) return x;
 	return S[x];
 }
 ```
