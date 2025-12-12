@@ -74,7 +74,7 @@ MIPS 在内存中开辟一个栈，有栈底和栈顶，并且地址是从高到
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251026090004.png)
 
-### 过程调用的基本步骤是什么？
+### 过程调用的基本步骤是什么？（重要）
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251026085521.png)
 
@@ -117,15 +117,15 @@ MIPS 在内存中开辟一个栈，有栈底和栈顶，并且地址是从高到
 
 ### 过程 P 在调用过程 Q 之前保存返回地址 ra 和参数的具体过程是什么？
 
-![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251026180434.png)
 
 右侧的指令：
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251212084949.png)
 
 第一条：先将过程 P 的栈顶指针 sp 往下移动两个元素单位，即 sp - 8，栈顶往下增长两个单位
 第二条：将地址保存到 sp 指向位置的下一个位置上
 第三条：将参数保存到 sp 指向的位置上
 
-### MIPS 中是如何访问数组元素的？
+### MIPS 中是如何访问数组元素的？（重要）
 
 假如数组中一个元素 4 B，按字节编址
 
@@ -133,6 +133,12 @@ MIPS 在内存中开辟一个栈，有栈底和栈顶，并且地址是从高到
 （2）一个寄存器存放变量 i
 （3）array + 4 * i 就是第 i 个元素的地址，按照这个地址访问数组
 （4）访问完成之后 i ++
+
+这里之所以要 i ++，而不是 i + 4，是因为存放 i 的寄存器位数是有限的，这个寄存器本身的范围 可能遍历不到全部的数组，比如下面这道题，C 选项理论上可行，但是 IX 只有 7 bit，表示的数的范围是 0 ~ 127，这个范围作为地址偏移的话显然遍历不到 double 数组的所有元素
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251212084417.png)
+
+A 正确
 ### 一个函数的 MISP 指令具体例子（能分析即可，不要求写出汇编）
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251119113448.png)

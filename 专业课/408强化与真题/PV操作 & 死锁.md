@@ -1431,12 +1431,77 @@ P5{
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250821160554.png)
 
+### 2025 年
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251212095716.png)
+
+一个互斥关系：甲和乙对铁锹的互斥
+
+甲可以看成生产者，乙可以看成消费者；甲是生产树坑的生产者，乙是消费树坑的消费者
+
+因此有两个同步关系：
+（1）存放树坑的空闲资源存在（甲只能生产 3 个树坑）
+（2）树坑资源存在（甲生产树坑，乙消费树坑）
+
+最后剩下的就是乙和丙的前后同步关系，乙种完树苗之后，丙才能浇水
+
+所以：
+
+```cpp
+semaphore mutex = 1;
+semaphore empty = 3;//存放树坑的资源，一开始只有3个，类比生产者消费者问题中的empty用于存放生产者生产的产品，这里生产者是甲，产品是树坑
+semaphore pit = 0;//树坑资源，甲生产树坑资源，乙消费树坑资源
+semaphore syn = 0;//乙和丙的前后同步关系
+
+```
+
+进程甲：
+
+```cpp
+process 甲
+{
+	while(1){
+		wait(empty);//消费一个存放树坑的资源
+		wait(mutex);
+		挖坑;
+		signal(mutex);
+		signal(pit);//生产树坑
+	}
+}
+```
+
+进程乙：
+```cpp
+process 乙
+{
+	while(1){
+		wait(pit);//消费一个树坑
+		wait(mutex);
+		放树苗，填坑;
+		signal(empty);//生产一个存放树坑的空闲资源
+		signal(mutex);
+		signal(syn);//统治丙可以浇水了
+	}
+}
+```
+
+进程丙：
+
+```cpp
+process 丙
+{
+	wait(syn);
+	浇水;
+}
+```
+
+
 ### relax 模拟题
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251211192330.png)
 
-## 死锁问题写法规范
+## PV问题写法规范
 
-（1）信号量定义必须是 semaphore
+（1）信号量定义必须是 semaphore，并且这个不能当作数字进行 if 语句判断等等
 （2）别忘记了进程内部的 while 循环
-（3）
+（3）注意看题目是 wait（P 操作） 还是 signal（V 操作）；还是 P 操作和 V 操作
