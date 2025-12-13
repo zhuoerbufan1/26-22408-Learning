@@ -15,6 +15,9 @@
 ### 中缀表达式转后缀表达式和前缀表达式的快速方法是什么？
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250613145618.png)
 
+这里加括号的时候相同级别的运算符更靠前的优先级更高
+这里的后缀是 abc*+de+-
+
 ### 中缀表达式转后缀表达式的栈方法是什么？
 
 
@@ -1661,13 +1664,6 @@ int countCriticalNodes(int** G, int n, int p[]) {
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251207091007.png)
 
 上面四个数据结构都不适合
-### 二分的模板 (Acwing 内容)
-
-
-
-### 二分查找的代码（408 DS 中的内容）
-
-
 
 ### 二分查找判定树的构造，构造树的过程中的两个结论（mid 向下取整）
 
