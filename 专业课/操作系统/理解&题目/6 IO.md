@@ -31,6 +31,11 @@
 
 ## 用户层软件部分
 
+### 用户层软件的功能有哪些？
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251216103005.png)
+
+
 ### 假脱机中的输入井和输出井是什么？分别有什么作用？
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20250926165715.png)
