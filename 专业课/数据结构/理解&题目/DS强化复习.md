@@ -220,7 +220,7 @@ next 数组就是上文当某次匹配失败的时候 j 移动的规则，即
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20251015162330.png)
 
 
-### KMP 算法的进一步优化，nextval 数组的求法（见理解）
+### KMP 算法的进一步优化，nextval 数组的求法
 
 这里的优化主要是优化 next 数组，将 next 数组替成 nextval 数组，然后上述 KMP 算法的代码不变，用 nextval 数组来更改 j 指针即可
 
