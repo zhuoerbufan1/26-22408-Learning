@@ -106,13 +106,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "政治/新时代.md",
+                "file": "复试/算法上机.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "新时代 的大纲"
+              "title": "算法上机 的大纲"
             }
           },
           {
@@ -177,7 +177,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 477.5
+    "width": 278.5
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -194,10 +194,15 @@
   },
   "active": "67a5ec63f2880cdb",
   "lastOpenFiles": [
+    "复试/temp.md",
+    "最后记忆.md",
+    "README.md",
+    "复试/算法上机.md",
+    "26PDFS/政治/我加载了恋爱游戏 掠过的乌鸦盟主群全本23章番外1特典.txt",
+    "26PDFS/政治/我加载了恋爱游戏 掠过的乌鸦盟主群全本23章番外1特典.txt.baiduyun.p.downloading",
     "数学/3 真题&模拟/2017年（2h8min，119）.md",
     "数学/3 真题&模拟/2021年（143min，130）.md",
     "数学/3 真题&模拟/2020年（2h44min，103）.md",
-    "复试/算法上机.md",
     "复试/DeZero框架.md",
     "复试/深度学习.md",
     "复试/Python.md",
@@ -210,7 +215,6 @@
     "专业课/操作系统/理解&题目/1 计算机系统概述.md",
     "专业课/408强化与真题/MIPS与过程调用.md",
     "专业课/操作系统/理解&题目/2 进程与线程.md",
-    "最后记忆.md",
     "专业课/模拟查漏补缺.md",
     "专业课/专业课易错点.md",
     "复试/推荐系统王树森.md",
@@ -218,8 +222,6 @@
     "复试/操作系统实战.md",
     "英语/作文.md",
     "英语/单词.md",
-    "英语/外刊阅读.md",
-    "英语/长难句.md",
     "26PDFS/政治/抄材料逻辑图.pdf",
     "26PDFS/政治/抄材料逻辑图.pdf.baiduyun.p.downloading",
     "26PDFS/数学/线代铜/11.18复盘视频文件/复盘文件专题11和12.pdf",
@@ -228,8 +230,6 @@
     "26PDFS/英语/作文/考前预测练习题(（图表）.pdf",
     "26PDFS/英语/作文/考前预测练习题(（图表）.tmp",
     "26PDFS/专业课/模拟/每日一题-12月18日.pdf",
-    "26PDFS/专业课/模拟/每日一题-12月18日.tmp",
-    "26PDFS/专业课/真题/2020～2025大题考法总结@Beokayy_.pdf",
     "26PDFS/专业课/模拟/微信图片_2025-12-10_155706_450.png",
     "Assets/image-3.png",
     "Assets/image-6.png",
