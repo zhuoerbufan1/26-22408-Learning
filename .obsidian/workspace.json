@@ -173,7 +173,8 @@
               "title": "标签"
             }
           }
-        ]
+        ],
+        "currentTab": 2
       }
     ],
     "direction": "horizontal",
@@ -192,7 +193,7 @@
       "omnisearch:Omnisearch": false
     }
   },
-  "active": "67a5ec63f2880cdb",
+  "active": "b57947e1d897e827",
   "lastOpenFiles": [
     "复试/temp.md",
     "最后记忆.md",
