@@ -186,3 +186,569 @@ class Variable:
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260204211014.png)
 
 这样反向传播过程就结束了
+
+### 一个稍稍复杂的多层函数的反向传播计算过程
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260205165448.png)
+
+在这个图中，需要计算的是输出变量 y 对变量 b, c, a, x 的导数，也就是反向传播过程要做的事情
+
+这里的 D 函数不一定是 b 和 c 两个变量的加法，其实可以看成 y = D (b, c)
+
+显然，在正向传播的过程中，函数 D 记住了两个输入变量 b 0, c 0
+
+反向传播的时候设置 y.grad = 1，那么输出变量 y 对变量 b 和 c 在 b 0, 和 c 0 的情况下的导数（也可以说是在输入 x 0 情况下的导数）就是：
+
+$$
+\frac{\partial D(b, c)}{\partial b}|_{b_{0},c_{0}} * 1以及\frac{\partial D(b, c)}{\partial c}|_{b_{0},c_{0}} * 1
+$$
+
+这里利用 b 0 和 c 0 来计算 $\frac{\partial D(b, c)}{\partial b}|_{b_{0},c_{0}} * 1以及\frac{\partial D(b, c)}{\partial c}|_{b_{0},c_{0}} * 1$ 就放在函数 D 的 backward () 的方法中，他返回的就是对输入变量的导数，b.grad 和 c.grad
+
+接着要计算的就是输出变量 y 对变量 a 的导数
+
+这里可以看成这样的复合关系：
+
+$$
+y = D(b, c); b = B(a); c = C(a)
+$$
+链式法则如下：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260205170152.png)
+
+所以 y 对 a 的导数就是：
+
+$$
+\frac{dy}{da} = \frac{\partial y}{\partial b} \frac{db}{da} + \frac{\partial y}{\partial c} \frac{dc}{da}
+$$
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260205165448.png)
+
+因此在这个计算图中，得到了 b.grad 之后继续向前（左）反向传播得到的是 $\frac{\partial y}{\partial b} \frac{db}{da}$，同理得到了 c.grad 之后继续向前反向传播得到的是 $\frac{\partial y}{\partial c} \frac{dc}{da}$
+
+所以我们需要先计算函数 B.backward 方法，然后计算 C.backward 方法，这两个方法作用于同一个输入变量 a 上，所以 a.grad 应该将 B 和 C 的 backward 方法结果加起来，也就是代码中的：
+
+```python
+for x, gx in zip(f.inputs, gxs):  
+  # 首先计算一次B函数的backward，此时就得到了一个a.grad
+  # 下一次计算C函数的backward的时候，此时是相同的输入变量，a.grad不为空，此时应该加上函数C的backward结果，也就是上文中的链式法则异路相加的过程
+    if x.grad is None:  
+        x.grad = gx   
+    else:  
+        x.grad = x.grad + gx  
+  
+    if x.creator is not None:  
+        funcs.append(x.creator)
+```
+
+### 反向传播函数计算的优先级
+
+在迭代从后往前反向传播的时候是利用一个栈结构进行的
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260220094900.png)
+
+这里初始化设置 y.grad = 1，然后利用函数 D，调用 D.backward () 计算输入遍历 b, c 的导数（y 对他们的导数），计算完成之后，将 b 和 c 的生成函数 B，C 放入 funcs 这个栈中
+
+然后取出函数 C，根据 c.grad 来计算 y 从 c 路径对 a 的偏导，下一步应该是计算 y 从 b 路径对 a 的偏导，并将两者加起来得到 y 对 a 的偏导；但是按照代码的逻辑，下一步取出的函数是 A，而不是 B，下面是实现这个过程的代码（Variable 类中的 backward() 成员函数）：
+
+```python
+def backward(self):  
+    if self.grad is None:  
+        self.grad = np.ones_like(self.data)  
+  
+    funcs = [self.creator]  
+    while funcs:  
+    # 这里存在缺陷，当y从变量c路径到达变量a之后下一步取出的是函数A
+    # 而不是函数B
+        f = funcs.pop()  
+        gys = [output.grad for output in f.outputs]  
+        gxs = f.backward(*gys)  
+        if not isinstance(gxs, tuple):  
+            gxs = (gxs,)  
+  
+        for x, gx in zip(f.inputs, gxs):  
+  
+            if x.grad is None:  
+                x.grad = gx  
+            else:  
+                x.grad = x.grad + gx  
+  
+            if x.creator is not None:  
+                funcs.append(x.creator)
+```
+
+为了解决这个问题，引入了辈分机制，给每个 Func 类和 Variable 类加入了一个 generation 属性，并保证：
+
+（1）变量的辈分是其生成函数辈分 + 1，这一步在变量设置自己的生成函数的时候执行
+（2）生成函数辈分与输入变量辈分的最大值保持相同，这一步在正向传播调用函数的时候执行
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260220100116.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260220100123.png)
+
+
+修改之后的 Variable 类中的 backward () 函数代码：
+
+```python
+
+def backward(self):  
+    if self.grad is None:  
+        self.grad = np.ones_like(self.data)  
+  
+    funcs = []  
+    seen_set = set()  
+    # 定义在一个函数中的函数  
+    # add_func()函数在此处定义之后，只能被父函数调用(backward())  
+    # 只能访问父函数中的参数  
+    def add_func(f):  
+        # 这里的seen_set是为了去重，防止一个函数被多次加入到funcs中  
+        if f not in seen_set:  
+            funcs.append(f)  
+            seen_set.add(f)  
+            # 让funcs进行排序，让辈分更高的更先取出计算输入变量的导数  
+            funcs.sort(key=lambda x: x.generation)  
+  
+    add_func(self.creator)  
+  
+    while funcs:  
+        f = funcs.pop()  
+        gys = [output.grad for output in f.outputs]  
+        gxs = f.backward(*gys)  
+        if not isinstance(gxs, tuple):  
+            gxs = (gxs,)  
+  
+        for x, gx in zip(f.inputs, gxs):  
+            if x.grad is None:  
+                x.grad = gx  
+            else:  
+                x.grad = x.grad + gx  
+  
+            if x.creator is not None:  
+                add_func(x.creator)
+```
+
+在正向传播中得到的辈分属性图如下：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260220100813.png)
+
+（1）设置 y.grad = 1 并调用 y 的 backward 函数进行反向传播计算
+（2）先加入函数 D 到 funcs 中
+（3）分别计算 b，c 的导数，并将函数 B，C 加入到 funcs 中
+（4）取出函数 C，y->c->a 路径上 y 对 a 的偏导，并将函数 A 加入到 funcs 中
+（5）加入的时候调用的是 add_func 函数，加入函数 A 到 funcs 之后会根据辈分属性排序，下一次取出的是函数 B 而不是函数 A 了
+（6）取出函数 B，计算 y->b->a 路径上 y 对 a 的偏导，与 y->c->a 路径上 y 对 a 的偏导相加，得到 y 对 a 的导数，此时仍然会调用 add_func 函数，但是函数 A 已经加入到 funcs 中了，因此利用 seen_set 会进行去重，funcs 中仍然只有函数 A
+（7）取出函数 A，调用 A.backward 函数，得到 y 对 x 的导数，反向传播结束
+### Python 中的内存回收机制与弱引用（？）
+
+（1）Python 中的一切皆对象
+（2）对象会有一个引用计数属性，当对象参与赋值，函数传参，加入列表等操作的时候引用计数 + 1，反之，如果被赋值的对象被清空等等，引用计数 -1
+（3）当引用计数 = 0 的时候 Python 会从内存中回收对象
+（4）如果出现循环引用，则被赋值对象清空之后引用计数也不会变为 0，这会导致对象一直在内存中，除非调用 GC 机制进行回收
+
+```python
+a = obj();
+b = obj();
+c = obj();
+a.b = b;
+b.c = c;
+# 上面是正常引用，此时a对应的对象的引用计数是1，b和c对应的obj()	对象的引用计数是2
+
+a = b = c = None;# 被赋值对象清空之后
+# 1. 三个obj()对象的引用计数先都-1，变成0 1 1
+# 2. a对应的obj()对象引用计数变为0，被回收，这导致引用b的对象的引用计数-1，然后导致c对应的obj()对象引用计数-1，导致3者都变为0，被回收
+
+
+```
+
+下面是循环引用机制：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260205195147.png)
+
+这种情况哪怕清空了被赋值对象，最后三个对象的引用计数结果还是不为 0（不用纠结为什么），这导致用户无法使用这三个对象了，但是他们还是存在内存，造成内存浪费
+
+在 Dezero 框架中，也出现了循环引用，这里生成函数被自己的输出变量引用，输出变量同时被自己的生成函数引用：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260205195327.png)
+
+这个时候必须采取方法来处理，这里采用弱引用机制，让 Function 记住自己中间输出变量的时候使用弱引用，不增加中间输出变量的引用计数，这样当输出变量对象的被赋值对象清空的时候引用计数就会减为 0，让 Python 回收用户无法操作的对象，节省内存
+
+
+如果是弱引用，则需要加上括号来访问对象：
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260205200211.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260205200224.png)
+
+在 Function 类中使用下面语句添加弱引用：
+
+```python
+class Function:  
+    def __call__(self, *inputs):  
+        xs = [x.data for x in inputs]  
+        ys = self.forward(*xs)  
+        if not isinstance(ys, tuple):  
+            ys = (ys,)  
+        outputs = [Variable(as_array(y)) for y in ys]  
+  
+        self.generation = max([x.generation for x in inputs])  
+        for output in outputs:  
+            output.set_creator(self)  
+        self.inputs = inputs  
+        # 这里让生成函数记住中间输出变量的时候采用弱引用机制来避免生成函数和中间输出变量之间的循环引用  
+        # 这里的outputs全是对中间输出变量的弱引用  
+        self.outputs = [weakref.ref(output) for output in outputs]  
+        return outputs if len(outputs) > 1 else outputs[0]
+```
+
+对于弱引用的对象，访问的时候必须加上括号，所以在 Variable 类中的 backward 方法中进行修改：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260220102927.png)
+
+这样就解决了循环引用的现象，在下面的循环中，如果仍然是循环引用，那么哪怕下次循环的 x 和 y 变量被覆盖，上次循环中的中间对象也不会被回收。
+
+改成弱引用之后，被覆盖之后会回收（距离原理先不考虑）
+
+### 对函数的封装
+
+```python
+
+# 下面两种写法是等价的：
+# 没有封装的情况（繁琐）
+def add_verbose(x0, x1):
+    adder = Add()        # 1. 创建实例
+    result = adder(x0, x1)  # 2. 调用实例
+    return result
+
+# 封装后的简洁版本
+def add(x0, x1):
+    return Add()(x0, x1)  # 一行搞定
+```
+### 反向传播的状态切换与 with 切换机制
+
+有时候框架本身并不需要进行反向传播，仅仅需要进行正向传播即可，那么在正向传播过程中让函数记住自己的输入变量和输出变量，以及让输出变量记住自己的生成函数就是在浪费内存
+
+因此需要一个机制，让仅仅需要进行正向传播的时候不进行上述连接，从而节省大量内存
+
+这里定义了一个 Config 类，这个类中只有一个属性 enable_backprop，它为 true 的时候表示启用反向传播，为 false 的时候表示禁用反向传播（不进行连接）
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260220114454.png)
+
+```python
+class Function:  
+    def __call__(self, *inputs):  
+        xs = [x.data for x in inputs]  
+        ys = self.forward(*xs)  
+        if not isinstance(ys, tuple):  
+            ys = (ys,)  
+        outputs = [Variable(as_array(y)) for y in ys]  
+  
+  # 只有设置为true的时候才会在正向传播的过程中进行连接，从而节省内存
+        if Config.enable_backprop:  
+            self.generation = max([x.generation for x in inputs])  
+            for output in outputs:  
+                output.set_creator(self)  
+            self.inputs = inputs  
+            self.outputs = [weakref.ref(output) for output in outputs]  
+  
+        return outputs if len(outputs) > 1 else outputs[0]  
+  
+    def forward(self, xs):  
+        raise NotImplementedError()  
+  
+    def backward(self, gys):  
+        raise NotImplementedError()
+```
+
+为了更方便的启用和禁用反向传播机制，这里采用了 with 语句：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260220114736.png)
+
+with 语句包括两个部分，一个部分是 with 作用域：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260220114941.png)
+
+一个是 contextlib 模块中设置 config_test () 的实现：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260220115029.png)
+
+总的来说就是：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260220115043.png)
+
+当执行语句 `with config_test():` 进入 with 作用域之后，它首先是执行预处理，即 print(start)，然后执行 try，实际上就是将 with 作用域中的 print (process) 放到了 yield 中，最后执行后处理，上图代码执行结果就是：
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260220115215.png)
+
+按照这个原理，我们让 with 作用域中执行的是禁用反向传播的模式，退出 with 之后又回到默认的启用反向传播的模式：
+
+```python
+@contextlib.contextmanager  
+def using_config(name, value):  
+    old_value = getattr(Config, name)  
+    setattr(Config, name, value)  
+    try:  
+        yield  
+    finally:  
+        setattr(Config, name, old_value)
+
+with using_config('enable_backprop', False):  
+    x = Variable(np.array(2.0))  
+    y = square(x)
+```
+
+上述执行 with 语句的过程就是将 ` x = Variable(np.array(2.0))  y = square (x) ` 放到了 try 中，然后从 `old_value = getattr(Config, name) ` 开始往下执行
+（1）先获得旧值，就是 true
+（2）然后设置新值，false
+（3）然后进行正向传播，这个是没有连接的正向传播
+（4）最后再将属性设置为原来的旧值，就是 true
+
+可能有多次需要使用不进行连接的正向传播过程，如果每次都写 `using_config('enable_backprop', False)` 有点长了，因此将这个函数封装到 `no_grad` 函数中：
+
+```python
+
+def no_grad():  
+    return using_config('enable_backprop', False)
+
+with no_grad():  
+    x = Variable(np.array(2.0))  
+    y = square(x)
+```
+
+这样只要是不进行求导的过程，只用使用下面代码就可以了：
+
+```
+with no_grad():  
+    x = Variable(np.array(2.0))  
+    y = square(x)
+```
+
+### python 中的魔法方法（前后双下划线特殊方法）
+
+这类方法允许让用户自定义的类就像 python 内置的类一样进行使用，比如：
+
+```python
+class Vector:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+v1 = Vector(1, 2)
+v2 = Vector(3, 4)
+
+# 这些操作会失败：
+# v1 + v2  # 不能相加
+# print(v1)  # 输出：<__main__.Vector object at 0x...>
+# len(v1)  # 错误：Vector 对象没有长度
+
+# 使用魔法方法增强之后
+class Vector:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+    
+    def __add__(self, other):  # 实现加法
+        return Vector(self.x + other.x, self.y + other.y)
+    
+    def __str__(self):  # 实现字符串表示
+        return f"Vector({self.x}, {self.y})"
+    
+    def __len__(self):  # 实现长度
+        return 2  # 总是返回2，因为是二维向量
+
+v1 = Vector(1, 2)
+v2 = Vector(3, 4)
+print(v1 + v2)  # Vector(4, 6)
+print(v1)      # Vector(1, 2)
+print(len(v1)) # 2
+```
+
+魔法方法主要是为了用户可以方便使用自定义类的
+
+### 运算符重载 - 使用数学符号操作 Variable 类
+
+主要利用的是魔法方法 `__mul__` 和 `__add__`
+
+首先得先有实现 `Variable` 类的乘法和加法方法，比如乘法方法：
+
+```python
+class Mul(Function):  
+    def forward(self, x0, x1):  
+        y = x0 * x1  
+        return y  
+  
+    def backward(self, gy):  
+        x0, x1 = self.inputs[0].data, self.inputs[1].data  
+        return gy * x1, gy * x0
+        
+# 对这个方法进行封装
+def mul(x0, x1):  
+    return Mul()(x0, x1)
+
+```
+
+然后在 `Variable` 类中实现 `__mul__` 方法：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260220154041.png)
+
+这样达到的效果是，可以直接在代码中使用乘法符号，而不用再显示调用 `mul(a,b)` 了
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260220154106.png)
+
+另外一个简洁的写法是直接令 `Variable.__mul__ = mul`，这里 mul 是上文用于封装的函数，它也是对象，直接将其赋予 `Variable` 类的 `__mul__` 属性即可
+
+实际上这里执行 `*` 操作的原理是：
+根据 `y = a * b`
+（1）首先调用 a 的 `__mul__` 方法
+（2）a 中没有实现 `__mul__`，然后调用 b 的 ` __rmul__ ` 方法
+（3）如果这两个方法都不行没有实现，则出错
+### 运算符重载 
+
+#### 实现 `Variable * ndarry`，右乘一个 ndarry 类
+
+这里主要是想要达到 `y = a * ndarry` 的效果，这里的 a 是 `Variable` 类型，让其可以直接与一个 ndarry 类型进行运算；基本思想是将 ndarry 转换成 `Variable` 类型，然后让两者运算即可
+
+首先增加一个类型转换的函数：
+
+```python
+def as_variable(obj):  
+    if isinstance(obj, Variable):  
+        return obj  
+    return Variable(obj)
+```
+
+然后在 Function 类中增加：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260220155249.png)
+
+上文的乘法，或者加法函数都是继承自 Function，因此这些函数调用的时候都会执行这个类中的这行代码，将所有不是 Variable 类的数据转换成 Variable 类
+
+#### 实现 `Variable * int(float)`，右乘一个数值
+
+首先，需要在封装 `add(x0, x1)` 函数的地方增加一个将数值转换成 ndarry 的代码：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260220161419.png)
+
+这样当执行下面的指令的时候：
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260220161503.png)
+
+（1）首先执行 x 重载的 `__add__` 方法，这个方法会调用 `add(x0, x1)`
+（2）在 `add(x0, x1)` 中将数值 `x1` 转换成了 ndarry 对象
+（3）执行 `Add()` 这个类继承自 `Function类`，它的下述代码将所有的 inputs 转换成了 `Variable` 类变量
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260220155249.png)
+（4）这样后续执行的就都是 Variable 类的相加了
+
+乘法也是类似的
+#### 实现 `int * Variable`，左乘一个数值
+
+上文实现的是右乘一个数值，这里是左乘一个数值，实际上只用加上 `Variable.rmul = add` 就行了
+
+这里当执行 `y = 2.0 * x`，这里 x 是一个 `Variable` 类的时候
+
+（1）首先调用的是左侧对象的 `__mul__` 方法，显然没有实现
+（2）然后调用的是右侧对象的 `__rmul__` 方法，它由 `Variable.rmul = mul` 来实现
+
+`__rmul__` 的默认参数传递如下：
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260220162429.png)
+
+这里是乘法，但是以加法为例：
+它调用封装的 `add(x0, x1)` 函数的时候实际上是调用 `add(x, 2.0)`，这样刚好让数值对象变成了 `add` 的第二个参数，而在 `add()` 函数实现中，有将第二个参数转换成 ndarry 的代码：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260220161419.png)
+
+这样传递给 Add 的时候就不是数值类型了，而是 ndarry 类型
+
+（3）然后就是 `Function` 类的操作，先将所有 inputs 转换成 Variable 类，然后再进行后续运算
+
+#### 实现 `ndarry * Variable`，左乘一个 ndarry 类型
+
+这里最开始调用的是 ndarry 的 `__mul__` 运算，因为两个对象进行乘法的时候调用左边的 `__mul__` 的优先级更高，`ndarry` 也实现了自己的 `__mul__` 的操作，显然这样的话会出问题，因此我们想要一开始就调用 `Variable` 类型的 `__rmul__` 方法，而不是一开始就调用 `ndarry` 的 `__mul__` 方法
+
+这里的措施是设置 `Variable` 的实例运算符优先级更高：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260220163432.png)
+
+这样就会调用右边 `Variable` 类的 `__rmul__` 方法，只用再加上一个 `Variable.__rmul__ = mul` 就行了
+
+这样在执行 `mul` 方法的时候会自动将左边的 `ndarry` 类型转换成 `Variable` 类型，然后进行后续操作
+
+### 实现运算符重载的一般步骤（添加函数的步骤）
+
+以除法为例要实现 `y = x0/x1`
+
+**（1）首先这个函数要继承 `Function` 类，实现自己的正向传播和反向传播**
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260220170434.png)
+
+（2）进行运算符重载，让其满足左除或者右除数值或者 ndarry 类
+
+（3）对于除法来说，首先是右除，如果右边是 ndarry 类，这里直接根据 `Function` 类中将 ndarry 类转换成 Variable 类即可；如果右边是数值类，则在打包函数中先将其转换成 ndarry 类，然后再根据 `Function` 类中将 ndarry 类转换成 Variable 类的逻辑进行处理：
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260220171114.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260220171123.png)
+
+（4）然后是左除，如果左除的是数值类，则进行除法运算的时候是调用右边 `Variable` 类的 `__rtruediv__` 方法，这里跟加法和乘法不同，不能仅仅添加一行 `Variable.__rtruediv__ = div` 完事，因为要考虑左右顺序；当调用右边的 `Variable` 类的 `__rtruediv__` 方法时，需要重新写一个打包函数 `rdiv(x0, x1)`
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260220171606.png)
+
+他的调用逻辑是：
+（1）调用右边 `Variable` 类的 `__rtruediv__` 方法，self 变量，即 `Variable` 类变量转递给 x 0, 数值变量传递给 x 1
+（2）在打包函数中，将数值 x 1 转换成 ndarry 类型的变量
+（3）然后调用 Div () 的时候必须转换顺序，因为是数值变量除以 `Variable` 类变量，所以是 `Div()(x1, x0)`
+（4）这里与加法和乘法是不同的，加法和乘法直接用原来的打包函数也不会有影响，但是这里的乘法和减法必须调换 x 0 和 x 1 的顺序
+
+完整代码：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260220171931.png)
+
+### 模块化以及文件结构
+
+我们创建一个 dezero 的包，并在其中创建一个 `core_simple` 的文件，将步骤 23 之前实现的类以及函数放到 `core_simple.py` 这个文件中
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260220175149.png)
+
+这样在别的文件就可以使用 `from dezero.core_simple import Variable` 来使用 `core_simple` 文件中的类了
+
+这里的 `__init__.py` 文件是导入 `dezero` 的时候执行的第一个文件，我们将执行运算符重载的函数放在这个文件中，这样当导入包的时候就直接执行了运算符重载，这里运算符重载的定义实际上还是在原来的 `core_simple.py` 文件中：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260220181602.png)
+
+只不过执行这个函数是在 `__init__` 文件中
+
+最后为了保证可以正确导入用户自定义的包，需要在调用 dezero 模块中添加下面的代码：
+
+```python
+
+if '__file__' in globals():  
+    import os, sys  
+    sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+```
+
+假如项目结构如下所示：
+
+![](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260220181145.png)
+
+这串代码在 example. py 文件中的作用就是将 my_project 加入到 python 的模块搜索路径中，从而保证可以正确导入 dezero 包
+```python
+# example.py 中的代码
+if '__file__' in globals():
+    import os, sys
+    sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
+# 路径分析：
+# __file__ = "/home/user/my_project/examples/example.py"
+# os.path.dirname(__file__) = "/home/user/my_project/examples"
+# os.path.join(..., '..') = "/home/user/my_project"
+# 最终将 "/home/user/my_project" 添加到 sys.path
+
+```
+
+## 高阶导数
+### 实现函数的泰勒展开
+
+以 `sin x` 为例，它在 0 处的泰勒展开是：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260221152209.png)
+
+这是一个由普通的加减乘除，以及幂次方组成的函数，我们可以根据它的拉格朗日余项来控制精度：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260221152337.png)
+
+这里的 `math.factorial()` 是用来计算阶乘的，t 就是每次循环的余项，当这个余项的精度小于 0.0001 的时候，返回 sin x 的泰勒展开的多项式结果 y
+
+这个 y 仍然是一个 Variable 变量，它是由上文已经实现的加减乘除操作组成，计算图是已知的，因此可以直接使用 y.backward () 来计算 y 对 x 的导数了，并且这个导数实际上就是 y = sin x 对输入变量 x的导数
+

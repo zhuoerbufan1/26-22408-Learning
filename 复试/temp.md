@@ -107,3 +107,156 @@ int main() {
 
 }
 ```
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260212152747.png)
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260214102906.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260214112331.png)
+
+
+```cpp
+
+#include<iostream>
+
+#include<stdio.h>
+
+#include<algorithm>
+
+#include<vector>
+
+#include<queue>
+
+#include<cstring>
+
+using namespace std;
+
+  
+
+struct Knight{
+
+    int x, y;
+
+    int f, h, g;
+
+};
+
+  
+
+struct CompareKnight{
+
+    bool operator()(const Knight &a, const Knight &b){
+
+        return a.g > b.g;
+
+    }
+
+};
+
+  
+
+int cntDist(Knight a, Knight b){
+
+    return abs(a.x - b.x) * abs(a.x - b.x) + abs(a.y - b.y) * abs(a.y - b.y);
+
+}
+
+  
+  
+  
+
+priority_queue<Knight, vector<Knight>, CompareKnight> q;
+
+int dx[8] = {1, 2, -1, -2, 1, 2, -1, -2};
+
+int dy[8] = {2, 1, 2, 1, -2, -1, -2, -1};
+
+int mov[1010][1010];//move[i][j]表示从源点移动到{i, j}这个点需要的移动次数
+
+//当move[i][j] = 0的时候它不在队列中
+
+// 这个数组同样可以用于路径回溯过程
+
+  
+  
+  
+
+int aStar(Knight start, Knight end){
+
+    start.g = 0;
+
+    q.push(start);
+
+    mov[start.x][start.y] = 1;
+
+    while(q.size()){
+
+        Knight curKnight = q.top();
+
+        q.pop();
+
+        // cout << curKnight.x << " " << curKnight.y << endl;
+
+        if(curKnight.x == end.x && curKnight.y == end.y) return mov[end.x][end.y]-1;
+
+        for(int i = 0; i < 8; i ++){
+
+            Knight nextKnight;
+
+            nextKnight.x = curKnight.x + dx[i];
+
+            nextKnight.y = curKnight.y + dy[i];
+
+            // cout << nextKnight.x << " " << nextKnight.y << endl;
+
+            if(nextKnight.x >= 1 && nextKnight.x <= 1000 && nextKnight.y >= 1 && nextKnight.y <= 1000){
+
+                if(mov[nextKnight.x][nextKnight.y] == 0){
+
+                    nextKnight.g = cntDist(start, nextKnight) + cntDist(end, nextKnight);
+
+                    mov[nextKnight.x][nextKnight.y] = mov[curKnight.x][curKnight.y] + 1;
+
+                    q.push(nextKnight);
+
+                }
+
+            }
+
+        }
+
+    }
+
+}
+
+  
+  
+  
+
+int main(){
+
+    int n;
+
+    cin >> n;
+
+    while(n --){
+
+        Knight start;
+
+        Knight end;
+
+        memset(mov, 0, sizeof(mov));
+
+        cin >> start.x >> start.y >> end.x >> end.y;
+
+        cout << aStar(start, end) << endl;
+
+        while(q.size()) q.pop();
+
+    }
+
+    return 0;
+
+}
+```
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260221170028.png)
