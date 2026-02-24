@@ -177,7 +177,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 389.5
+    "width": 378.5
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -194,10 +194,10 @@
   },
   "active": "67a5ec63f2880cdb",
   "lastOpenFiles": [
-    "复试/temp.md",
     "复试/DeZero框架.md",
-    "数学/数学必背结论.md",
     "复试/算法上机.md",
+    "复试/temp.md",
+    "数学/数学必背结论.md",
     "复试/深度学习.md",
     "复试/手写.md",
     "复试/推荐系统王树森.md",

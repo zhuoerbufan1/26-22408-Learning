@@ -1,4 +1,4 @@
-
+## 利用反向传播来求导
 ### 反向传播机制
 
 简单来说，就是计算最终输出变量对中间各个变量的导数值
@@ -751,4 +751,409 @@ if '__file__' in globals():
 这里的 `math.factorial()` 是用来计算阶乘的，t 就是每次循环的余项，当这个余项的精度小于 0.0001 的时候，返回 sin x 的泰勒展开的多项式结果 y
 
 这个 y 仍然是一个 Variable 变量，它是由上文已经实现的加减乘除操作组成，计算图是已知的，因此可以直接使用 y.backward () 来计算 y 对 x 的导数了，并且这个导数实际上就是 y = sin x 对输入变量 x的导数
+
+### 牛顿法进行迭代计算
+
+牛顿法的本质实际上是用二次函数对函数进行近似，比如对于 f (x) 让其近似为 x = a 处的二阶泰勒展开：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260222150831.png)
+
+对于这个二次函数来说，它的最小值是：
+$$
+x_{1} = a - \frac{f'(a)}{f''(a)}
+$$
+
+下一步，将 a 换成这个最小值 $a_{new} = a - \frac{f' (a)}{f'' (a)}$，让 f (x) 在 $a_{new}$ 处展开，得到一个新的二次函数，这个二次函数的最小值点是 $x_{2} = a_{new} - \frac{f'(a_{new})}{f''(a_{new})}$
+
+这样就完成了 x 1 -> x 2 的转变
+
+事实上，根据 $a_{new}$ 的关系，我们可以得到：
+
+$$
+x_{2} = x_{1} - \frac{f'(x_{1})}{f''(x_{1})}
+$$
+这样就得到了牛顿法更新最小值点的递推关系
+
+所以牛顿法的思想是不停的更新二阶泰勒展开点 a，用每次二次函数的最小值点当作下一次的展开点 a，用展开点的二次函数的最小值点来不断迭代更新整个函数的最小值点 x
+
+从最终结果来看，只要一开始指定一个 x 1，按照：
+
+$$
+x_{n+1} = x_{n} - \frac{f'(x_{n})}{f''(x_{n})}
+$$
+进行迭代更新即可
+
+### 高阶导数的实现，以 $y = x^{2}$ 为例
+
+#### 实现过程
+
+首先 pow 函数的 forward 和 backward 方法如下：
+
+```python
+class Pow(Function):  
+    def __init__(self, c):  
+        self.c = c  
+  
+    def forward(self, x):  
+        y = x ** self.c  
+        return y  
+  
+    def backward(self, gy):  
+        x, = self.inputs  
+        c = self.c  
+        gx = c * x ** (c - 1) * gy  
+        return gx
+```
+
+它继承的Function 类如下：
+
+```python
+class Function:  
+    def __call__(self, *inputs):  
+        inputs = [as_variable(x) for x in inputs]  
+  
+        xs = [x.data for x in inputs]  
+        ys = self.forward(*xs)  
+        if not isinstance(ys, tuple):  
+            ys = (ys,)  
+        outputs = [Variable(as_array(y)) for y in ys]  
+  
+        if Config.enable_backprop:  
+            self.generation = max([x.generation for x in inputs])  
+            for output in outputs:  
+                output.set_creator(self)  
+            self.inputs = inputs  
+            self.outputs = [weakref.ref(output) for output in outputs]  
+  
+        return outputs if len(outputs) > 1 else outputs[0]
+```
+
+一阶导的执行过程：
+
+```python
+x = Variable(np.array(2.0))
+y = x ** 2 
+y.backward(create_graph=True)
+```
+
+在这个过程中 y 和 x 都是 Variable 类型的变量，并且 y 的生成函数是 `pow`，形成的计算图是：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260222191914.png)
+
+接着调用 `y.backward()`，这里的 `create_graph = True` 的含义是在反向传播的过程中仍然让变量与函数之间建立链接，具体的过程是：
+
+```python
+def backward(self, retain_grad=False, create_graph=False):  
+    if self.grad is None:  
+        xp = dezero.cuda.get_array_module(self.data)  
+        # 创建一个与self.data类型相同的全1的数据，并封装成Variable类型  
+        self.grad = Variable(xp.ones_like(self.data))  
+  
+    funcs = []  
+    seen_set = set()  
+  
+    def add_func(f):  
+        if f not in seen_set:  
+            funcs.append(f)  
+            seen_set.add(f)  
+            funcs.sort(key=lambda x: x.generation)  
+  
+    add_func(self.creator)  
+    while funcs:  
+        f = funcs.pop()  
+        gys = [output().grad for output in f.outputs]  # output is weakref  
+  
+        with using_config('enable_backprop', create_graph):  
+            gxs = f.backward(*gys)  
+            if not isinstance(gxs, tuple):  
+                gxs = (gxs,)  
+  
+            for x, gx in zip(f.inputs, gxs):  
+                if x.grad is None:  
+                    x.grad = gx  
+                else:  
+                    x.grad = x.grad + gx  
+  
+                if x.creator is not None:  
+                    add_func(x.creator)  
+  
+        if not retain_grad:  
+            for y in f.outputs:  
+                y().grad = None  # y is weakref
+```
+
+（1）调用 Variable 类型变量 y 的 backward 函数，首先，创建一个 y.grad，并令其初值是 1，它同样是一个 Variable 类型的变量
+
+（2）获得变量 y 的生成函数 pow，利用 pow 的输出变量的导数（这里是 y.grad）来计算 pow 的输入变量 x 的导数，具体来说就是将 y.grad 传入 pow 函数的 backward () 方法，来计算 y 对 pow 函数的输入变量的导数，pow 函数的 backward 方法如下：
+
+```python
+    def backward(self, gy):  
+        x, = self.inputs  
+        c = self.c  
+        gx = c * x ** (c - 1) * gy  
+        return gx
+```
+
+在这个 backward过程中 gy，以及 self. inputs 实际上都是已经存在的 Variable 类型的变量，而对这些变量执行 `gx = c * x ** (c - 1) * gy  ` 操作实际上是跟正向传播是类似的，根据上文对乘法运算的重载，他会在原来正向传播的基础上建立反向传播的计算图：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260224125503.png)
+
+
+之前仅仅是数的运算，数的运算并不会使用重载运算符的函数，因此不会在 backward 的过程中建立连接，但是这里将每个函数的 backward 方法都改成了 Variable 变量的计算，这样使用的就是上文重载过的运算了，所以同样会建立一个从 y.grad 到 x.grad 的计算图
+
+这样在第一次的 y.backward () 之后，就得到了 x.grad 以及上面的计算图（连接过程）
+
+（3）x.grad 是一个 Variable 类型的变量，实际上 `x.grad` 就是 $\frac{dy}{dx}$，想要求 $\frac{d^{2}y}{dx^{2}}$，也就是求变量 $\frac{dy}{dx}$ 对 x 的导数，它是 y 对 x 的一阶导，我们同样调用它的 x.grad. backward () 方法，这样得到的 x.grad 就是 y 对 x 的二阶导结果了，**另外需要注意的是, 这里求二阶导的时候与一阶导 x.grad 本身是无关的, 它所利用的只是在求一阶导的过程中建立的二阶导函数的连接关系**
+
+这里再以 $y = x^{3}$ 举例来说明它的本质，这个函数的一阶导是 $y = 3 x^{2}$，当 x = 1 的时候
+
+(1) 进行一次正向传播, 建立了计算图：
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260222195117.png)
+
+（2）利用这个计算图，调用 y.backward ()，他会设置 y.grad = 1，当然这也是一个 Variable 类型变量；在反向传播的过程中，它使用了 $y = x^{3}$ 它的一阶导的表达式 $y = 3x^{2}$，即，利用 $3 * x * *2 * y.grad = x.grad$ （这个在 pow() 的 backward 方法中有实现）计算出来了 x.grad，这个过程很关键，由于 y.grad= 1，所以它等价于 `3 * x ** 2 = x.grad`，它的形式刚好就是 $y = x^{3}$ 的一阶导函数的形式，并且输入是 x，输出是 x.grad，这行代码的执行过程在正向传播的基础上，建立了这个导函数的计算图：
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260224123503.png)
+
+
+x.grad 本身的数值是多少没有意义，有意义的是它建立了一个 $y= x^{3}$ 的导函数 $y = 3x^{2}$ 的一个正向传播计算图（这里的 y.grad = 1 恰好没有影响），并且 x.grad 是输出变量，输入变量还是原本的 x  ！
+
+**求一阶导的反向传播过程恰好就是二阶导函数的正向传播过程！并且输入变量，输出变量恰好就是 x 和 x.grad  !**，那么令 x.grad. grad = 1，然后进行一次反向传播，刚好就求出了 x = x 0 情况下的二阶导！
+
+这个就是求高阶导的本质
+
+#### 在反向传播的过程中禁止反向传播
+
+实际上按照上文描述，反向传播的过程同时也是导函数的正向传播的过程，在这个过程中使用 python 的 with 机制：
+
+```python
+def backward(self, retain_grad=False, create_graph=False):  
+    if self.grad is None:  
+        xp = dezero.cuda.get_array_module(self.data)  
+        # 创建一个与self.data类型相同的全1的数据，并封装成Variable类型  
+        self.grad = Variable(xp.ones_like(self.data))  
+  
+    funcs = []  
+    seen_set = set()  
+  
+    def add_func(f):  
+        if f not in seen_set:  
+            funcs.append(f)  
+            seen_set.add(f)  
+            funcs.sort(key=lambda x: x.generation)  
+  
+    add_func(self.creator)  
+    while funcs:  
+        f = funcs.pop()  
+        gys = [output().grad for output in f.outputs]  # output is weakref  
+  
+        with using_config('enable_backprop', create_graph):  
+            gxs = f.backward(*gys)  
+            if not isinstance(gxs, tuple):  
+                gxs = (gxs,)  
+  
+            for x, gx in zip(f.inputs, gxs):  
+                if x.grad is None:  
+                    x.grad = gx  
+                else:  
+                    x.grad = x.grad + gx  
+  
+                if x.creator is not None:  
+                    add_func(x.creator)  
+  
+        if not retain_grad:  
+            for y in f.outputs:  
+                y().grad = None  # y is weakref
+```
+
+ `create_graph` 是 `Config` 类中的一个属性名字，这个属性用来决定在正向传播的过程中是否建立连接，具体看上文的`“反向传播的状态切换与 with 切换机制”`
+
+这里的 `create_graph=False` 一开始设置成 false，含义就是在反向传播的过程中会经历导函数的运算，并建立导函数的正向传播计算图（建立连接），这里设置成 false 就是反向传播的时候并不建立导函数的连接，仅仅将 x.grad 计算出来就完事，比如上文的 $y = x^{3}$，它的 backward 实现是 $3x^{2}*y.grad = x.grad$，这行代码执行的时候会建立连接，但是如果 `create_graph=False` 一开始设置成 false 那么就不会建立连接，x.grad 这个 Variable 类型变量本身并不记忆它的生成函数，也就无法调用 x.grad. backward () 来计算二阶导了
+
+`x.grad.backward(create_graph=True)` 它求出了 x 的 k 阶导函数，并建立了 y = f (x) 的 k 阶导函数的计算图
+
+#### 一个复杂的复合函数高阶导的过程
+
+下面再以 x -> cos -> c -> sin -> y 这个复合过程说明求高阶导的过程
+
+（1）首先正向传播建立计算图：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260224122345.png)
+
+（2）然后调用 y.backward 计算 y 对 x 的一阶导，首先是 y 对中间变量 c 的一阶导，按照代码中的逻辑，调用的是 sinx 的 backward 方法：
+
+```python
+class Sin(Function):  
+    def forward(self, x):  
+        xp = cuda.get_array_module(x)  
+        y = xp.sin(x)  
+        return y  
+  
+    def backward(self, gy):  
+        x, = self.inputs  
+        gx = gy * cos(x)  
+        return gx
+```
+
+这里的 self. inputs 就是变量 c，gy 就是 y.grad，这些都是 Variable 变量，当计算完 c.grad 的时候建立了计算图，注意它不是凭空建立的，而是在前面正向传播的基础上建立的计算图，它相当于新创建了一个函数结点 cos，这个 cos 的输入就是变量 c，然后与 y.grad 乘积得到 c.grad：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260224122907.png)
+
+（3）计算完了 c.grad 之后继续向前进行反向传播，计算 x.grad，同样调用的是 cos 的 backward 方法：
+
+```python
+class Cos(Function):  
+    def forward(self, x):  
+        xp = cuda.get_array_module(x)  
+        y = xp.cos(x)  
+        return y  
+  
+    def backward(self, gy):  
+        x, = self.inputs  
+        gx = gy * -sin(x)  
+        return gx
+```
+
+形成的计算图如下所示：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260224123703.png)
+
+加上函数和变量的代际关系如下：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260224124415.png)
+
+
+稍微整理一下，可以得到二阶导的时候的等价计算图：
+
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260224123730.png)
+
+此时调用 x.grad. backward ()，那么就是在这个计算图上进行反向传播，这里省去了代际关系
+
+（1）x.grad = 1
+（2）计算对-s 的导数，即 cc * 1，也就是 cos (cos x) *  1
+（3）计算对 cc 的导数，即-s * 1，也就是 - sin x * 1
+（4）计算对 s 的导数，也就是- cos (cos x) *  1
+（5）计算对 c 的导数，也就是 `-sin c *( - sin x * 1) = sin(cos x) * sin x `
+（6）计算两个路径对 x 的导数，两者加起来：
+
+$$
+\cos x * (-\cos(\cos x)) + (-\sin x * \sin(\cos x) * \sin x )
+$$
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260224124847.png)
+
+这个结果是正确的，当然上面都是在 x 有具体数值的情况下的过程，最后的结果就是代入 x 0 到 $\cos x * (-\cos(\cos x)) + (-\sin x * \sin(\cos x) * \sin x )$ 这个式子的结果
+
+### 多维参数的实现
+
+实际上这个框架的多维变量的操作使用的是 numpy 本身的特性，以下面的例子进行分析
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260224154727.png)
+
+首先这里 `x = Variable(np.linspace(-7, 7, 200))` 生成的是一个 Variable 变量，这个变量的 x.data 的数值是一个包含 200 个元素的列表（注意这里 x 仍然是一个 Variablde，x 本身不是列表，只是一个单独的 Variable 变量，而 x 的元素，即 x.data是一个列表）
+
+调用 F.sin (x)，这个函数的实现以及在这个过程中的例子如下：
+
+```python
+
+class Function:  
+    def __call__(self, *inputs):  
+    	# 这里传入并列表化之后，inputs是一个列表，这个列表只有一个元素
+    	# 这个元素是200维的数组
+        inputs = [as_variable(x) for x in inputs]  
+  		
+  		# 将列表元素取出，xs是输入变量x的数据本身，是一个200维的数组
+        xs = [x.data for x in inputs]  
+        # 这里xs不是一个列表，而是一个ndarry的数组，它这里*xs解包之后实际上传入的参数仍然只有一个
+        # 经过下方的sin.forward实现之后，ys同样是一个200维度的ndarry数组
+        ys = self.forward(*xs)  
+        if not isinstance(ys, tuple):  
+            ys = (ys,)  
+        # 这里进行列表化，实际上outputs列表只有一个元素，一个200维度的ndarry数组
+        outputs = [Variable(as_array(y)) for y in ys]  
+  
+        if Config.enable_backprop:  
+            self.generation = max([x.generation for x in inputs])  
+            for output in outputs:  
+                output.set_creator(self)  
+            self.inputs = inputs  
+            self.outputs = [weakref.ref(output) for output in outputs]  
+  
+        return outputs if len(outputs) > 1 else outputs[0]
+
+class Sin(Function):  
+    def forward(self, x):  
+        xp = cuda.get_array_module(x)  
+        y = xp.sin(x)  
+        return y  
+  
+    def backward(self, gy):  
+        x, = self.inputs  
+        gx = gy * cos(x)  
+        return gx
+```
+
+
+在这里多维数组的运算并没有用到这个框架本身的特性，而是将多维数组当作一个 Variable 类内部的数据，实际上经过 y = sin (x) 之后创建的计算图是：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260224160138.png)
+
+这个计算图的结构本身与一维数据的结构没有区别，只是 Variable 内部的变量是多维的，利用 numpy 本身的特性进行多维正向传播，或者反向传播
+
+同理在针对多维数组进行反向传播计算导数的时候，也是以 Variable 整体进行反向传播计算的，而不是对 Variable 类中的多维数组中的数据进行一次反向传播
+
+```python
+
+def backward(self, retain_grad=False, create_graph=False):  
+    if self.grad is None:  
+        xp = dezero.cuda.get_array_module(self.data)  
+        # 创建一个与self.data类型相同的全1的数据，并封装成Variable类型  
+        # self.grad就是一个200维度的ndarry数组
+        self.grad = Variable(xp.ones_like(self.data))  
+  
+    funcs = []  
+    seen_set = set()  
+  
+    def add_func(f):  
+        if f not in seen_set:  
+            funcs.append(f)  
+            seen_set.add(f)  
+            funcs.sort(key=lambda x: x.generation)  
+  # 将y的生成函数假如到funcs中，这里就只有一个sin 
+    add_func(self.creator)  
+    while funcs:  
+        f = funcs.pop()  
+        # 这里取出sin 的输出变量的导数，这里实际上就是y.grad，并将其封装成一个列表
+        # gys是一个列表，这个列表只有一个元素，即一个200维度的数组
+        # `gys[0]` 是一个 `Variable` 对象
+        #  该 Variable 的数据：`gys[0].data` 是形状为 `(200,)` 的 NumPy 数组（全 1）
+        gys = [output().grad for output in f.outputs]  # output is weakref  
+  
+        with using_config('enable_backprop', create_graph):  
+            # 这里的*是将列表解包的操作  
+            # 假如gys = [a, b, c]  
+            # 那么这里实际上等价于gxs = f.backward(a, b, c)  
+            
+            # 这里将gys解包，实际上解的包仅仅是gys这个列表本身，而不是将gys[0]中的200维度的数组解包
+            # 后续进行backward计算的时候也是利用numpy特性进行计算
+            
+            # 后面的x.grad也是单个的一个Variable对象，只是这个对象中是一个ndarry的数组
+            gxs = f.backward(*gys)  
+            if not isinstance(gxs, tuple):  
+                gxs = (gxs,)  
+  
+            for x, gx in zip(f.inputs, gxs):  
+                if x.grad is None:  
+                    x.grad = gx  
+                else:  
+                    x.grad = x.grad + gx  
+  
+                if x.creator is not None:  
+                    add_func(x.creator)  
+  
+        if not retain_grad:  
+            for y in f.outputs:  
+                y().grad = None  # y is weakref
+```
+
+## 创建神经网络
 
