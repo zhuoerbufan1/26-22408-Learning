@@ -173,8 +173,7 @@
               "title": "标签"
             }
           }
-        ],
-        "currentTab": 2
+        ]
       }
     ],
     "direction": "horizontal",
@@ -193,7 +192,7 @@
       "omnisearch:Omnisearch": false
     }
   },
-  "active": "8df752c683dc5483",
+  "active": "67a5ec63f2880cdb",
   "lastOpenFiles": [
     "复试/算法上机.md",
     "复试/DeZero框架.md",
