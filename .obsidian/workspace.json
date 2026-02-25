@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "复试/算法上机.md",
+                "file": "复试/DeZero框架.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "算法上机"
+              "title": "DeZero框架"
             }
           }
         ]
@@ -173,11 +173,12 @@
               "title": "标签"
             }
           }
-        ]
+        ],
+        "currentTab": 2
       }
     ],
     "direction": "horizontal",
-    "width": 378.5
+    "width": 353.5
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -192,10 +193,10 @@
       "omnisearch:Omnisearch": false
     }
   },
-  "active": "67a5ec63f2880cdb",
+  "active": "8df752c683dc5483",
   "lastOpenFiles": [
-    "复试/DeZero框架.md",
     "复试/算法上机.md",
+    "复试/DeZero框架.md",
     "复试/temp.md",
     "数学/数学必背结论.md",
     "复试/深度学习.md",

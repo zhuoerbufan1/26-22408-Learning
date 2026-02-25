@@ -1043,22 +1043,44 @@ $$
 
 这个结果是正确的，当然上面都是在 x 有具体数值的情况下的过程，最后的结果就是代入 x 0 到 $\cos x * (-\cos(\cos x)) + (-\sin x * \sin(\cos x) * \sin x )$ 这个式子的结果
 
-### 多维参数的实现
 
-实际上这个框架的多维变量的操作使用的是 numpy 本身的特性，以下面的例子进行分析
+## 创建神经网络
 
-![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260224154727.png)
+### 向量的反向传播（逐元素进行复合的函数）
 
-首先这里 `x = Variable(np.linspace(-7, 7, 200))` 生成的是一个 Variable 变量，这个变量的 x.data 的数值是一个包含 200 个元素的列表（注意这里 x 仍然是一个 Variablde，x 本身不是列表，只是一个单独的 Variable 变量，而 x 的元素，即 x.data是一个列表）
+（1）这里是针对输入输出是向量的情况，比如 y = F (x)，这里的 y 和 x 都是向量
+（2）这里也是针对逐元素的函数，比如 y = sin (x) 这样的函数，逐元素的含义是 y 这个向量的每个维度仅仅取决于 x 的每个维度，即：如果 x = `x1, x2, x3` 那么 y 就是 `sin(x1), sin(x2), sin(x3)`，一般来说，如果 y = F (x)，这里 x 是一个向量的话，y 对 x 的导数是一个雅可比矩阵：
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260225194259.png)
+而在逐元素的函数中，这个雅可比矩阵就退化成了一个对角矩阵，因为对于 yi 来说，它只是 xi 的表达式，它对其他的变量求偏导的结果都是 0：
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260225194439.png)
 
-调用 F.sin (x)，这个函数的实现以及在这个过程中的例子如下：
+对于这种逐个元素形成的计算图，可以将输入和输出当作一个 Variable 标量（输入和输出仅仅是一个 Variable，而 Variable 类内部是一个向量）进行，它经过 numpy 的计算可以得到正确的结果，比如 y = cos(sin (x))
+
+它形成的计算图是：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260225200832.png)
+
+从理论上讲，这个计算图反向传播是两个雅可比矩阵的乘积：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260225201035.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260225201042.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260225201100.png)
+
+但是由于这是逐元素函数进行的复合，它在计算的时候不用构造雅可比矩阵，而是之间利用 numpy 自己的计算规则逐个元素计算即可
+
+下面来分析这个过程
+
+对于下面这个计算图来说，在正向传播的过程中，x，t 1, y 这三个其实都只是单个 Variable 变量，只是这个 Variable 变量内部是一个向量
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260225200832.png)
+
+进行正向传播建立连接的过程如下所示：
 
 ```python
 
 class Function:  
     def __call__(self, *inputs):  
     	# 这里传入并列表化之后，inputs是一个列表，这个列表只有一个元素
-    	# 这个元素是200维的数组
+    	# 这个元素是200维的数组，x是输入向量
         inputs = [as_variable(x) for x in inputs]  
   		
   		# 将列表元素取出，xs是输入变量x的数据本身，是一个200维的数组
@@ -1093,13 +1115,11 @@ class Sin(Function):
 ```
 
 
-在这里多维数组的运算并没有用到这个框架本身的特性，而是将多维数组当作一个 Variable 类内部的数据，实际上经过 y = sin (x) 之后创建的计算图是：
+这个计算图的结构本身与一维数据的结构没有区别，只是 Variable 内部的变量是多维的，利用 numpy 本身的特性进行多维正向传播
 
-![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260224160138.png)
+同理在针对多维数组进行反向传播计算导数的时候，也是以 Variable 整体进行反向传播计算的，在这个过程中自动利用 numpy 的计算特性，得到了向量 y 的每个维度对 x 的每个维度的导数
 
-这个计算图的结构本身与一维数据的结构没有区别，只是 Variable 内部的变量是多维的，利用 numpy 本身的特性进行多维正向传播，或者反向传播
-
-同理在针对多维数组进行反向传播计算导数的时候，也是以 Variable 整体进行反向传播计算的，而不是对 Variable 类中的多维数组中的数据进行一次反向传播
+这里仅仅介绍 y 对中间变量 t 1 的求导过程：
 
 ```python
 
@@ -1118,11 +1138,11 @@ def backward(self, retain_grad=False, create_graph=False):
             funcs.append(f)  
             seen_set.add(f)  
             funcs.sort(key=lambda x: x.generation)  
-  # 将y的生成函数假如到funcs中，这里就只有一个sin 
+  # 将y的生成函数假如到funcs中，这里就只有一个cos
     add_func(self.creator)  
     while funcs:  
         f = funcs.pop()  
-        # 这里取出sin 的输出变量的导数，这里实际上就是y.grad，并将其封装成一个列表
+        # 这里取出cos 的输出变量的导数，这里实际上就是y.grad，并将其封装成一个列表
         # gys是一个列表，这个列表只有一个元素，即一个200维度的数组
         # `gys[0]` 是一个 `Variable` 对象
         #  该 Variable 的数据：`gys[0].data` 是形状为 `(200,)` 的 NumPy 数组（全 1）
@@ -1155,5 +1175,27 @@ def backward(self, retain_grad=False, create_graph=False):
                 y().grad = None  # y is weakref
 ```
 
-## 创建神经网络
+这里 `gxs = f.backward(*gys) `，gys 解包之后传递的参数是一个 200 维度的全 1 向量，它调用了 f.backward 方法，即：
+
+```python
+class Cos(Function):  
+    def forward(self, x):  
+        xp = cuda.get_array_module(x)  
+        y = xp.cos(x)  
+        return y  
+  
+    def backward(self, gy):  
+    	# x也是一个200维度的向量，就是Variable变量t1的数据
+        x, = self.inputs  
+        # 它与gy这个200维度的全1向量进行cos的导数的乘法
+        # 这里利用了numpy的特性，默认代表的是逐元素相乘，得到的同样是一个200维度的向量
+        # 这样gx的每个维度都是y的每个维度对t1的每个维度的导数了，它同样是一个向量
+        gx = gy * -sin(x)  
+        return gx
+
+```
+
+接着 gx 继续向前传播，这样就求出了 y 对 x 的每个维度的导数，**在这个过程中不用构造雅可比矩阵进行矩阵乘法，而是直接利用 numpy 的特性进行逐元素相乘反向传播**
+
+这里可行的本质就是函数的复合是逐元素的，那么反向传播计算的时候 numpy也是逐元素的，因此最后得到的就是输出变量 y 逐个元素维度对输入变量 x 的逐个元素维度的导数，而不用构造雅可比矩阵进行计算
 
