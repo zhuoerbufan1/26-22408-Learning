@@ -1199,3 +1199,245 @@ class Cos(Function):
 
 这里可行的本质就是函数的复合是逐元素的，那么反向传播计算的时候 numpy也是逐元素的，因此最后得到的就是输出变量 y 逐个元素维度对输入变量 x 的逐个元素维度的导数，而不用构造雅可比矩阵进行计算
 
+### numpy 中的轴
+
+一个二维数组的轴方向如下所示：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260301174114.png)
+
+按照轴的方向进行求和如下：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260301174129.png)
+
+
+### 求和的反向传播与正向传播
+
+这里的求和是指对向量或者矩阵矩阵中的元素进行求和
+
+它的反向传播是将输出变量的导数复原成输入变量：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260301203054.png)
+
+### 广播的正向与反向传播
+
+这里是为了让框架进行下面的操作：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260301195906.png)
+
+这里在执行加法运算的时候 x 0 和 x 1 的两个变量利用 numpy 的机制自动进行了广播（对 x 1 进行了广播），但是反向传播的时候，很显然，计算 y 对 x 1 的反向传播并没有处理广播的反向传播，传给 x 1 的导数与 x 0 是一样的，这显然不对
+
+广播函数的反向传播原理如下：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260301200322.png)
+
+因此这里 x 1 先广播到 `[10, 10, 10]`，然后再与 x 0 相加得到 y
+y 对 x 1 的导数就是
+（1）先得到 y 对 x 1 广播之后的 `[10,10,10]` 的中间导数 `[1, 1, 1]`
+（2）然后再执行 `sum_to` 函数沿着广播方向相加，得到 `[3]`
+
+这里之所以要求和，实际上本质是广播对原来输入变量的复制，比如下面的例子：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260302152059.png)
+
+如果要求z 对x 的导数，首先是z 对y 的导数，是 `[1, 1, 1]`，即z 对 `[y0, y1, y2]` 的导数就是 `[1, 1, 1]`，而 `y0, y1, y2` 都是等于x 0 的即，`[y0, y1, y2] = [x0, x0, x0]`，y 0 = x 0, y 1 = x 0, y 2 = x 0，这样广播就相当于创建了新的变量并且与原来的变量保证了一个相等的映射关系，因此这里z 对中间变量 y 0, y 1, y 2 的导数实际上是在三个路径上对x 0 的导数，因此z 最终对单个维度的x 0 的导数当然要加起来
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260302152610.png)
+
+
+
+### 矩阵乘法的正向与反向传播（最终结果是标量）
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260301205036.png)
+
+这里的矩阵乘法不再是一个逐元素的复合函数了，因此中间输出变量 y 对 x 的导数就是一个完整的雅可比矩阵
+
+这里求 L 对 x 的导数的时候，显然本质上还是对 x 的逐个元素进行求导的，按照链式法则，对于任意一个变量 xi，实际上都通过了 j 个 y 路径到达 L，所以 L 对 xi 的导数就是：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260301205453.png)
+
+这里的 y 是向量 x 与矩阵 W 进行矩阵乘法的结果，因此 yj 是：
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260301211444.png)
+
+所以 y j 对 xi 的导数就是 Wij：
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260301211509.png)
+
+这样就将矩阵乘法也转化成了类似普通乘法那样与另一个乘数的关系
+
+如果将上式最后的结果写成向量的形式，那么：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260301211813.png)
+
+
+所以 L 对 x 形成的导数向量就是：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260301211848.png)
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260301211857.png)
+
+这说明它转化成了一个类似普通乘法的形式，$\frac{\partial L}{\partial y}$ 是输出变量对中间变量的导数，W^T 是另一个乘数
+
+这里虽然是向量与矩阵的乘积的反向传播求导推导过程，但是推导到一般的矩阵反向传播也是成立的：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260301212256.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260301212301.png)
+
+按照这个原理，可以非常轻松的实现矩阵的反向传播了
+
+### 线性回归实现
+
+（1）准备数据集
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260302154850.png)
+
+这几行代码生成了一个简易的数据集，这个数据集在 y = 5 + 2 x 附近波动：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260302155531.png)
+
+（2）目标转化
+
+我们需要做到的就是找到一个模型f，使得输入xi 的值之后得到的预测值 f (xi) 与xi 实际对应的yi 差距尽可能的小，具体来说，我们需要找到一个模型f 使得下面的残差尽可能的小：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260302155833.png)
+
+这个叫做均方误差
+
+（3）线性回归
+
+由于是线性回归，这里的模型f 实际上可以写成 f (xi) = xi * W + b，因此实际上就是找W 和b 让上面的损失函数L 尽可能的小
+
+假设这里的每一个输入变量xi 是一个 4 维的数据，那么xi 构成的整体输入x就是一个 n 行 4 列的矩阵x，当然这里的W 也是一个一列 4 行的列向量
+
+那么模型f 就可以用一个矩阵乘法来实现：
+
+![image.png|645](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260302161416.png)
+
+而对于上面生成的简单数据集来说，单个元素xi 只有一个维度，它就退化成一个 100 行的列向量：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260302161514.png)
+
+f = x * W + b，使得下面的式子最小：
+
+$$
+L = \frac{1}{N} \sum_{i = 1}^{N} (f(x) - y)^{2} = \frac{1}{N} \sum_{i=1}^{N} (x * W + b - y)^{2}
+$$
+这里的x 是一个 100 * 4 的矩阵，W 是一个 4 * 1 的向量，b 可以是一个 4 * 1 的向量，当然也可以是一个 1 * 1 的单个元素数（会通过广播变成和 x * W 同样的维度），y 是一个 100 * 1 的向量，N 也是 100
+
+现在我们的目标就是，在知道了x 和y 的情况下（上文生成的），求W 和b 让L 最小
+
+注意虽然上文生成 x 和y 这些数据的时候我们用了线性函数生成，**但是实际中我们是不知道获得的数据x 和y 是如何生成的，我们只能假设用一个模型用来拟合这些数据**，比如这里，我们假装用一个线性模型来拟合它，设出线性模型中的参数W 和b，然后构造一个损失函数，并求解一个优化问题
+
+### 梯度下降思想
+
+假如下面的一个函数：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260302171417.png)
+
+想要求y 最小的时候的 x 1 和 x 0 的值，实际上就是它的极值点
+
+梯度下降求极值点的思想就是先随机指定一个 (x 0, x 1)，然后求y 对他们的导数，比如指定:
+$$
+(x_{0}, x_{1}) = (0, 2.0)
+$$
+
+这里y 对他们的导数分别是：
+
+$$
+(-2.0, 400.0)
+$$
+
+这个就是梯度，假如 x 0 和 x 1 沿着这个梯度方向更新，则y 值是上升最快的方向，那么沿着梯度的反方向更新，则是y 值下降最快的方向
+
+那么我们沿着这个梯度的反方向更新 x 0 和 x 1，这样不停的重复迭代，就能不断接近y 的最小值，这个方法就是梯度下降法
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260302171950.png)
+
+
+### 梯度下降法来处理线性回归
+
+我们有一堆数据x，以及x 的对应y，需要用一个线性模型来拟合它，实际上就是求参数W 和b，使得下面的函数值最小：
+
+$$
+L = \frac{1}{N} \sum_{i = 1}^{N} (f(x) - y)^{2} = \frac{1}{N} \sum_{i=1}^{N} (x * W + b - y)^{2}
+$$
+
+按照上面的梯度下降的思想，随机指定一个W 和b，然后反复用L 对 W 和b 求导然后沿着梯度反方向更新即可
+
+下面来详细说明这个反向传播过程
+
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260302174747.png)
+
+假设这里x 是一个 100 * 4 的矩阵
+
+W 和b，在初始化的时候：
+
+```python
+# W是一个4 * 1的全0的二维矩阵，即[[0, 0, 0, 0]^T]
+# b是一个1维数组，只有一个元素0的一维数组，即[0]
+W = Variable(np.zeros((4, 1)))  
+b = Variable(np.zeros(1))
+```
+
+首先是获得y 的预测值 `y_pred`
+
+```python
+def predict(x):  
+    y = F.matmul(x, W) + b  
+    return y
+```
+
+这里矩阵乘法的正向和反向传播如下：
+
+```python
+
+class MatMul(Function):  
+    def forward(self, x, W):  
+        y = x.dot(W)  
+        return y  
+  
+    def backward(self, gy):  
+        x, W = self.inputs  
+        gx = matmul(gy, W.T)  
+        gW = matmul(x.T, gy)  
+        return gx, gW
+```
+
+
+这行代码 `y = F.matmul(x, W) + b  `，首先是 x 和W 进行了矩阵乘法，然后再与b 进行了加法，矩阵乘法得到的是一个 100 * 1 的向量，与b 相加的时候使用的是 Add 类函数，它在自己的 forward 实现中利用 numpy 机制自动对b 进行了广播
+
+这里形成的计算图如下：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260302210335.png)
+
+接着 pred 再调用均方误差函数得到标量L，均方误差函数的实现如下：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260302210745.png)
+
+它直接继承了 Function，这样做的原因是避免形成过多的中间 Variable 变量，因此这个函数所贡献的计算图就只有输入两个 Variable 变量以及输出一个 Variable 变量了
+
+所以对于下面的均方误差L 函数来说：
+
+$$
+L = \frac{1}{N} \sum_{i = 1}^{N} (f(x) - y)^{2} = \frac{1}{N} \sum_{i=1}^{N} (x * W + b - y)^{2}
+$$
+
+x * W + b 是 predit 函数，它生成了一个 Variable 变量 y_pred，然后 y_pred 与 y 共同作为均方误差的输入变量，输出就是L，正向传播的计算图如下：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260302212658.png)
+
+至于反向传播，只要把上面各个生成函数的 backward 方法写好即可
+
+最后反复迭代的代码如下：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260302212816.png)
+
+总结：
+（1）给定了x 和对应的y，这里用一个线性模型来拟合，构造一个均方误差函数F
+（2）求线性模型中的参数 W 和b，这里用梯度下降法，首先随机指定W 和b，然后进行一次F 正向传播得到L ，再进行一次反向传播求L 对W 和b 的导数
+（3）沿着导数的反方向更新W 和b，继续步骤（2），迭代多次
+
+### 一个简易的神经网络的实现
+
+实际上就是对上文的线性回归进行套娃，比如上面是用一个线性回归来得到预测 y_pred，这里则是，套了两层用来根据输入变量x 得到 y_pred，我们要求的模型就是 W 1, b 1, W 2, b 2，构造一个损失函数让其最小即可
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260302215116.png)
