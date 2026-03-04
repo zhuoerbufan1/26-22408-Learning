@@ -518,47 +518,6 @@ with no_grad():
     y = square(x)
 ```
 
-### python 中的魔法方法（前后双下划线特殊方法）
-
-这类方法允许让用户自定义的类就像 python 内置的类一样进行使用，比如：
-
-```python
-class Vector:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-
-v1 = Vector(1, 2)
-v2 = Vector(3, 4)
-
-# 这些操作会失败：
-# v1 + v2  # 不能相加
-# print(v1)  # 输出：<__main__.Vector object at 0x...>
-# len(v1)  # 错误：Vector 对象没有长度
-
-# 使用魔法方法增强之后
-class Vector:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-    
-    def __add__(self, other):  # 实现加法
-        return Vector(self.x + other.x, self.y + other.y)
-    
-    def __str__(self):  # 实现字符串表示
-        return f"Vector({self.x}, {self.y})"
-    
-    def __len__(self):  # 实现长度
-        return 2  # 总是返回2，因为是二维向量
-
-v1 = Vector(1, 2)
-v2 = Vector(3, 4)
-print(v1 + v2)  # Vector(4, 6)
-print(v1)      # Vector(1, 2)
-print(len(v1)) # 2
-```
-
-魔法方法主要是为了用户可以方便使用自定义类的
 
 ### 运算符重载 - 使用数学符号操作 Variable 类
 
@@ -1199,16 +1158,6 @@ class Cos(Function):
 
 这里可行的本质就是函数的复合是逐元素的，那么反向传播计算的时候 numpy也是逐元素的，因此最后得到的就是输出变量 y 逐个元素维度对输入变量 x 的逐个元素维度的导数，而不用构造雅可比矩阵进行计算
 
-### numpy 中的轴
-
-一个二维数组的轴方向如下所示：
-
-![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260301174114.png)
-
-按照轴的方向进行求和如下：
-
-![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260301174129.png)
-
 
 ### 求和的反向传播与正向传播
 
@@ -1282,6 +1231,15 @@ y 对 x 1 的导数就是
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260301212301.png)
 
 按照这个原理，可以非常轻松的实现矩阵的反向传播了
+
+### 切片函数的正向传播与反向传播
+
+切片函数就是获得输入变量 x 的部分元素，它的反向传播就是将被提取的部分设置成 1，其他的部分设置成 0：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260304175042.png)
+
+这是因为输出变量 y 与 x 中被提取部分元素的关系是相等关系，所以 y 对这些元素求导结果就是 1，而 y 与 x 中的其他元素无关，所以 y 对其他元素的求导就是 0
+
 
 ### 线性回归实现
 
@@ -1441,3 +1399,235 @@ x * W + b 是 predit 函数，它生成了一个 Variable 变量 y_pred，然后
 实际上就是对上文的线性回归进行套娃，比如上面是用一个线性回归来得到预测 y_pred，这里则是，套了两层用来根据输入变量x 得到 y_pred，我们要求的模型就是 W 1, b 1, W 2, b 2，构造一个损失函数让其最小即可
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260302215116.png)
+
+注意神经网络模型以线性变换->激活函数->线性变换->激活函数的模式进行
+激活函数这里是 sigmoid，它的实现如下：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260303170748.png)
+
+### 汇总参数的 `Layer` 类
+
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260303171830.png)
+
+生成数据集，利用一个二层神经网络模型来拟合它，假设将 x 输入到模型中的预测值是 y_pred，那么其实就是求让 y_pred 与 y 距离最小的情况下求模型中的参数（距离用上文的均方误差函数来衡量）
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260303172415.png)
+
+这里的 Linear 是继承自 Layer 类，Layer 类的实现如下：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260303172809.png)
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260303172651.png)
+
+Layer 类给 Linear 类提供了基本的功能，包括：
+（1）保存输入变量和输出变量，比如 x * W + b = y_pred，这里保存 x 和 y_pred 到 self. inputs 和 self. outputs
+（2）保存这个过程中的参数 W 和 b 到 self. params 中
+（3）让 Linear 类可以通过调用函数的方式进行调用比如` l = Linear (10)`，这里后续可以通过 `l(x)`，来进行 x * W + b = y_pred 的计算
+
+Linear 类的实现如下：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260303173330.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260303173336.png)
+
+这里 Linear 类在 Layer 类的基础上进行了功能的添加
+
+首先是初始化的过程
+（1）它接收这个线性回归层（其实也可以理解成线性回归函数），的输入和输出的维度，变量类型并进行保存
+（2）它需要进行初始化 x * W  + b 中的参数 W 和 b，这里是根据输入维度和输出维度进行初始化的，比如输入维度为 3，保存为 I，输出维度为 1，保存为 1，那么它就会创建一个 3 * 1 的随机参数 W；当然这里 b 是偏置是可有可无的，参数 W 也可以放在进行 forward 计算的时候根据输入变量 x 的第二个维度进行初始化设置
+
+然后是它实现了 `forward` 函数
+（1）这个函数调用了原来 Function 类的线性运算代码，因此它创建的实际上还是一个基于 Function 类的计算图
+
+所以总的来说 Linear 类的功能是
+（1）接收调整这个线性运算的参数的维度，数据类型等信息，初始化一个 Linear 类的实例，比如 `l1 = Linear(10)`，这行代码就是创建了一个默认输出维度是 10 的线性运算实例 `l1`，并在初始化的过程中随机指定了线性回归的参数，并保存在了自己的 params 成员中
+（2）按照函数调用的方法接收输入变量，然后得到预测值 y_pred，比如通过调用 `y_pred = l1(x)` 在这个过程中它调用了它继承的 Layer 类的 `__call__` 方法，将 x 和 y_pred 保存在了自己的成员变量中，然后调用 forward 方法，这个方法中调用了继承自 Function 类的线性运算代码创建了 x * W + b 的计算图
+
+所以 `Linear` 类实际上是保存了输入，输出，以及随机指定了参数 W 和 b，然后调用 Function 类的功能创建了计算图：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260303175825.png)
+
+它主要就是起到了管理输入输出变量以及参数的功能
+
+所以下面的两行代码：
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260303180016.png)
+
+它实际上是创建了两个 Linear 实例对象，l 1 管理了一个输出维度是 10 的对象，l 2 管理了一个输出维度是 1（标量的对象），这里 l 1 的随机生成的参数 W 1 的第二维度就是 10，l 2 的随机生成的参数 W 2 的第二维度就是 1，W 1 和 W 2 的第一维度是在 forward 中根据输入参数 x 的第二维度来进行调整
+
+接着是定义两层神经网络模型：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260303180326.png)
+
+l 1 的 Linear 类实例创建并管理了 W 1 和 b 1 （这里没有指定偏置，所以是空），l 2 的 Linear 实例类创建并管理了 W 2 和 b 2（这里没有指定配置，b 2 是空），两个 Linear 类都利用自己的输入，输出，自己创建的参数，通过 forward 方法调用 Function 类创建了计算图：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260303183228.png)
+
+上面的两个 l 1 和 l 2 就是用来生成并管理自己的参数 W 和 b 的，当然他们同样也保存了输入和输出变量；下方的计算图就是他通过 forward 函数生成的
+
+接着是梯度下降过程：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260303183421.png)
+
+这个过程就按照 predict 以及均方误差函数建立的计算图进行反向传播计算 W 1 和 W 2 的导数即可
+
+然后按照梯度的反方向更新这些参数，然后循环接着更新这些参数
+
+### 将 `Layer` 类继续汇总
+
+更改 `Layer` 基类的实现：
+
+![image.png|652](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260303214135.png)
+
+这里修改的第一行是为了在最开始的时候形成一个更大的 Layer 类，这个最大的 Layer 类中可以放入同样的 Layer，比如下面的代码：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260303214257.png)
+
+model 是最大的 Layer 类，在这个类中的 params 参数中仍然放入了两个继承 Layer 类的 Linear 实例，类似于下图：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260303214630.png)
+
+在想办法获得上图中的最大 Layer 类中的参数以及作为最大 Layer 类参数的 Layer 类中的参数的时候，用下面的代码：
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260303214752.png)
+
+它通过下面的代码进行调用：
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260303214855.png)
+
+
+它在访问最大的 Layer 类的时候，遍历这个类的所有 params 参数，如果这个参数 obj同样是一个 Layer，则利用语句 `yield from obj.params()`，递归的将 obj 中的参数逐个返回：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260303215421.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260303215428.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260303215439.png)
+
+### Model 类
+
+model 类继承自 Layer 类，主要用来更加清晰的定义我们的模型，它的实现如下，只有一个画出计算图的方法
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260304151151.png)
+
+使用 model 类处理模型如下：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260304151407.png)
+如果我们要使用某个模型就在 Model 类的基础上再进行定义
+
+### 实现全连接神经网络
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260304151814.png)
+
+这里的 MLP 类继承自 Model，Model 继承自 Layer 类，用来更加清晰的管理整个模型中的参数
+
+`fc_output_sizes` 指定了整个神经网络中的各个层的输出参数：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260304152957.png)
+
+`activation` 指定了激活函数，这里用的是 F 中的 sigmoid 函数
+
+下面的代码根据传入的神经网络的参数创建了一堆用于管理线性模型参数的 Linear 类
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260304153108.png)
+
+`layer = L.Linear(out_size)` 创建了一个管理线性模型的 Linear 类，这个类仍然继承自 Layer 类，它的主要功能就是初始化 x * W + b 中的参数 W 和参数 b，同时 Linear 类实现了自己的 forward 方法，通过 l (x) 来调用 forward 方法，在 forward 方法中调用了 Function 类中的函数，利用 x, W, b 来创建计算图
+
+如果这里的 `fc_output_sizes = (10, 20 ,1)`，那么 `model = MLP((10, 20, 1))` 执行完了之后形成的管理的类结构就是：
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260304154035.png)
+
+
+当然这里的 W 参数可能在 MLP 类初始化的时候还没有设定（根据 Linear 类的实现，在进行 forward 计算的时候才会根据输入变量 x 指定 W 参数的维度，进行计算构造计算图）
+
+如果执行了 `model(x)`，那么就会调用 MLP 类的 forward 方法：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260304154121.png)
+
+他会挨个取出 MLP 所管理的所有 Linear 类，这些 Linear 类根据输入 x，创建 W 参数，并进行计算构建计算图
+
+### 全连接神经元与全连接神经网络
+
+这里全连接神经网络的含义是所有的输入神经元都连接到了输出神经元，以 x * W = y 为例，假如这里 x 是 3 * 4 矩阵，W 是 4 * 4 矩阵，y 是 3 * 4 矩阵
+
+这里的输入神经元分别是 x 1 x 2 x 3 x 4，他们都是 3 维的列向量，输出神经元 y 1, y 2, y 3，y 4也都是 3 维列向量
+
+输入神经元 x 1, x 2, x 3 ，x 4 通过乘权重矩阵 W 连接到了输出神经元 y 1, y 2, y 3, y 4，按照矩阵乘法的相关知识，输出神经元 y 1 就是由 x 1, x 2, x 3, x 4 与 W 的第一列进行线性组合得到的：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260304165520.png)
+
+也可以说 y 1 与 4 个输入变量建立了连接，从而可以画出连接的神经元图：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260304165639.png)
+
+同理 y 2 也是由 x 1, x 2, x 3, x 4 乘 W 的第二列得到，同样建立了 y 2 与 x 1, x 2, x 3, x 4 的连接
+
+这样输入神经元 x 1, x 2, x 3, x 4 与输出神经元 y 1, y 2, y 3, y 4 每个都有连接，这个就是全连接
+
+每一层都是由全连接神经元构成的网络，就是全连接神经网络了
+
+因此上文的 MLP 类就构建了一个全连接神经网络
+
+
+### 使用 SGD 类来进行参数更新
+
+SGD 类继承自 Optimizer 类，Optimizer 类实现如下：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260304172524.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260304172530.png)
+
+这里的 target 在后续会传入一个具体的 model 类，比如上文的 MLD 实现的全连接神经网络模型类
+
+实例方法 update 用于收集传入的 target 中的所有的参数，然后按照具体的更新方法进行更新（调用 update_one 进行更新）
+
+update_one 的实现在后续继承 Optimizer 类中
+
+总的来说 Optimizer 类提供了功能有：
+（1）获得模型，以及获得模型的所有参数到 params 实例属性中
+（2）进行调用 update 函数进行更新，这个函数中会调用 update_one 函数挨个更新 params 中的参数，update_one 在后续继承 Optimizer 类的具体更新方法中实现
+
+比如下面的 SGD 类，即它实现了按照随机梯度下降的方式来更新参数：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260304173000.png)
+
+利用 SGD 类处理上文实现的全连接神经网络如下：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260304173026.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260304173107.png)
+
+### softmax 函数
+
+假设有 n 个 y，y 1, y 2, y 3.... yn
+这个函数是用于计算每个 yk（k = 1 ~ n）占总的 y 1 + y 2 + ... yn 的概率：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260304194202.png)
+
+这里的 pk 是 yk 占总共的比例（进行指数运算之后）
+
+这里 softmax 的普通实现如下（没有继承 Function 类变成 Dezero 中的函数）：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260304195933.png)
+
+假设这里 x 是一个 4 * 3 的矩阵：
+
+![image.png|326](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260304195947.png)
+
+首先，将 x 变成 Variable 变量，然后进行 exp 运算，这里运算是逐元素的，所以这里 y 仍然是一个 4 * 3 的矩阵，是上面的 x 每个进行 exp 之后的矩阵
+
+然后对 y 沿着轴 1 的方向进行求和，并保证维度不变，即对这个 4 * 3 的矩阵，对每个行向量求和，并得到了一个 4 * 1 的矩阵（列向量），也就是 sum_y
+
+然后用 y / sum_y，这里会将 sum_y 广播成 4 * 3 的矩阵，然后进行逐元素相除，相当于 y 的每一行的每个元素都除以了这一行的和，于是就得到了 y 这个 4 * 3 的矩阵，每行元素的 softmax 的结果：
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260304205941.png)
+
+
+
+### 交叉熵误差损失函数
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260304202816.png)
+
+这里的 t 是实际的真实数据，比如 `[1, 0]` 表示猫的概率是 1，狗的概率是 0
+p 是输入模型经过 softmax 之后的数据，比如模型预测 `[0.8, 0.2]` 预测猫的概率是 0.8，狗的概率是 0.2，将 p 取对数之后相加，然后再取反的结果就是损失：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260304203037.png)
+
+这里和上面的模型一样，要求的是让 L 尽可能小的情况下神经网络的参数值
+
+事实上这里不用将全部的训练集数据 t 与预测 p 挨个相乘然后求得结果
+
+由于 t 是 one-hot 编码，正确的是 1，错误的是 0，我们只需要将 t 中为 1 的位置所对应的 p 中的数据加起来即可，比如 `t = [1, 1, 0 , 0]，p = [0.1, 0.2, 0.5, 0.2]`，这里只需要将 p 的前两个位置的数据提取出来取对数求和即可：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260304203346.png)
+
