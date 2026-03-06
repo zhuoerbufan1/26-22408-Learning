@@ -1,6 +1,19 @@
 
 ## 普通语法
 
+### 迭代器
+
+
+
+### 匿名函数
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260306145014.png)
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260306145207.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260306145215.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260306145233.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260306145321.png)
+
 ### 高级索引
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260304205316.png)
@@ -116,6 +129,11 @@ print(len(v1)) # 2
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260303151538.png)
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260303151636.png)
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260303151653.png)
+
+### `__len__` 方法
+
+它让这个类就像 pthon 内置的类一样可以使用 `len(x)` 这种 python 的基本方法
+
 
 ### 类的 `__dict__` 与实例的 `__dict__` 属性
 
