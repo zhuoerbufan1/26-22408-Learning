@@ -188,12 +188,11 @@
               "title": "标签"
             }
           }
-        ],
-        "currentTab": 2
+        ]
       }
     ],
     "direction": "horizontal",
-    "width": 336.5
+    "width": 466.5
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -208,7 +207,7 @@
       "omnisearch:Omnisearch": false
     }
   },
-  "active": "4d8d06bd702ad027",
+  "active": "67a5ec63f2880cdb",
   "lastOpenFiles": [
     "复试/DeZero框架.md",
     "复试/python.md",
