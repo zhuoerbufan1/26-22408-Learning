@@ -1821,3 +1821,136 @@ ii 内层循环，迭代 10 次，每次用按顺序取得 30 个数据训练模
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260306145940.png)
 
 这里指定了对输入数据进行除以 2，那么在后续利用 `train_set[2]` 访问输入数据的时候，此时返回的就是第 2 行（从 0 开始）被除以 2 的一个行向量
+
+### Dataloader 类
+
+这个类的实现如下：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260308171100.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260308171301.png)
+
+这是一个实现了 `__iter__` 和 `__next__` 的类，也就是一个迭代器
+
+它的几个实例属性如下：
+
+（1）dataset 属性，保存的是一个 Dataset 类
+（2）batch_size 属性，训练一次的小批量数据大小，比如上文中，每次取出 30 数据放到模型中进行训练
+（3）shuffle，用于决定每次训练之后是否对数据进行重排
+（4）max_iter，用于决定每轮迭代的次数，比如 300 个数据，每次用 30 个数据对模型进行训练更新参数，那么迭代的次数就是 300 / 30 = 10 次
+（5）reset () 方法，这个用于对 Dataset 中的数据进行重排，当然实际上的操作是生成随机的行号列表，然后用这些随机的行号去访问数据，从而达到重排的效果，当然这里如果 shuffle 被设置成 false 则不会进行重排，reset 方法在 Dataloader 类在初始化的时候调用一次，在迭代 mat_iter 次数后会调用一次
+（6）`__next__` 方法，它的实现如下所示：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260308173033.png)
+
+它每次获得模型的迭代轮次，然后获得更新模型的数据量大小，从随机生成的行号中按迭代轮次取出 batch_size 个行号，然后根据行号从 dataset 中取出输入数据以及对应的标签，这里利用 `set.dataset[i]` 实际上是利用上文的 dataset 类中的 `__getitem__` 方法利用方括号来访问数据：
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260308193244.png)
+
+它返回的是输入数据以及它对应的标签形成的列表，数据格式类似下面：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260306105927.png)
+
+因此这里的 batch 实际上是 batch_size 个上图的列表
+
+通过后面的两行语句分别将 30 个输入数据和 30 个对应的标签提取出来
+
+这里使用 Dataloader 类如下：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260308193705.png)
+
+首先创建了两个 Dateset 类，放进了两个 Dataloader 中，代码中的 `for x, t in train_loader` 就是用来调用 Dataloader 中的迭代功能的，这里的 for 每循环一次 `__next__` 方法中的 `iteration` 就+1，然后取出 batch_size 个数据以及标签并返回，接着 `for x, t in train_loader` 进行下一次循环，然后按顺序继续从一个随机打乱的行号中取出 batch_size 个数据和对应标签并返回
+
+### accuracy 函数
+
+这个函数用于评估模型预测的训练集数据与实际正确数据之间的差距
+
+```python
+def accuracy(y, t): 
+	y, t = as_variable(y), as_variable(t) 
+	# 将输出数据y中（每个输出数据是一个1*3的行向量）每行的最大值的下标提取出来表示的是预测的类别，同时转化成t的形状
+	pred = y.data.argmax(axis=1).reshape(t.shape) 
+	# 将预测类别与t的实际类别进行比较
+	result = (pred == t.data) 
+	# 计算预测正确的标签所占的比例
+	acc = result.mean() 
+	return Variable(as_array(acc))
+```
+
+这里的 `y.data` 是一个 30 * 3 的矩阵，包括 30 个输出数据，每个输出数据是 3 个维度，3 个维度中值最大的那个下标就作为输出的预测类别，然后与实际类别 t 挨个进行比较得到 result
+
+### 螺旋数据集的训练过程
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260308200413.png)
+
+`max_epoch` 参数，它 = 300，说明要随机打乱 300 行，每打乱一次行就按顺序取出 10 次 30 个数据用来训练模型
+
+`batch_size` 参数，它 = 30，说明每次从打乱的行中按顺序取出 30 个数据用来训练更新模型参数，重复十次
+
+`hidden_size` 参数，这个是全连接神经网络的中间隐藏层的输出维度，输入数据是 300 * 2，经过一层 x * W 得到一次中间输出结果，这里的 W 的输出维度就是 `hidden_size`
+
+`lr` 是创建迭代器需要传入的步长参数
+
+
+然后是准备数据的过程：
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260308201310.png)
+
+首先是创建了两个 Dateset 类，这两个类一个存放的是训练数据集一个是测试数据集，Dataset 类中存放着取出的数据，并提供了按照方括号来访问数据的方法
+
+然后是两个 Dataloader 类，Dataloader 类中存放了 Dataset 类，Dataloader 类实现了迭代器功能，支持在外面用 `for xxx in train_loader` 来迭代访问 Dataset 中的数据，具体来说就是利用迭代次数作为行号来访问 Dataset 中的测试数据和所对应的标签，并在迭代一轮之后随机打乱数据（实现方式是生成随机打乱的行号，利用行号来访问原数据从而达到随机访问的效果）
+
+
+然后是创建模型和优化器：
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260308203303.png)
+
+这里创建了两个模型，用 MLP 来管理这个模型中的所有参数，具体的 MLP 中实际上有两个 Linear 类（继承自 Layer 层），MLP 通过调用这两个 Linear 类来进行运算，并管理这两个 Linear 类的所有参数
+
+优化器中保存了这个模型，以及更新的步长，当模型的 loss 调用自己的 backwrad 方法之后，得到输出变量对参数的导数，就调用优化器的 update 方法，按照梯度方向对模型的参数挨个进行更新
+
+下面是模型进行训练的代码：
+
+```python
+for epoch in range(max_epoch):  
+    sum_loss, sum_acc = 0, 0  
+  
+    for x, t in train_loader:
+    	# 取出30个数据进行一次模型计算  
+        y = model(x)  
+        # 计算30个数据的平均交叉熵损失
+        loss = F.softmax_cross_entropy(y, t)
+        # 计算30个数据的平均预测正确率  
+        acc = F.accuracy(y, t)  
+        model.cleargrads()
+        # 进行一次反向传播计算输出loss对参数的导数  
+        loss.backward()  
+        # 更新这些参数
+        optimizer.update()  
+  		# 将30个训练数据的交叉熵损失和平均准确率加起来
+        sum_loss += float(loss.data) * len(t)  
+        # 这里的sum_acc这里乘len(t)之后实际上就是这30个数据中预测正确的输出数据个数了
+        sum_acc += float(acc.data) * len(t)  
+  
+    print('epoch: {}'.format(epoch+1))  
+    # 计算这300个数据的平均交叉熵损失函数
+    # 计算这300个数据的预测准确率
+    print('train loss: {:.4f}, accuracy: {:.4f}'.format(  
+        sum_loss / len(train_set), sum_acc / len(train_set)))  
+  
+    sum_loss, sum_acc = 0, 0
+    # 300个数据训练完了之后用训练好的参数在测试集上计算交叉熵误差和预测准确率  
+    with dezero.no_grad():  
+        for x, t in test_loader:  
+            y = model(x)  
+            loss = F.softmax_cross_entropy(y, t)  
+            acc = F.accuracy(y, t)  
+            sum_loss += float(loss.data) * len(t)  
+            sum_acc += float(acc.data) * len(t)  
+  
+    print('test loss: {:.4f}, accuracy: {:.4f}'.format(  
+        sum_loss / len(test_set), sum_acc / len(test_set)))
+	# 这300个数据每次取30个数据训练一次模型更新一次参数，进行10次结束之后
+	# 随机打乱这300个数据再重复一次上述过程
+	# 打乱数据是在迭代完了之后for x, t in train_loader:自动在train_loader中进行的
+```
+
+
+## MINST 训练过程
+

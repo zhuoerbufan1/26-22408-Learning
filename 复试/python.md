@@ -1,9 +1,6 @@
 
 ## 普通语法
 
-### 迭代器
-
-
 
 ### 匿名函数
 
@@ -144,3 +141,11 @@ print(len(v1)) # 2
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260303152650.png)
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260303152804.png)
+
+### 迭代器（实现了 `__iter__` 与 `__next__` 魔法方法的对象）
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260308164953.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260308165027.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260308165038.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260308165046.png)
+
