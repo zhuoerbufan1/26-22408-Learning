@@ -153,6 +153,23 @@ print(arr2) # 结果是[2., 3., 4., 5.]
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260304193322.png)
 
+### numpy 中的运算
+
+#### 数组之间的加减乘除
+
+numpy 中的加减乘除都是逐元素进行的，不论这里是一维的数组还是二维的数组
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260309153252.png)
+
+#### 数组与标量之间的运算
+
+这里运算也是逐元素进行的
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260309153620.png)
+
+#### 矩阵运算
+
+
 ### numpy 中的轴
 
 一个二维数组的轴方向如下所示：
@@ -162,6 +179,7 @@ print(arr2) # 结果是[2., 3., 4., 5.]
 按照轴的方向进行求和如下：
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260301174129.png)
+
 
 ### `sum` 求和函数
 
@@ -177,6 +195,15 @@ print(arr2) # 结果是[2., 3., 4., 5.]
 **keepdims 参数**
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260304195740.png)
+
+### 矩阵操作
+
+#### flatten 函数
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260309120523.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260309120531.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260309120550.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260309120612.png)
 
 ### numpy 中的广播机制
 

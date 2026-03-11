@@ -1165,7 +1165,7 @@ class Cos(Function):
 
 它的反向传播是将输出变量的导数复原成输入变量：
 
-![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260301203054.png)
+![image.png|417](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260301203054.png)
 
 ### 广播的正向与反向传播
 
@@ -1405,6 +1405,7 @@ x * W + b 是 predit 函数，它生成了一个 Variable 变量 y_pred，然后
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260303170748.png)
 
+这里对输入默认都是逐元素进行的
 ### 汇总参数的 `Layer` 类
 
 
@@ -1561,6 +1562,30 @@ y 1 是 x 1 的输出，y 2 是 x 2 的输出，y 3 是 x 3 的输出
 因此这样套娃下去，所建立的神经网络就是全连接神经网络了
 
 需要注意的是输入是一个 3 * 4 的矩阵，实际上 x 1 , x 2, x 3 这三个输入互相是不相干的，x 2 并不影响 x 1 的输出，直接按照矩阵来说的话，x * W = b 相当于并行建立了 3 个神经网络
+
+所以实际上神经网络就只针对一对输入和输出，这里之所以写成矩阵的形式是为了利用 GPU 中的并行计算
+
+### 全连接神经网络的矩阵求导
+
+对于单个输入来说，比如 x 是 1 * 4 的数据，经过 W = 4 * 2 得到 y 它的维度是 1 * 2，x * W = y
+
+这里 y 对 W 的导数是：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260309094334.png)
+
+即 y 对 W 的求导是一个 4 * 2 的矩阵
+
+但是如果 x 是两个输入数据构成的矩阵，比如 x = 2 * 4 维度，W 是 4 * 2 的矩阵，输出 y 则是 2 * 2 的维度
+
+此时 y 再对 W 求导仍然是上面的公式
+
+并且仍然是一个 4 * 2 的矩阵，这个矩阵与只有单个输入 x 的相比，它实际上是每个 y 的导数 对相应单个输入 x 情况下梯度矩阵的按元素叠加
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260309095020.png)
+
+上图左侧是单个输入 x * W = y 对 W 求导的过程，第一个元素就是两个元素相乘的结果
+
+右侧是两个输入 x * W = y 对 W 求导，得到的梯度矩阵，可以看作是 x 1 * W = y 1，x 2 * W = y 2，两个式子 y 1 和 y 2 分别对 W 求导后的矩阵按元素相加，这里的 x i 均是 1 * 4 的元素，yi 是 1 * 2 的元素
 ### 使用 SGD 类来进行参数更新
 
 SGD 类继承自 Optimizer 类，Optimizer 类实现如下：
@@ -1805,7 +1830,7 @@ ii 内层循环，迭代 10 次，每次用按顺序取得 30 个数据训练模
 
 最后的 `pirnt()` 打印的就是每次打乱 300 个数据行之后的平均交叉熵损失了
 
-### 数据预处理
+### Dataset 类改进，数据预处理
 
 在 Dataset 类中加入下方代码
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260306145647.png)
@@ -1954,3 +1979,235 @@ for epoch in range(max_epoch):
 
 ## MINST 训练过程
 
+### 数据集介绍
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260309113810.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260309114607.png)
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260309113816.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260309114615.png)
+
+
+这些代码的操作是取出训练数据集和测试数据集的大小
+
+这里的训练数据集的单个输入元素是一个单通道的特征图，1 * 28 * 28 的数据
+输出 t 表示对应的标签（即属于哪个类别）
+
+这里的训练集中有 60000 个数据，即 60000 个单通道特征图，以及他们所对应的类别
+
+测试数据集中有 10000 个数据，以及他们所对应的类别
+### 数据预处理
+
+这里的每个输入数据都是 `1 * 28 * 28` 的单通道特征图，由于上文的全连接神经网络的每个输入数据都是行向量，单个维度，所以这里需要将其展平为 1 * 784 的数据，同时需要将这里面的数据全部除以 255 转化成 0 ~ 1 之间的数据：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260309120011.png)
+
+这里在创建 Dataset 类的时候通过指定 transform 预处理函数为 f 来进行转化，Dataset 类中进行预处理的逻辑如下：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260309120342.png)
+
+在通过方括号获得数据的时候它会调用 tranfsorm 来对数据进行处理，然后再返回
+### 模型训练
+
+训练 MNIST 数据的过程如下：
+
+```python
+# 将所有数据随机打乱5次，每次随机迭代600次，每次迭代用100个数据去更新模型
+max_epoch = 5  
+# 小批量训练模型，每次用100个输入作为模型输入去更新模型的参数
+batch_size = 100  
+# 两层全连接神经网络，中间一层的输出是1000维度
+hidden_size = 1000  
+  
+# 将60000个训练数据读取到train_set数据集中，每个数据的类型如上文所示
+train_set = dezero.datasets.MNIST(train=True)  
+# 将10000个测试数据读取到test_set数据集中
+test_set = dezero.datasets.MNIST(train=False)
+
+# 将测试数据集放入到Dataloater中让其可支持迭代  
+train_loader = DataLoader(train_set, batch_size)  
+test_loader = DataLoader(test_set, batch_size, shuffle=False)  
+  
+model = MLP((hidden_size, 10))  
+# 创建优化器，这里的步长缺省，在类实例中默认是0.01
+optimizer = optimizers.SGD().setup(model)  
+#model = MLP((hidden_size, hidden_size, 10), activation=F.relu)  
+#optimizer = optimizers.Adam().setup(model)  
+  
+for epoch in range(max_epoch):  
+    sum_loss, sum_acc = 0, 0  
+  	
+  	# 每次从迭代器中取出100个数据输入到模型中进行训练
+    for x, t in train_loader:  
+        y = model(x)  
+        loss = F.softmax_cross_entropy(y, t)  
+        acc = F.accuracy(y, t)  
+        model.cleargrads()  
+        loss.backward()  
+        optimizer.update()  
+  
+        sum_loss += float(loss.data) * len(t)  
+        sum_acc += float(acc.data) * len(t)  
+  	# for循环结束之后相当于60000个数据，每次取出100个输入进模型进行训练，进行了600轮的训练和参数更新
+  	# sum_loss是这60000个数据的总的交叉熵损失
+  	# sum_acc是这60000个数据的总的精确个数
+    print('epoch: {}'.format(epoch+1))  
+    print('train loss: {:.4f}, accuracy: {:.4f}'.format(  
+        sum_loss / len(train_set), sum_acc / len(train_set)))  
+    
+    sum_loss, sum_acc = 0, 0  
+    with dezero.no_grad():  
+        for x, t in test_loader:  
+            y = model(x)  
+            loss = F.softmax_cross_entropy(y, t)  
+            acc = F.accuracy(y, t)  
+            sum_loss += float(loss.data) * len(t)  
+            sum_acc += float(acc.data) * len(t)  
+  
+    print('test loss: {:.4f}, accuracy: {:.4f}'.format(  
+        sum_loss / len(test_set), sum_acc / len(test_set)))
+```
+
+### ReLU 激活函数
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260309152759.png)
+
+它的反向与正向传播如下：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260309152826.png)
+
+反向传播的逻辑是，当输入 x > 0 的时候直接将中间输出变量的导数返回，当输入 x < 0 的时候导数就是 0，所以这里用了一个变量 mask 进行区分
+
+# 面试 Q&A
+
+（1）仿照代码随想录中的造轮子的说法来写简历
+
+## 核心模块
+
+### `Variable` 类
+
+**属性**
+
+（1）data 属性，是一个 ndarry 实例
+（2）creator 属性，记住它的生成函数，用于构建计算图
+（3）generation 属性，用于反向传播中用于处理函数计算的优先级，是它的生成函数的 generation 属性 + 1
+（4）grad 属性，记录输出变量对该变量的导数
+
+
+**主要方法**
+
+backward 方法
+
+这个方法是输出变量进行调用，它的核心逻辑是类似层序遍历一样，从最后面的输出变量开始，设置一个与输出变量维度相同的全 1 数组，然后逐层按照优先级取出变量的生成函数，从后往前计算输出变量对中间各个变量的导数
+
+### `Function` 类
+
+包括属性
+（1）`inputs`，是一个输入的 Variable 列表，在正向传播计算的过程中每个函数用于记住它的所有输入变量，哪怕只有一个输入，也会
+（2）`outputs`，是一个输出的 Variable 列表，在正向传播计算的过程中记住它的所有输出变量
+（3）`generation`，是在正向传播中函数的优先级，它设置成它的所有输入变量中最大优先级的那一个
+
+
+#### 加法的正向反向传播
+
+
+
+
+#### `sum` 函数的正向反向传播
+
+这里的求和是指对向量或者矩阵矩阵中的元素进行求和
+
+它的反向传播是将输出变量的导数复原成输入变量：
+
+![image.png|417](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260301203054.png)
+
+#### 广播函数的正向反向传播
+
+实际上是 `sum` 函数的逆过程
+广播函数的反向传播原理如下：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260301200322.png)
+
+因此这里 x 1 先广播到 `[10, 10, 10]`，然后再与 x 0 相加得到 y
+y 对 x 1 的导数就是
+（1）先得到 y 对 x 1 广播之后的 `[10,10,10]` 的中间导数 `[1, 1, 1]`
+（2）然后再执行 `sum_to` 函数沿着广播方向相加，得到 `[3]`
+
+这里之所以要求和，实际上本质是广播对原来输入变量的复制，比如下面的例子：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260302152059.png)
+
+如果要求z 对x 的导数，首先是z 对y 的导数，是 `[1, 1, 1]`，即z 对 `[y0, y1, y2]` 的导数就是 `[1, 1, 1]`，而 `y0, y1, y2` 都是等于x 0 的即，`[y0, y1, y2] = [x0, x0, x0]`，y 0 = x 0, y 1 = x 0, y 2 = x 0，这样广播就相当于创建了新的变量并且与原来的变量保证了一个相等的映射关系，因此这里z 对中间变量 y 0, y 1, y 2 的导数实际上是在三个路径上对x 0 的导数，因此z 最终对单个维度的x 0 的导数当然要加起来
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260302152610.png)
+
+## 功能实现逻辑
+
+### define and run 和 define by run 的区别
+
+（1）define 是事先定义好了计算图，然后图构建完成之后在这个静态的计算图之上进行正向或者反向传播，比如早期的 tensorflow，还有 MXNet，早期主推静态
+（2）define by run 是边计算，边构建计算图，运算完成之后，按照这些运算的操作反向逐步完成求导，也就是反向传播，比如 pytorch，还有 Chainer
+
+
+### Define by Run 功能的实现
+
+（1）介绍 Variable 类，上文
+（2）介绍 Function 类，上文
+（3）说说正向传播的过程
+（4）举个例子说说反向传播的过程
+
+### forward 功能的实现套路（框架中的功能函数实现套路）
+
+以加法为例
+
+**（1）用一个普通的函数封装实际的功能函数类**
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260310192650.png)
+进行一些预处理，比如将非 Variable 实例转换成 Variable 实例
+
+**（2）在普通函数中调用一个继承自 Function 类的实际功能函数**
+
+**（3）这个功能函数继承了 Funtion 中的 `__call__` 方法，这个方法让一个类对象可以按照函数调用的方式使用**
+
+**（4）`__call__` 方法中实现了一些通用的功能，比如，让函数实例记住它的输出，并调用函数的实际 forward 方法，得到输出，然后记住它的输出，并让输出记住这个函数，也就是它的生成函数，这样逐步建立计算图**
+
+### backward 功能的实现
+
+（1）首先，每个继承自 Function 的函数实例会自己实现的导函数，也就是 backward 方法，比如 sin x，它的导函数是 cos x，那么它的 backward 方法就是 cos (x)
+（2）实际的反向传播的过程，是 Variable 实例中的一个方法，通过调用最终的输出变量 y.backward 进行
+（3）这个方法首先会初始化一个与输出变量形状一致的全 1 数组，然后创建一个 funcs 列表，首先将输出变量的生成函数放入其中，然后从列表中取出一个方法，调用它的 backward 实现，计算出输出变量对输入变量的导数，由于这个函数记住了输入变量，所以可以直接设置输入变量的导数了，接着再将输入变量的生成函数放入到 funcs 列表中，然后再取出这些函数重复同样的过程，这样有点像类似 bfs 的过程，逐层往前计算出输出变量对中间所有变量的导数
+### 高阶导数的功能实现
+
+它的核心思路是在反向传播的过程中建立了导函数的正向传播计算图
+
+
+### 一维数组，逐元素反向传播的实现
+
+
+## 优化
+
+### 加减乘除中的额外处理
+
+#### 实现 Variable + 标量 或者标量 + Variable
+
+通过运算符重载完成，调用左边的 Variable 的 `__add__` 方法，或者右边 Variable 的 `__radd__` 方法，将标量转换为一个列表，内部进行 ndarry 相加的时候会自动进行广播，因此在反向传播的时候需要加回去
+
+#### 实现 Variable + ndarry 或者 ndarry + Variable
+
+由于每个函数继承了 Function 类，在调用函数的时候，这里执行加法调用的是加法函数，会将非 Variable 类的 ndarry 实例转换成 ndarry 实例
+
+#### ndarry 的自动广播机制处理
+
+在进行 Variable + 标量的时候，此时会自动将标量转换成一个 ndarry 数组并在调用加法操作的时候将其转换成 Variable 实例
+
+在进行加法操作的时候 ndarry 实际上会将这个标量形成的数组自动广播成另一个数组的形状，然后得到结果，比如 1 * 3 的数组与的标量形成的数组相加
+
+调用 add 方法的时候如下：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260310192650.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260310192714.png)
+
+如果是一个 Variable + 标量
+
+此时会先在 add 函数中将 x 1 转换成一个 ndarry 实例，然后再实际调用 Add（）方法，相当于变成了 Variable + ndarry 实例了
+
+然后在 Add 方法类初始化的过程中，将输入全部转换成 Variable 实例，再调用 forward 方法
