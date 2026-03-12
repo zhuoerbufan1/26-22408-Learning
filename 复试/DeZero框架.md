@@ -2091,7 +2091,7 @@ for epoch in range(max_epoch):
 （1）data 属性，是一个 ndarry 实例
 （2）creator 属性，记住它的生成函数，用于构建计算图
 （3）generation 属性，用于反向传播中用于处理函数计算的优先级，是它的生成函数的 generation 属性 + 1
-（4）grad 属性，记录输出变量对该变量的导数
+（4）grad 属性，记录输出变量对该变量的导数，仍然是一个 Variable 实例
 
 
 **主要方法**
@@ -2110,7 +2110,8 @@ backward 方法
 
 #### 加法的正向反向传播
 
-
+（1）对于最基础的 x 1 + x 2 = y，加法的正向传播是直接将 y 的导数赋值给 x 1. grad 和 x 2. grad
+（2）假如 x 1 或者 x 2 的维度在这个过程中进行了广播，比如 x 2 变成了 x 2'，那么对 x 2 的导数需要沿着广播方向加回去
 
 
 #### `sum` 函数的正向反向传播
@@ -2141,7 +2142,69 @@ y 对 x 1 的导数就是
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260302152610.png)
 
+#### 切片函数的正向和反向传播
+
+提取位置部分的导数原样返回，其他部分设置成 0
+
+这是因为输出变量只是提取部分的导数，输出变量与其他部分是无关的，所以原形状的其他部分的导数就设置成 0
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260304175042.png)
+
+#### 矩阵乘法的正向和反向传播
+
+在目前的框架功能中，不论最后是均方误差损失还是交叉熵损失，最后的结果都会是一个标量
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260312164004.png)
+
+这个标量对 y 的导数也是一个 N * H 的矩阵，L 对 x 和 W 的导数分别是下面两个公式：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260312164254.png)
+
+它的推导如下，比如下面的 x 是 3 * 3 矩阵，W 也是 3 * 3 矩阵，两者的矩阵乘积也是 3 * 3 矩阵，y 经过一系列的运算得到标量 L，L 对 y 的导数也是 3 * 3 的矩阵
+
+那么要求 L 对 x 的导数，实际上就是 L 分别对 x 这个 3 * 3 矩阵的每个变量的导数，以 L 对 x 11 求导为例，x 11 只通过 y 11, y 12, y 13 三条路径作用于 L，所以 L 就从 y 11，y 12, y 12 这三条路径反向传播到 x 11
+
+y 11，y 12, y 13 分别关于 x 11 的表达式如下：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260312170024.png)
+
+因此 L 对 x 11 的导数其实就是这三条路径混合求导全加起来：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260312170152.png)
+
+锁链图如下：
+![image.png|463](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260312170159.png)
+
+
+再将 L 对 y 的导数矩阵与 W 并列可以观察：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260312170453.png)
+
+所以下面的公式就是正确的了：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260312170516.png)
+
+同理 L 对 W 的各个变量导数也是这样推导的：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260312170537.png)
+
+这就是矩阵的反向传播实现了，非常简单，转置一下再相乘就得到了
 ## 功能实现逻辑
+
+### Function 类中的forward 函数的输入和输出
+
+`forward` 函数在 Function 的 `__call__` 方法中被调用，在 `__call__` 方法中，首先回将输入转换成 Variable 实例，然后取出 Variable 实例中的实际数据传入到 forward 方法中
+
+因此对于 forward 方法，它的实际输入是 ndarry 实例，返回也是 ndarry 实例，返回之后接着在 `__call__` 方法中将返回的 ndarry 实例转换成 Variable 实例，并让函数记住这个输出（建立连接）
+
+### Function 类中的 backward 方法的输入和输出
+
+Function 类中的 backward 方法，或者说某个函数的 backward 方法，实际上会在 Variable 实例中的 backward 方法中进行调用（也就是进行迭代反向传播的时候调用）
+
+此时在 Variable 实例中的 backward 方法中会首先生成一个与输出变量形状相同的全 1 数组，并将其转换成 Variable 实例，然后传入到特定函数的 backward 方法中
+
+因此某个 Variable 实例中的 grad 属性同样是 Variable 实例
+
+并且 Function 类中的 backward 方法它的输入是 Variable 实例，它的输出同样是 Variable 实例
 
 ### define and run 和 define by run 的区别
 
@@ -2179,10 +2242,19 @@ y 对 x 1 的导数就是
 
 它的核心思路是在反向传播的过程中建立了导函数的正向传播计算图
 
+（1）每个函数的 backward 方法实际上都是这个函数的导函数的运算
+（2）每个具体函数的 backward 方法，会在反向传播的迭代过程中调用（Variable 实例中的 backward 方法调用），这些具体函数的 backward 方法的输入输出仍然是 Variable 实例对象
+（3）进行导函数运算的时候调用的运算符号，比如加减乘除或者幂运算，这些都是实现好了的 Function 实例，他们在运算的过程中会在原来的正向传播的计算图基础上建立导函数的正向传播计算图
+（4）因此最后反向传播得到的 x.grad 实际上是导函数计算图上的输出，而 x.grad 仍然是 Variable 实例，此时直接调用 x.grad. backward () 方法就行了
+### 多维数组，逐元素反向传播的实现
 
-### 一维数组，逐元素反向传播的实现
+假如输入是一个矩阵，经过逐元素的函数，比如 y = sin (x)，那么计算 y 对 x 的导数的时候
 
+假如 x 是一个 n * n 的矩阵，经过一次 forward 得到 y，y.data 也是一个 n * n 的矩阵 (当然 x 和 y 本身都是 Variable 实例)
 
+但是这里 y 这个矩阵的每个元素 yij 只是由 x 对应位置 xij 所得到的，yij 不是别的 xkl 的函数，因此想要求 y 这个矩阵对 x 的导数，实际上与雅可比矩阵没有什么关系，就只是 yij 对 xij 的导数
+
+在反向传播的时候 y.grad. data 是一个 n * n 的全 1 矩阵，它作为 sin x 的 backward 方法的参数，进行 cos (x) * y.grad 得到 x.grad，此时cos (x) * y.grad 仍然是逐元素的，这个结果很显然是正确的
 ## 优化
 
 ### 加减乘除中的额外处理
@@ -2211,3 +2283,215 @@ y 对 x 1 的导数就是
 此时会先在 add 函数中将 x 1 转换成一个 ndarry 实例，然后再实际调用 Add（）方法，相当于变成了 Variable + ndarry 实例了
 
 然后在 Add 方法类初始化的过程中，将输入全部转换成 Variable 实例，再调用 forward 方法
+
+## 深度学习的基础知识
+
+### 优化器
+#### 牛顿法
+
+（1）首先指定这个函数上的点 a 0，然后在 a 0 处进行二阶泰勒展开
+（2）这个二阶泰勒展开有一个最小值 x 1，下一步在 x 1 处继续泰勒展开，得到一个新的二次函数，这个新的二次函数的最小值在 x 2 处，就这样不断更新 x
+（3）这个过程的公式可以总结为 $x_{n+1} = x_{n} - \frac{f'(x_{n})}{f''(x_{n})}$
+
+
+
+#### 梯度下降法 SGD
+
+假设 y = F (x 0, x 1)，我们的目标是找到 F 最小的时候的 x 0 和 x 1
+
+自变量的梯度是 y 分别对 x 0 和 x 1 求偏导
+
+函数沿着梯度方向增长最快
+
+那么沿着梯度的反方向减少最快
+
+那么随机指定两个点 x 0， x 1，求梯度，沿着梯度反方向更新 x 0 和 x 1 即可
+
+#### 梯度下降法的缺点
+
+（1）可能陷入到局部最优点，而非全局最优
+（2）当函数非均匀的时候，比如 z = 1/20 x  + y^2，对于一个点 (x 0, y 0) 来说，它的梯度方向在 x 方向上很小，但是在 y 方向上很大，这样更新下一个 (x 1, y 1) 它可能在反复走之字形路线，导致迭代次数很大，效率不高
+
+#### Momentum
+
+这个算法是对 SGD 的改进，他的公式是：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260312174501.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260312174443.png)
+
+这里的 v 其实就是历史梯度的积累
+（1）初始的时候 v 设置成空，就用普通的梯度进行一次参数更新，并且得到 v 1
+（2）下一次将 v 1 代入，得到 v 2，然后用 v 2 更新得到下一次参数
+
+他的优点在于：
+（1）如果当前梯度与历史的梯度方向一致，则会加速更新
+（2）如果当前梯度与历史的梯度方向相反，则会减缓震荡
+（3）梯度的积累也可以帮助跳出局部最优解
+
+#### AdaGrad
+
+（1）这个算法积累了更新过程中所有梯度的平方和 h
+（2）在利用梯度更新参数的时候需要先将梯度除以平方和 h，然后再更新参数
+（3）这样参数中被大幅更新的参数的学习率会变小，同时迭代次数越多最后更新的幅度会慢慢变小
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260312175244.png)
+
+#### Adam 算法
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260312205550.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260312205607.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260312205613.png)
+
+### 激活函数
+
+#### 激活函数的作用
+
+激活函数的引入主要是为了引入非线性，如果只是单纯的线性运算叠加，则多层是没有意义的，完全可以等价为单层只是系数发生变化
+
+#### sigmoid 激活函数
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260312221614.png)
+
+优先：可以压缩数值，输出映射到(0, 1)，有利于标准化输出
+缺点：有梯度消失问题
+
+#### tanh 激活函数
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260312222002.png)
+
+优点：将数值压缩到 (-1, 1) 之间，在原点附近的梯度比 sigmoid 大，收敛更快
+缺点：仍然有梯度消失问题
+
+#### ReLU 激活函数
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260312221715.png)
+
+优点：高效缓解了梯度消失问题
+缺点：有一些神经元会永远输出 0
+
+#### Leaky ReLU 函数
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260312222155.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260312222204.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260312222218.png)
+
+#### softmax 激活函数
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260312222514.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260312222524.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260312222606.png)
+
+softmax 一般只用于输出层，隐藏层不会使用它
+
+#### 使用场景
+
+（1）sigmoid 和 tanh 一般用于二分类问题，不常用于深层神经网络
+（2）ReLU 和它的变体一般用于深层卷积神经网络
+（3）softmax 一般用于多分类问题的最后一层，用来输出概率否是
+### 深度学习与机器学习的区别
+
+（1）深度学习使用的是多层神经网络，而传统的机器学习模型一般较浅，通常由少量的层组成
+（2）深度学习模型可以在训练过程中自动提取特征，而传统的机器学习依赖手工设计的特征
+（3）深度学习所需的计算资源很多，超过机器学习，但是深度学习的性能一般会超过传统机器学习
+
+### 如何评估一个深度学习模型
+
+通过准确率，精确率，召回率，均方误差，交叉熵误差损失等等
+
+### 训练集，验证集，测试集分别是什么？
+
+当给定的数据足够多的时候我们可以将数据分别划分为这三个集合
+
+其中训练集就是单纯用来模型训练的，其目标就是要让训练误差最小化，一般任何一个模型当训练次数足够多的时候都可以保证训练误差是越来越小的，比如线性回归和多项式回归，当迭代次数足够多这两者都可以保证训练误差足够小
+
+验证集是用来选择模型和调整参数的，比如线性回归和多项式回归在训练集上的表现都非常好，那就应该将两者在验证集上比一下，看选择哪个，或者已经选定了线性回归，其在训练集上表现很好，那么就应该在验证集上测试一下，调整调整参数，用来防止过拟合的出现
+
+测试集是用来最终评估模型的，是用来反应模型的真实能力的
+
+但是一般数据不够充分的话就划分两个数据集，训练集和测试集就完毕了
+
+
+### iteration 和 epoch
+
+iteration 是指一次迭代，是利用一次小批量数据进行一次参数更新的过程
+
+epoch 是用所有的训练数据对模型进行的一次完整的训练
+
+一个 epoch 通过包括多个 iteration
+
+比如 10000 个训练样本，batch_size 可以设置成 100，训练 10 个 epoch
+
+那么一次 epoch 需要进行 100 次迭代，每次迭代用 100 个样本来更新模型参数
+
+下一次 epoch 可以随机打乱这 10000 个样本，继续进行 100 次迭代更新模型参数
+
+
+### 梯度消失和梯度爆炸的原因
+
+#### 梯度消失
+
+梯度消失：
+（1）参数的初始值设置过小
+（2）网络的层数过深，并且整体的梯度层<1 的时候反向传播的连乘会让梯度指数衰减
+（3）如果输入过大或者过小，激活函数 sigmoid 和 tanh 的导数会非常小，这样反向传播的时候梯度也会消失，可以换成 ReLu 激活函数
+
+梯度消失解决方法：
+（1）权重进行合理的初始化
+（2）batch normalization 批量归一化，让输入稳定分布，将激活值拉到稳定区间
+（3）更换成 ReLu 激活函数
+
+#### 梯度爆炸
+
+爆炸原因：
+
+（1）初始参数设置过大
+（2）网络过深，并且每层的梯度 > 1，这样连乘起来导致梯度过大
+
+解决方法：
+（1）进行合理的参数初始化
+（2）利用 L 1 和 L 2 正则化
+
+### 常见的初始化方法
+
+#### 初始化的作用
+
+（1）防止梯度消失和梯度爆炸
+（2）加速模型收敛
+（3）提高模型性能
+
+
+
+#### Xavier 初始化方法
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260312212735.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260312212752.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260312212759.png)
+
+适用于 tanh 和 sigmoid 激活函数
+
+#### He 初始化方法
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260312213107.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260312213123.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260312213137.png)
+
+### 正则化方法
+
+#### batch normalization
+
+在选择样本的一个小批量进行模型训练的时候，如果这个小批量的样本分布是一个比较奇怪未知的分布，那么经过一层层非线性变换以及不同的参数更新，每层的分布都会发生变化以及无法预测，这会导致网络很难收敛
+
+为了解决这样的问题，需要让每一层的样本服从类似的分布
+
+具体做法是：
+
+（1）当每一层的的输入经过运算得到中间结果之后，需要计算这些中间结果的均值和标准差
+（2）中间结果每个元素通过减去均值并除以标准差，让他们归一化到均值为 0，标准差为 1 的正态分布中
+（3）为了避免分母为零，需要在分母中加上一个 `epsilon` 微小量，同时，为了避免每层的分布都完全一样，还需要加上两个参数 $\beta, \alpha$
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260312215548.png)
+
+这样保证了每层的分布都是类似的，我们就可以用较大的学习率，从而加快网络的训练
+
+#### L 1 和 L 2 正则化
+
