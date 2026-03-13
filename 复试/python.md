@@ -1,6 +1,19 @@
 
 # 普通语法
 
+### enumerate() 内置函数
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260313220931.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260313220945.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260313220952.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260313221000.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260313221014.png)
+
+
+### 三元条件表达式
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260313100359.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260313100409.png)
 
 
 
@@ -213,6 +226,17 @@ print(len(v1)) # 2
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260303151032.png)
 
 这里的 age 和 25，会分别作为参数传递给 `__setattr__` 中 name 和 value
+
+注意这个方法被调用始终是将属性添加到实例的 `__dict__` 属性中，比如下面：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260313201339.png)
+
+执行 `l = Layer()` 的时候，进入到 Layer 的 `__init__` 方法中，然后执行 `self._params` 这个就会转到执行下面的 `__setattr_` 方法进行属性设置拦截
+
+这时还没有 `_params` 这个属性，所以会跳过两个 if 语句调用 `super().__setattr__` 这条语句，这里之所以是调用父类的 `__setattr__` 方法，原因是如果调用的是子类的 `__setattr__` 此时会反复进入这个子类实例的 `__setattr__` 进行无穷递归报错了，而调用父类的 `__setattr__` 方法则不会，并且虽然调用的是父类的 `__setattr__` 方法，但是还是会将属性设置到子类实例的 `__dict__` 中
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260313201919.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260313201928.png)
 
 ### `__call__` 魔法方法
 

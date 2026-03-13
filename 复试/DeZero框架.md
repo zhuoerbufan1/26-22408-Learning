@@ -2188,6 +2188,109 @@ y 11，y 12, y 13 分别关于 x 11 的表达式如下：
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260312170537.png)
 
 这就是矩阵的反向传播实现了，非常简单，转置一下再相乘就得到了
+#### 均方误差损失函数的正向与反向传播
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260313093213.png)
+
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260313092912.png)
+
+这里设计的均方误差损失的计算输入 x 0 和 x 1 是一维的数组，如果是二维的矩阵上述的 `len(diff)` 需要更改成 `diff.size`
+
+如果是一维数组，它的计算原理如下：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260313095020.png)
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260313095030.png)
+
+这里仍然是逐元素的，此外就是上方代码中的 gy 其实只是一个标量 1，但是进行乘法运算的时候自动广播成了 n 个 1 的数组，然后进行了后续的运算：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260313095500.png)
+
+#### 线性运算的正向和反向传播
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260313100233.png)
+
+它实际上就是矩阵乘法的反向传播，y = x * W + b
+
+#### sigmoid 激活函数的正向和反向传播
+
+（1）正向传播用了一个 sigmoid 等价的函数形式，用 tanh 来进行计算，来避免数值溢出
+（2）反向传播就是普通的求导建立计算图
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260313213833.png)
+
+### Parameter 类
+
+这个类继承自 Variable，它的作用主要是区分作为变量的 Variable 实例还是作为参数的 Variable 实例
+### Layer 类
+
+这个类的主要功能就是
+（1）保存管理所有的参数
+（2）对参数进行初始化
+（3）调用 Function 实例中的方法建立计算图
+
+#### 基类实现
+
+**属性**
+
+（1）`_params` 集合属性，这个属性保存了所有的 Parameter参数
+（2）inputs 属性，这些都是 Variable 实例，当然，如果是 Parameter 实例的化会单独保存在_params 属性中
+（3）outputs 属性，这些也都是 Variable 实例
+
+**方法**
+
+（1）`__call__` 方法，他让 Layer 实例也可以像函数调用那样进行使用，在 call 方法中，通过调用 `forward` 方法来进行运算
+（2）`forward` 方法，这个方法实际上是获得了输入之后通过调用 Function 类实例来运算并建立计算图
+（3）`params` 方法，这个方法用于获得当前 Layer 层的所有参数
+
+#### Linear 类
+
+**属性**
+
+（1）in_size，也就是样本的维度，比如输入是 100 * 4 的矩阵 x，那么就是 100 个样本，每个样本是 4 个维度，这个可以在创建的时候缺省，后续在 forward 方法实现中自动调用 x.shape[1]获得它的维度
+（2）out_size，这个是输出样本的维度
+（3）dtype，参数的数据类型
+
+**方法**
+
+（1）`init_W` 方法，这个方法初始化一个 (in_size, out_size) 的参数矩阵 W
+（2）`forward` 方法，这个方法获得了输入 x, W（可能会先初始化），b，之后调用了 Function 实例 linear 方法，建立了计算图
+
+**主要功能**
+
+（1）重载了 `__call__` 方法，让 Linear 类可以按照函数调用的方式进行
+（2）在__call__方法中，Linear 类实例记住了自己所有的 inputs 变量，并将 Parameter 类实例放到了 `_param` 集合中
+（3）最核心的功能就是管理 `_param` 集合中的参数，包括将他们初始化，清空他们的梯度等
+（4）在 forward 方法中调用了 Function 实例，通过调用他们以及自己的参数和输入建立正向传播计算图
+
+#### Model 类
+
+这个类主要是为了进一步的打包并且抽象模型
+
+比如上文的两层神经网络，它实际上由两个 Linear 层构成，这两个 Linear 层实际上可以直接放到一个 Layer 类中，即 Model 类，让这个类进行统一管理
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260303214630.png)
+
+#### MLP 类（全连接神经网络层）
+
+这个类继承自 Model 类，它主要的功能是创建一个全连接神经网络，MLP 类中可以有多个 Linear 层（Linear 类），MLP 类通过初始化的输入来决定具体有多少个（层）的 Linear，以及每层 Linear 的输出维度是多少
+
+**初始化参数**
+
+（1）`fc_output_sizes`，它是一个列表，指定了 MLP 类每层 Linear 的输出维度，比如 `fc_output_sizes = [10,1]`，那就说明这个 MLP 类由两层的 Linear 构成，第一层的输出维度是 10，最后一层的输出维度是 1
+
+（2）`activation`，它指定了每层使用的激活函数，默认是 sigmoid
+
+**基本属性**
+
+（1）`layers`，这是一个列表，存放了 MLP 的所有的 Linear 层，也就是这个列表存放了 MLP 包含的所有的 Linear 实例
+
+（2）`activation`，指定了全连接神经网络所使用的激活函数
+
+
+
+
 ## 功能实现逻辑
 
 ### Function 类中的forward 函数的输入和输出
@@ -2255,6 +2358,15 @@ Function 类中的 backward 方法，或者说某个函数的 backward 方法，
 但是这里 y 这个矩阵的每个元素 yij 只是由 x 对应位置 xij 所得到的，yij 不是别的 xkl 的函数，因此想要求 y 这个矩阵对 x 的导数，实际上与雅可比矩阵没有什么关系，就只是 yij 对 xij 的导数
 
 在反向传播的时候 y.grad. data 是一个 n * n 的全 1 矩阵，它作为 sin x 的 backward 方法的参数，进行 cos (x) * y.grad 得到 x.grad，此时cos (x) * y.grad 仍然是逐元素的，这个结果很显然是正确的
+
+### 线性回归的实现
+
+（1）初始化一个 100 * 4 的输入，并指定一个真实系数矩阵 4 * 1 的
+（2）通过 x * W + b + noise，得到 x 以及对应的 y 训练数据
+（3）初始化 W
+（4）步长选择为 0.001，迭代一万次
+
+
 ## 优化
 
 ### 加减乘除中的额外处理
@@ -2283,6 +2395,16 @@ Function 类中的 backward 方法，或者说某个函数的 backward 方法，
 此时会先在 add 函数中将 x 1 转换成一个 ndarry 实例，然后再实际调用 Add（）方法，相当于变成了 Variable + ndarry 实例了
 
 然后在 Add 方法类初始化的过程中，将输入全部转换成 Variable 实例，再调用 forward 方法
+
+#### sigmoid 函数优化实现
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260313212520.png)
+
+根据恒等式可以得到 sigmoid 和 tanh 函数的关系：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260313212544.png)
+
+所以最好是在 sigmoid 函数的正向传播中换成下面那个 tanh 的实现，这样两者是恒等的，而之所以 tanh 中的指数不会溢出，是因为 python 中的 tanh 实现并不是简单的指数运算之后的叠加，他会进行一系列的变形进行数值运算，所以不会溢出
 
 ## 深度学习的基础知识
 
