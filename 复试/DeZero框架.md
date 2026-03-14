@@ -1612,7 +1612,7 @@ update_one 的实现在后续继承 Optimizer 类中
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260304173026.png)
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260304173107.png)
 
-### softmax 函数
+### softmax 的正向传播
 
 假设有 n 个 y，y 1, y 2, y 3.... yn
 这个函数是用于计算每个 yk（k = 1 ~ n）占总的 y 1 + y 2 + ... yn 的概率：
@@ -1636,6 +1636,80 @@ update_one 的实现在后续继承 Optimizer 类中
 然后用 y / sum_y，这里会将 sum_y 广播成 4 * 3 的矩阵，然后进行逐元素相除，相当于 y 的每一行的每个元素都除以了这一行的和，于是就得到了 y 这个 4 * 3 的矩阵，每行元素的 softmax 的结果：
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260304205941.png)
 
+### softmax 的反向传播
+
+
+首先关于涉及矩阵的求导（最后结果是标量的反向传播），别思考中间的求导过程，直接思考最后的标量 L 是怎么由输入变量路径得到的，它必须得观察矩阵之间的对应关系，它的本质其实还是对矩阵的每个元素进行多元微分求导，将每条不同的路径相加的结果
+
+比如一个 2 * 2 的矩阵 X，x 11 - x 12 = y 11，x 11 + x 12 = y 12，x 21 - x 22 = y 21， x 21 + x 22 = y 22：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260314102341.png)
+
+那么在进行反向传播求 L 对 x 11 的导数的时候，实际上 x 11 是通过两条路径到达 L 的：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260314102543.png)
+
+因此 L 对矩阵 X 的求导矩阵仍然是一个二维矩阵，并没有进行升维
+
+得到上面的单个输入变量的公式之后，再思考怎么将其与 L 对 Y 的求导矩阵结合起来：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260314104217.png)
+
+
+softmax 也是这样的思路
+
+我们先看单个样本 n 维度的情况：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260314104305.png)
+
+这里按照普通的函数求导法则可以推导 yi 对 xj 求导的公式如下：
+
+![image.png|385](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260314104344.png)
+
+我们从最后的 L 对这里的单个 xj 的多元微分求导路径的角度来思考，根据 softmax 函数的公式，实际上从 xj 到 L 其实有 n 条路径：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260314104718.png)
+
+因此我们可以直接得到 L 对输入样本的某个维度 xj 的导数了，L 是标量，所以这里 L 对 x 的导数也是一个向量：
+
+![image.png|423](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260314104940.png)
+
+由于这里的输入 X 和输出 Y 都是单个向量，所以向量的雅可比矩阵比较容易写出来：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260314105022.png)
+
+上面的矩阵也就是：
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260314105158.png)
+
+所以写成矩阵乘法的形式可以得到：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260314105544.png)
+
+将偏 yi 比上偏 xj 拆开就可以得到（这里没有遵循特别严格的转置）：
+
+![image.png|611](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260314105650.png)
+
+这里单样本比较容易写出 Y 对 X 的雅可比矩阵，但是如果对于多样本就不怎么好表示出 Y 对 X 的雅可比矩阵了，所以最好还是从多元微分链式法则的角度来思考 L 对 X 的导数矩阵是什么
+
+
+假设下面的 n 个样本组成的 n * n 的矩阵，经过 softmax 函数之后得到 Y
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260314105851.png)
+
+想要知道 L 对 X 矩阵的导数，首先看看 L 对 x 11 的导数，这里 x 11 仍然只是通过 y 11, y 12, .. y 1 n 这 n 条路径到达 L，与 Y 矩阵其他行的变量无关，所以可以很轻松的直接写出 L 对 X 矩阵的导数：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260314110152.png)
+
+这里的 d 表示最终的损失 L 对变量求导的意思，dy 11 表示 L 对变量 y 11 的求导
+
+而这个矩阵完全可以拆成 Y 以及 L 对 Y 的导数矩阵 dY 的相乘结果：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260314110624.png)
+
+这里圆圈中的点表示矩阵乘法的意思
+
+因此就可以很容易的写出 softmax 的反向传播了：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260314110702.png)
 
 
 ### 交叉熵误差损失函数
@@ -1687,6 +1761,124 @@ t 是每个输出变量（1 * 3 的行向量）的正确类别，这里 `t= [2, 
 这里的输出是 4 * 3 的矩阵，每个样本变成了 3 个数据，这里的t.data = `[2, 0, 1, 0]` 的含义就是第 1 个样本的输出中第 2 个数据是正确类别，第 2 个样本的输出中第 0 个数据是正确类别，第 3 个样本的输出中第 1 个数据是正确类别，第 4 个样本的输出中式第 0 个数据是正确类别，这个就是训练数据，这里与 one-hot 编码有点不一样，one-hot 编码是正确类别是 1，其他都是 0，然后用编码乘对应的预测数据，加起来取平均就是交叉熵误差损失，这里用编码乘对应的预测数据的时候，由于 on e-hot 编码是 01 交替的，所以就等价于将 one-hot 编码为 1 所对应的预测数据选出来加起来即可
 
 这里的 t.data 就是这样，`t[0]` = 2，起始就等价于编码 `[0, 0, 1]`，与预测矩阵的第一个输出数据进行点乘，得到了交叉熵损失函数第一个样本的贡献了
+
+### softmax-交叉熵误差的正向传播
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260314121941.png)
+
+这里的 log_p 是对输入 x 进行 `log(softmax(x))` 的结果
+
+假设 x 只是一个行向量则 softmax (x) 就是：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260314122103.png)
+
+对他取对数可以得到公式：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260314122119.png)
+
+这里的 logsumexp 函数的功能就是求 $\log\left( \sum_{j} e^{xj} \right)$，将其放到 utils 这个文件中，是因为还需要进行一些工程上防止溢出的处理
+
+因此这里 `log_p = x - log_z`，就是 x 的每个维度元素都减去所有元素的指数之和求对数的结果，也就等价于每个元素先进行一次 softmax，然后再取对数的结果了
+
+当 x 是 n 个样本的矩阵的时候，logsumexp 实际上求得是每个行向量的所有维度的元素的指数和求对数的结果，然后相减的时候会将 log_z 自动广播，这样就达到对输入矩阵 x 进行 softmax 并取对数的结果了：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260314123008.png)
+
+逐元素相减，就是每个行向量样本进行 softmax 并取对数的结果了
+
+因此这里的 log_p 就是输入特征 x 然后对每个行向量样本进行 softmax 并取对数的结果了
+
+t 是每个样本的标签，t.ravel 的作用是将 t 展开成一个一维的数组
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260314151713.png)
+
+最后两行代码就是将每个样本的对应标签处的概率加起来，然后除以总样本数，就得到样本的平均交叉熵损失了
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260314151902.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260314151921.png)
+
+### softmax-交叉熵误差的反向传播
+
+首先仍然是先考虑单个样本
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260314153110.png)
+
+这里的锁链关系如下所示：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260314153630.png)
+
+所以仍然按照多元微分的思想来看的话，求 L 对每个样本中的 zi 的偏导公式就是下图，这里的求和就是所有的锁链关系加起来的结果：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260314153710.png)
+
+首先看 $\frac{\partial L}{\partial p_{j}}$，根据 L 的表达式：
+
+$$
+L = -y_{1}*\log p_{1} - y_{2}*\log p_{2}\dots-y_{c}*\log p_{c}
+$$
+
+所以 L 对 p j 的偏导就是：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260314153918.png)
+
+然后再看 $\frac{\partial p_{j}}{\partial z_{i}}$
+
+p 1, p 2, p 3... pC 是 z 1, z 2, z 3.. zC 进行 softmax 的结果，上文其实已经得到 pj 对某个 zi 求导的结果了，实际上就是
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260314154230.png)
+
+整理这个式子，可以统一写成：
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260314154519.png)
+
+将这个式子代入：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260314154548.png)
+
+继续展开可以得到：
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260314154645.png)
+
+也就是说，对于一个 C 维度的单样本输入 z 1, z 2, .... zC，它经过 softmax 之后得到的是 p 1, p 2, ... pC，同时这个样本还对应一个 one-hot 向量 t，t = y 1, y 2, ... yC，这个 one-hot 向量中只有一个是 1，其他的都是 0
+
+**那么最后的交叉熵损失 L 对单样本的某个输入 zi 的偏导非常简单，就是 zi 所对应的 pi - yi**
+
+然后，假如 x 是多个样本矩阵的情况：
+
+这多个样本在计算总的 L 的时候是先计算单行样本的交叉熵损失，然后再除以样本个数，得到交叉熵损失的均值：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260314160313.png)
+
+这里 L 1 就仅仅与第一行的样本有关，仅仅是 x 11, x 12, x 13 的函数
+
+因此，比如L 对 x 11，或者 L 对 x 12 的偏导如下：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260314160432.png)
+
+所以最终结果 L 对输入 x 的导数矩阵非常简单，就是先乘个 1/N，然后矩阵 P 与矩阵 t 相减即可：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260314162236.png)
+
+
+```python
+def backward(self, gy):  
+    x, t = self.inputs  
+    # N是样本的个数，CLS_NUM是单个样本的维度
+    N, CLS_NUM = x.shape  
+  	
+    gy *= 1/N
+    # 对输入矩阵x，进行一次softmax得到P  
+    p = softmax(x)  
+    # convert to one-hot  
+  	
+  	# t这里是标签，这里需要将其转换为one-hot编码矩阵
+    t_onehot = np.eye(CLS_NUM, dtype=t.dtype)[t.data] 
+    
+    # 最后直接将p矩阵与t_onehot相减就行了 
+    y = (p - t_onehot) * gy  
+    return y
+```
+
+另外这里的 gy 实际上是最终输出变量对 L 这个标量的导数，所以 gy 也是一个标量，一般来说 softmax 交叉熵误差就已经是最后一层了，所以 gy 一般就是一个标量 1
+
 
 ### 螺旋数据分类
 
@@ -2220,6 +2412,27 @@ y 11，y 12, y 13 分别关于 x 11 的表达式如下：
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260313213833.png)
 
+
+#### softmax 的反向传播
+
+（1）对于一个样本向量来说，yi 对 xj 的求导，如果 i == j，则求导之后是 yi (1 - yi)，如果 i != j，则求导之后是-yi * yj
+（2）对于单个样本向量，最后的损失 L 对输入 X 的求导，本质上是用多元微分的链式法则来推导的，比如 x 1 实际上与 y 1 ~ yn 都有关系，那就将 L 对 y 1~yn 这 n 条路径上的偏导全部加起来得到对 x 1 的导数
+（3）对于 n 个样本的向量矩阵，他的本质也还是多元微分的链式法则，因为单个样本行向量中的每个元素，比如 x 11 实际上也只与输出 Y 的对应行向量中的所有元素有关，x 11 也是经过了 y 11~y 1 n 这 n 条路径到达 L，所以也还是可以直接写出 L 对 x 11 的导数
+
+（4）将所有的 x 的导数写出来之后可以得到 L 对 X 的公式就是：$Y * \left( \frac{\partial L}{\partial Y} -\left( Y * \frac{\partial L}{\partial Y} \right).sum(1) \right)$，这里的 sum (1) 是沿着横向求和的意思
+
+#### softmax - 交叉熵误差损失函数的正向传播与反向传播
+
+这里将 softmax 和交叉熵误差损失放在一起实现
+
+（0）标签转换成 one_hot 矩阵来分析
+（1）首先是单样本的时候
+（2）再从单样本扩展到多样本矩阵的情况，虽然变成了矩阵，但是第一行样本的每个变量对最后的损失的贡献所走的路径经过的都是 softmax (x) 矩阵的第一行向量
+（3）记住最后的公式，softmax 矩阵与 one_hot 矩阵逐元素相减再除以样本的个数
+
+
+
+
 ### Parameter 类
 
 这个类继承自 Variable，它的作用主要是区分作为变量的 Variable 实例还是作为参数的 Variable 实例
@@ -2289,6 +2502,109 @@ y 11，y 12, y 13 分别关于 x 11 的表达式如下：
 （2）`activation`，指定了全连接神经网络所使用的激活函数
 
 
+#### 为什么创建 Layer 类和 Model 类
+
+（1）如果不创建 Layer 类来统一管理参数，那么每次更新参数的时候得手动挨个更新，会非常麻烦，还容易出错，让 Layer 类记住它被创建调用的时候的所有参数，那么在清除参数导数，以及更新参数的时候直接通过 Layer 中的方法就可以了
+
+（2）如果不创建 Model 类，那么对于多个层的神经网络，还得手动挨个创建，比如如果是 5层的全连接神经网络，那就得创建五个 Linear 类实例，然后挨个进行调用，以及将输出激活，更新参数的时候也得挨个进行更新；创建了 Model 类，让其记住它的所有层，通过 Model 类的方法递归的获得它的 Layer 类中的所有参数并更新显然更方便；后续的大一点的神经网络，比如 CNN 也是如此
+
+
+### Optimizer 类
+
+这个类记住了某个模型，比如 MLP 模型，然后他会暴露给外面一个 update 方法，这个方法中实现了对 MLP 模型中的参数的更新，后续就直接调用它的 update 方法就可以更新参数了，就不用用户自己在代码中写循环结构进行参数更新
+
+**属性**
+
+（1）target，这个属性存放了具体的模型
+（2）hooks，这个属性中存放了具体的钩子函数
+
+**方法**
+
+（1）setup 方法，这个方法让 Optimizer 中的 target 记住了需要用来更新的模型
+（2）update 方法，这个方法从 target 目标模型中取出所有的参数，然后挨个调用 update_one 方法来挨个更新这些参数
+（3）update_one 方法，这个方法由具体的 Optimizer 实例对象来实现
+
+#### SGD 类
+
+这个类继承自 Optimizer，它主要的功能是实现了 update_one 方法，即梯度下降来更新某个具体的参数
+
+**属性**
+
+（1）继承了 Optimizer 的所有属性
+（2）lr 属性，更新的步长
+
+#### momentum 类
+
+
+#### Adam 类
+
+**基础属性**
+
+（1）t，步长每进行一轮的参数更新，t ++
+（2）alpha，学习率用于最后更新参数的时候发挥作用
+（3）beta 1，用于调整一阶矩 mt 的超参数
+（4）beta 2，用于调整二阶矩 vt 的超参数
+（5）ms，这是一个字典，用于存放每个不同的待更新的参数的 mt 历史积累
+（6）vs，这也是一个字典，用于存放每个不同的待更新参数的 vt 历史积累
+
+为什么需要 ms 和 vs 两个字典，这是因为 Adam 算法对每个参数的更新策略是不一样的，对于 SGD 来说，不管是哪一个参数，只用减去这个参数的梯度 * 学习率就 OK 了，可以直接从每个参数本身直接获取. grad 数据；但是对于 Adam 算法，它更新每个参数的时候，必须要知道这个参数在历史过程中的一阶矩积累和二阶矩积累，所以就需要用一个字典来维护每个参数在不同的步数更新之后的 mt 和 vt 积累，这个字典中键就是每个参数，值是每个参数在步骤 t 更新完了之后的 mt 和 vt 积累
+
+**基本方法**
+
+（1）lr 方法，当获得历史的一阶矩积累 mt 和二阶矩积累 vt 之后，可以将他们两的修正和参数更新两步统一起来得到下面的公式，这里的 lr 方法就是下图中的一大坨利用超参数和学习率结合起来的东西；这样当获得 mt 和 vt 之后，直接调用 self. lr 然后乘起来就可以更新参数 $\theta$ 了
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260314212439.png)
+
+（2）update_one 方法，这个方法是用来挨个更新参数的，它将参数作为键来查找 ms 和 ts 两个字典中，这个参数的历史 mt 积累和 vt 积累，然后进行积累的更新，然后获得 self. lr，直接按照公式进行参数更新即可
+
+另外，第一次更新参数的时候 mt 和 vt 初始化为 0，然后积累一次更新参数
+### DataSet 类
+
+它的功能是
+（1）读取数据，从网站下载或者直接从文件中读取
+（2）数据预处理
+（3）重载了 `__getitem__` 方法，让用户可以像访问数组一样访问它读取存放在 data 中的数据
+
+**读入参数**
+
+（1）train 参数，表明是否是训练数据
+（2）transform 参数，这个是用于对输入样本进行预处理的函数，默认是 `lambda x : x`，即样本本身
+（3）target_transform 参数，这个是对标签数据进行预处理的函数，默认是 `lambda x : x`，即本身
+
+**属性**
+
+（1）train 属性，用来表示 Dataset 中的数据是否是训练数据
+（2）data 属性，Dataset 类中保存所需要的所有样本数据
+（3）label 属性，每个样本所对应的标签
+
+**方法**
+
+（1）`__getitem__` 方法，这个方法让 Dataset 类支持数组方式取出数据，比如 spir_dataset 是一个 Dateset 类实例，这个方法让其可以通过 `spir_dataset[0]` 取出第 0 行的样本数据以及这个样本所对应的标签，下图是取出一个 300 * 2 维度数据的第 0 行样本数据以及它所对应的标签
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260306105927.png)
+
+（2）`prepare` 方法，用于读取数据到 data 属性中，以及样本所对应的标签到 label 中
+
+### DataLoader 类
+
+数据加载器，它的基本功能是：
+
+（1）保存所有的样本到它的 Dataset 属性中
+（2）决定每次小批量训练模型的数据大小，以及进行一轮 epoch 的最大迭代次数
+（3）随机打乱数据
+（4）成为一个迭代器，支持从外部利用 for XXX in dataloader 语句从 dataset 中取出小批量数据进行模型的训练更新
+
+**基本属性**
+
+（1）dataset 属性，保存的是一个 Dataset 类，Dataloader 就从这个 Dataset 中读取数据
+（2）batch_size 属性，训练一次的小批量数据大小，比如上文中，每次取出 30 数据放到模型中进行训练
+（3）shuffle，用于决定每次训练之后是否对数据进行重排
+（4）max_iter，用于决定每轮迭代的次数，比如 300 个数据，每次用 30 个数据对模型进行训练更新参数，那么迭代的次数就是 300 / 30 = 10 次
+（5）index 属性，这个属性在 reset 方法中被更新，它是随机打乱的所有样本数据的行号，通过随机打乱行号形成行号列表，然后利用这个行号从样本 Dataset 中取数据从而达到随机打乱样本的效果
+
+**基本方法**
+
+（1）reset () 方法，这个用于对 Dataset 中的数据进行重排，当然实际上的操作是生成随机的行号列表，然后用这些随机的行号去访问数据，从而达到重排的效果，当然这里如果 shuffle 被设置成 false 则不会进行重排，reset 方法在 Dataloader 类在初始化的时候调用一次，在迭代 mat_iter 次数后会调用一次
+（2）`__next__` 和 `__iter__` 方法，这两个方法让 Dataloader 类成为一个迭代器，在模型训练代码中通过 `for XXX in Datalodaer` 来反复从 Dataloader 类保存的 Dataset 中取出 batch_size 个样本来进行一次模型迭代参数更新
 
 
 ## 功能实现逻辑
@@ -2366,6 +2682,22 @@ Function 类中的 backward 方法，或者说某个函数的 backward 方法，
 （3）初始化 W
 （4）步长选择为 0.001，迭代一万次
 
+### MINST 训练
+
+#### 数据预处理
+
+（1）这里的原始数据是 (1, 28, 28) 的单通道特征图数据，这里首先将其展平为为一维向量，全连接神经网络的单个样本必须是向量才行（模型中的输入可以是一个矩阵，但是这个矩阵是多个行向量样本组成的）
+
+（2）将归一化，将每个像素值除以 255 变成 `[0, 1]` 中的数值，这样做的目的是：
+i 避免数值过大导致权重更新过于剧烈，进行震荡训练不稳定
+ii 如果数值过大可能达到中间的激活函数 sigmoid 的边缘了，这样会导致梯度变成 0 造成梯度消失
+iii 保证所有的样本值都在相同的范围内，可以让一些优化器性能更好
+
+#### 迭代次数
+
+（1）小批量数据取 100，每次取 100 个数据进行模型更新，一共迭代 600 次
+（2）epoch 取 5，进行 5 轮大更新
+（3）两层神经网络，hidden_size = 1000
 
 ## 优化
 
@@ -2461,9 +2793,22 @@ Function 类中的 backward 方法，或者说某个函数的 backward 方法，
 #### Adam 算法
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260312205550.png)
-![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260312205607.png)
-![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260312205613.png)
 
+（1）这里的 gt 就是输出变量对参数的梯度
+（2）mt 可以看成是梯度的一次方按照超参数的比例的不断积累，vt 可以看成是梯度的二次方按照超参数的不断积累
+（3）t 是更新的步数，每进行一次更新 t 就 ++
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260312205607.png)
+
+每次用 mt 和 vt 去更新参数之前需要先进行一次纠正
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260312205613.png)
+也可以将这个公式展开得到：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260314212439.png)
+
+（1）从直观上来讲，mt 越大表示历史的梯度方向越一致，从而最后更新参数的时候在这个方向上更新越多，沿着这个方向更新加速
+（2）vt 越大，说明某个参数的梯度跨度越大，此时更新参数的时候 vt 在分母，这样这个参数更新的时候反而幅度会更小，这样可以减少梯度的震荡
 ### 激活函数
 
 #### 激活函数的作用

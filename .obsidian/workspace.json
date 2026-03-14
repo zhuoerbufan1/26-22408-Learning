@@ -79,7 +79,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200
+    "width": 200,
+    "collapsed": true
   },
   "right": {
     "id": "ee1ba97547e52fe7",
@@ -130,7 +131,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "专业课/数据结构/5 王道第五章习题 树.md",
+                "file": "复试/DeZero框架.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -140,7 +141,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "5 王道第五章习题 树 的反向链接列表"
+              "title": "DeZero框架 的反向链接列表"
             }
           },
           {
@@ -172,11 +173,12 @@
               "title": "标签"
             }
           }
-        ]
+        ],
+        "currentTab": 2
       }
     ],
     "direction": "horizontal",
-    "width": 287.5
+    "width": 338.5
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -191,7 +193,7 @@
       "omnisearch:Omnisearch": false
     }
   },
-  "active": "67a5ec63f2880cdb",
+  "active": "8df752c683dc5483",
   "lastOpenFiles": [
     "复试/python.md",
     "复试/DeZero框架.md",
