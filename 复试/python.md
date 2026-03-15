@@ -296,3 +296,150 @@ print(len(v1)) # 2
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260308165038.png)
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260308165046.png)
 
+# py 八股文
+
+## Numpy
+
+## Python
+
+### 四种基本数据结构
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260315203552.png)
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260315203521.png)
+
+### print 和 yield 的区别
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260315203645.png)
+
+### 深拷贝和浅拷贝
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260315203822.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260315203830.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260315203845.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260315203853.png)
+
+### range 函数的用法
+
+（1）返回一系列连续增加的整数
+（2）生成一个列表对象
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260315204221.png)
+
+### is 和 == 的区别
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260315204238.png)
+
+### py 中的表达式和语句的区别是什么？
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260315204453.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260315204501.png)
+
+### 什么是 Lambda 函数
+
+拥有 labmda 关键字，并且只有一行的简洁版函数，这一行只能是一个表达式，不能是语句
+
+比如 `f = lambda x : x`
+
+### 字符串拆分的方法
+
+#### `split` 方法，只能指定一个分隔符
+
+```python
+line = "I am super man!"
+#String的split方法
+print(line.split(" ")) #以空格拆分
+输出['I','am','super','man!']
+
+```
+
+#### 函数 re. split () 这个函数允许为分隔符指定正则表达式
+
+```python
+#re.split方法
+import re 
+print(re.split("[m]",line))
+输出['I','a','','super','','an!']
+```
+
+### 单引号，双引号，三引号
+
+单引号和双引号没有什么区别，都是用来表示字符串的
+
+三行号：
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260315205053.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260315205100.png)
+
+### py 中的传参
+
+#### 必选参数
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260315205614.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260315205621.png)
+
+#### 默认参数
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260315205636.png)
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260315205910.png)
+
+#### 注意事项
+
+（1）函数定义时默认参数必须在必选参数之后
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260315211343.png)
+
+
+
+（2）函数定义时默认参数的数值就已经绑定了函数，而不是函数调用的时候绑定，因此为了避免错误，默认参数必须绑定不可变对象
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260315211355.png)
+
+
+（3）函数调用的时候可以通过关键字传参跳过默认参数，但是仍然必须保证传参顺序
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260315212535.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260315212542.png)
+
+### 可变对象与不可变对象
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260315212658.png)
+
+### Python 中的装饰器
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260315212739.png)
+
+比如 `@property` 装饰器，可以让类的函数像类的属性一样进行调用
+
+### Py 类中变量的访问权限问题
+三类
+（1）普通命名的变量，外部随意调用
+（2）双下划线开头和结尾变量，可以调用，但是一般有特殊的用途
+（3）单下划线开头变量，半私有变量，类或者子类中使用
+（4）双下划线开头变量，私有变量，只能类的内部使用
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260315213147.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260315213155.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260315213211.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260315213540.png)
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260315213333.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260315213341.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260315213626.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260315213642.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260315213703.png)
+
+
+### 解释型语言和编译型语言
+
+编译型：Cpp，C 等
+解释型：Python
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260315213807.png)
+
+### Python 中的 list 和 Numpy 中的 ndarry 的区别
+
+（1）list 元素类型可以不一样，但是 darry 必须一样
+（2）list 中每个元素大小可以不一样，因此不支持取出列，但是 ndarry 元素大小一样，支持取出列
+（3）list 中存放的是元素的地址，而非数据，ndarry 中存放的只是 4 个数据
+（4）一个 ndarry 是内存中一个连续的块，而 list 中存放的是地址，元素本身可能不连续
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260315213951.png)

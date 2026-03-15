@@ -79,8 +79,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200,
-    "collapsed": true
+    "width": 200
   },
   "right": {
     "id": "ee1ba97547e52fe7",
@@ -178,7 +177,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 338.5
+    "width": 325.5
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -195,13 +194,15 @@
   },
   "active": "8df752c683dc5483",
   "lastOpenFiles": [
+    "专业课/数据结构/理解&题目/DS强化复习.md",
     "复试/python.md",
     "复试/DeZero框架.md",
     "复试/CNN.md",
     "复试/cpp.md",
+    "复试/所使用的算法.md",
+    "未命名.md",
     "复试/numpy.md",
     "复试/算法上机.md",
-    "复试/所使用的算法.md",
     "复试/ext2.md",
     "复试/temp.md",
     "复试/RNN.md",
@@ -220,8 +221,6 @@
     "专业课/408强化与真题/真题/2025年.md",
     "专业课/408强化与真题/真题/2024年.md",
     "专业课/408强化与真题/真题/2023年.md",
-    "专业课/408强化与真题/真题/2022年.md",
-    "专业课/408强化与真题/真题/2021年.md",
     "26PDFS/政治/我加载了恋爱游戏 掠过的乌鸦盟主群全本23章番外1特典.txt",
     "26PDFS/政治/我加载了恋爱游戏 掠过的乌鸦盟主群全本23章番外1特典.txt.baiduyun.p.downloading",
     "26PDFS/政治/抄材料逻辑图.pdf",
