@@ -1,6 +1,14 @@
 
 # 普通语法
 
+
+### 函数签名
+
+下图中的 greet 函数定义是 py 3.5 之后的新语法，其实和普通定义没啥区别，主要用于区分 py 这个函数具体功能的
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260316215524.png)
+
+
 ### `__file__` 变量，`os.path.abspath()` 函数，`os.path.dirname()` 函数
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260314173007.png)
@@ -140,10 +148,129 @@
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260310163556.png)
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260310163607.png)
 
+# 内存回收机制
+
+### Py 中的变量和对象
+
+（1）简单来说，py 中的变量只是一个标签，存放的是对象的引用（地址），而对象则是内存中的一块实体，存放着实际的数据
+（2）变量有自己的作用域，超过作用域会被回收，而对象则创建在堆上，通过引用计数机制或者垃圾回收机制进行回收
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260316114213.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260316114232.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260316114321.png)
+
+### Python 中的全局变量和类中的属性变量
+
+比如下面这段循环引用的代码
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260316114639.png)
+
+简单来说，他们的本质没有区别，都是存放的某个对象的引用（地址），只不过 a, b 是全局变量，他们在全局命名空间中，而 self. ref 是类中的属性，他们在每个类的内存空间中
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260316114809.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260316114825.png)
+
+所以这里造成循环引用的原因也就很清晰了，虽然删掉了全局空间中的变量，但是每个类对象自己的内存空间中仍然有变量对对方进行引用，而此时类对象又不可访问，这就造成了这两个类对象不可能通过引用计数机制来回收内存了
+### Python 中的对象和引用以及函数传参中的引用和别名
+
+（1）Python 中一切皆是对象，对象创建之后会在内存中创建一个区域，并返回这个空间的地址，成为引用
+（2）容器对象，比如 list 或者 tuple 存储的是其他对象的引用，而不是对象本身
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260316113413.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260316113420.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260316113439.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260316113533.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260316113541.png)
+
+### Python 中的引用计数机制
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260316113005.png)
+```python
+import sys
+
+class Person:
+    pass
+
+# 对象被创建
+p1 = Person()
+
+# getrefcount函数返回的引用计数比实际的引用计数大1，因为getrefcount函数本身也创建了一个临时的引用。
+print(sys.getrefcount(p1)) # 2
+
+# 对象被引用
+p2 = p1
+
+# sys.getrefcount()函数创建的是临时引用，这个引用在函数返回后就会被立即销毁。所以，即使你多次调用sys.getrefcount()，也不会导致引用计数器持续增加。
+print(sys.getrefcount(p1)) # 3
+print(sys.getrefcount(p1)) # 3
+
+def log(obj):
+    print(sys.getrefcount(obj)) # 5
+
+# 对象被作为参数，传入到一个函数中
+log(p1) # 这里注意会 +2, 因为内部有两个属性引用着这个参数
+print(sys.getrefcount(p1)) # 3
+
+# 对象作为一个元素，存储在容器中
+l=[p1]
+print(sys.getrefcount(p1)) # 4
+
+```
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260316113302.png)
+
+这里的对象离开它的作用域其实就是对这个对象的引用变量超出了它的作用域之后被自动回收而导致的对象引用计数--
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260316115233.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260316115243.png)
+
+### py 中的循环引用
+
+比如下面的例子：
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260205195147.png)
+
+这里 a, b, c 都是全局变量，他们各自引用了三个对象
+
+同时着三个对象内部也进行了互相引用
+
+这就导致哪怕全局变量 a, b, c 被回收之后，着三个对象的引用计数仍然不为 0，但是同时这三个对象也已经无法访问了，留在内存空耗，这就是循环引用
+
 
 # 面向对象
 
 ## 面向对象基本知识
+### 类方法
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260316220804.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260316220811.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260316220833.png)
+
+
+### 静态方法
+
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260316220415.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260316220441.png)
+
+### `__new__` 方法
+
+这个 new 构造器实际上就是一个普通的静态方法，只不过它有一个参数 cls，它在 init 方法之前被调用，必须有返回值，这个 cls 参数是 py 自动将当前类传递过去的
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260316222835.png)
+
+这里再调用 A () 的时候是 Py 硬编码将类 A 传递给 `__new__` 的第一个参数，虽然效果上与类方法或者实例方法中的自动绑定类或者实例到第一个参数是一样的，但是底层机制不一样（不纠结）
+
+
+
+
+
+
+### `__init__` 方法
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260316223323.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260316223328.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260316223339.png)
+
 
 ### `setattr()` 方法
 
@@ -443,3 +570,6 @@ print(re.split("[m]",line))
 （4）一个 ndarry 是内存中一个连续的块，而 list 中存放的是地址，元素本身可能不连续
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260315213951.png)
+
+### init 和 new 的区别是什么？
+

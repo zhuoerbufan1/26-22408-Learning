@@ -205,6 +205,11 @@ numpy 中的加减乘除都是逐元素进行的，不论这里是一维的数�
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260309120550.png)
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260309120612.png)
 
+#### transpose 操作
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260316195831.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260316195841.png)
+
 ### numpy 中的广播机制
 
 也就是自动扩展较小的数组，让其可以与不同形状的数组进行兼容，从而可以逐元素进行计算

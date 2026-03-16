@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "复试/DeZero框架.md",
+                "file": "复试/python.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "DeZero框架"
+              "title": "python"
             }
           }
         ]
@@ -79,7 +79,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200
+    "width": 256.49999618530273,
+    "collapsed": true
   },
   "right": {
     "id": "ee1ba97547e52fe7",
@@ -177,7 +178,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 325.5
+    "width": 289.5
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -194,16 +195,24 @@
   },
   "active": "8df752c683dc5483",
   "lastOpenFiles": [
-    "专业课/数据结构/理解&题目/DS强化复习.md",
+    "复试/408.md",
+    "专业课/计组/理解 & 题目/7 IO与中断.md",
+    "专业课/操作系统/理解&题目/1 计算机系统概述.md",
+    "专业课/操作系统/理解&题目/3 内存管理.md",
+    "专业课/操作系统/理解&题目/2 进程与线程.md",
+    "复试/英语问答.md",
+    "复试/项目Q&A.md",
     "复试/python.md",
-    "复试/DeZero框架.md",
     "复试/CNN.md",
     "复试/cpp.md",
-    "复试/所使用的算法.md",
-    "未命名.md",
-    "复试/numpy.md",
-    "复试/算法上机.md",
     "复试/ext2.md",
+    "复试/DeZero框架.md",
+    "复试/numpy.md",
+    "复试/所使用的算法.md",
+    "复试/算法上机.md",
+    "复试/机试.md",
+    "专业课/数据结构/理解&题目/DS强化复习.md",
+    "未命名.md",
     "复试/temp.md",
     "复试/RNN.md",
     "复试/计算机体系基础.md",
@@ -213,14 +222,6 @@
     "复试/推荐系统王树森.md",
     "26PDFS/复试/2026年珞研计算机考研复试面试宝典.pdf",
     "专业课/计组/XJTU 笔记/7 微程序设计.md",
-    "专业课/计组/XJTU 笔记/6 中央处理器.md",
-    "专业课/计组/XJTU 笔记/5 数据表示和运算.md",
-    "专业课/计组/XJTU 笔记/4 总线与输入输出系统.md",
-    "专业课/计组/XJTU 笔记/3 存储器.md",
-    "专业课/计组/XJTU 笔记/2 指令系统.md",
-    "专业课/408强化与真题/真题/2025年.md",
-    "专业课/408强化与真题/真题/2024年.md",
-    "专业课/408强化与真题/真题/2023年.md",
     "26PDFS/政治/我加载了恋爱游戏 掠过的乌鸦盟主群全本23章番外1特典.txt",
     "26PDFS/政治/我加载了恋爱游戏 掠过的乌鸦盟主群全本23章番外1特典.txt.baiduyun.p.downloading",
     "26PDFS/政治/抄材料逻辑图.pdf",
