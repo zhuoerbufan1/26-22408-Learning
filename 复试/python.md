@@ -435,7 +435,7 @@ print(len(v1)) # 2
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260315203521.png)
 
-### print 和 yield 的区别
+### return 和 yield 的区别
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260315203645.png)
 

@@ -170,16 +170,39 @@ numpy 中的加减乘除都是逐元素进行的，不论这里是一维的数�
 #### 矩阵运算
 
 
-### numpy 中的轴
+### numpy 中的轴与求和
 
-一个二维数组的轴方向如下所示：
+#### 二维数组
 
-![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260301174114.png)
+如果是二维的数据比较简单：
 
-按照轴的方向进行求和如下：
+![image.png|452](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260317165911.png)
 
-![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260301174129.png)
+沿着轴 0 求和如下：
 
+![image.png|461](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260317165956.png)
+
+沿着轴 1 求和如下：
+
+![image.png|431](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260317170025.png)
+
+沿着不同的轴求最大值如下：
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260317170056.png)
+
+
+#### 多维数组
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260317165851.png)
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260317172409.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260317172417.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260317172431.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260317172441.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260317172514.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260317172523.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260317172537.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260317172547.png)
 
 ### `sum` 求和函数
 
@@ -218,6 +241,7 @@ numpy 中的加减乘除都是逐元素进行的，不论这里是一维的数�
 
 （1）将矩阵的形状进行右对齐，对于维度较少的，则形状左边补 1
 （2）从右到左进行比较，只有每一位对应相等或者某个为 1，这样才能进行广播
+（3）不用管 shape 属性中的什么逗号
 
 ##### 一维数组与标量
 
@@ -249,3 +273,10 @@ print(a + b) # [11, 12, 13]
 ##### 三维数组与二维数组进行广播
 
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260302205902.png)
+
+
+#### `broadcast_to` 函数
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260317162026.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260317162125.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260317162139.png)

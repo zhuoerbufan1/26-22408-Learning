@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "复试/python.md",
+                "file": "复试/项目Q&A.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "python"
+              "title": "项目Q&A"
             }
           }
         ]
@@ -79,8 +79,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 256.49999618530273,
-    "collapsed": true
+    "width": 200
   },
   "right": {
     "id": "ee1ba97547e52fe7",
@@ -173,12 +172,11 @@
               "title": "标签"
             }
           }
-        ],
-        "currentTab": 2
+        ]
       }
     ],
     "direction": "horizontal",
-    "width": 289.5
+    "width": 447.5
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -193,29 +191,29 @@
       "omnisearch:Omnisearch": false
     }
   },
-  "active": "8df752c683dc5483",
+  "active": "67a5ec63f2880cdb",
   "lastOpenFiles": [
+    "复试/python.md",
+    "复试/项目Q&A.md",
+    "复试/DeZero框架.md",
+    "复试/numpy.md",
+    "复试/算法上机.md",
+    "复试/计算机体系基础.md",
     "复试/408.md",
+    "复试/机试.md",
     "专业课/计组/理解 & 题目/7 IO与中断.md",
     "专业课/操作系统/理解&题目/1 计算机系统概述.md",
     "专业课/操作系统/理解&题目/3 内存管理.md",
     "专业课/操作系统/理解&题目/2 进程与线程.md",
     "复试/英语问答.md",
-    "复试/项目Q&A.md",
-    "复试/python.md",
     "复试/CNN.md",
     "复试/cpp.md",
     "复试/ext2.md",
-    "复试/DeZero框架.md",
-    "复试/numpy.md",
     "复试/所使用的算法.md",
-    "复试/算法上机.md",
-    "复试/机试.md",
     "专业课/数据结构/理解&题目/DS强化复习.md",
     "未命名.md",
     "复试/temp.md",
     "复试/RNN.md",
-    "复试/计算机体系基础.md",
     "复试/手写.md",
     "复试/深度学习.md",
     "复试/操作系统实战.md",
