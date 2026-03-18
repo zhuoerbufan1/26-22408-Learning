@@ -176,7 +176,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 447.5
+    "width": 391.5
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -193,14 +193,14 @@
   },
   "active": "67a5ec63f2880cdb",
   "lastOpenFiles": [
-    "复试/python.md",
-    "复试/项目Q&A.md",
     "复试/DeZero框架.md",
-    "复试/numpy.md",
+    "复试/项目Q&A.md",
     "复试/算法上机.md",
+    "复试/机试.md",
+    "复试/python.md",
+    "复试/numpy.md",
     "复试/计算机体系基础.md",
     "复试/408.md",
-    "复试/机试.md",
     "专业课/计组/理解 & 题目/7 IO与中断.md",
     "专业课/操作系统/理解&题目/1 计算机系统概述.md",
     "专业课/操作系统/理解&题目/3 内存管理.md",
