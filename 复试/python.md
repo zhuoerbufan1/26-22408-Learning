@@ -91,7 +91,12 @@
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260303160502.png)
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260303160537.png)
 
+#### py 中的 ravel 函数
 
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260320090321.png)
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260320090407.png)
+
+![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260320090420.png)
 
 ## 数据容器
 
