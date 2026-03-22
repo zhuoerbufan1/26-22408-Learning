@@ -27,12 +27,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "复试/cpp.md",
+                "file": "复试/项目Q&A.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "cpp"
+              "title": "项目Q&A"
             }
           }
         ],
@@ -187,12 +187,11 @@
               "title": "标签"
             }
           }
-        ],
-        "currentTab": 2
+        ]
       }
     ],
     "direction": "horizontal",
-    "width": 269.5
+    "width": 507.5
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -207,8 +206,10 @@
       "omnisearch:Omnisearch": false
     }
   },
-  "active": "eaa0049fd1389f75",
+  "active": "67a5ec63f2880cdb",
   "lastOpenFiles": [
+    "复试/毕设开题报告-基于LFM模型的电影推荐系统（文字版）.md",
+    "复试/所使用的算法.md",
     "复试/408.md",
     "复试/cpp.md",
     "复试/DeZero框架.md",
@@ -221,7 +222,6 @@
     "复试/时间线以及任务.md",
     "专业课/计网/计算机网络胡科大笔记.md",
     "专业课/计网/计网强化笔记.md",
-    "复试/所使用的算法.md",
     "复试/numpy.md",
     "复试/英语问答.md",
     "复试/算法上机.md",
@@ -234,7 +234,6 @@
     "专业课/操作系统/理解&题目/3 内存管理.md",
     "专业课/操作系统/理解&题目/2 进程与线程.md",
     "复试/ext2.md",
-    "未命名.md",
     "26PDFS/复试/2026年珞研计算机考研复试面试宝典.pdf",
     "26PDFS/政治/我加载了恋爱游戏 掠过的乌鸦盟主群全本23章番外1特典.txt",
     "26PDFS/政治/我加载了恋爱游戏 掠过的乌鸦盟主群全本23章番外1特典.txt.baiduyun.p.downloading",
