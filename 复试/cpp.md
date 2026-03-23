@@ -65,6 +65,11 @@
 
 ### 继承中的构造函数与析构函数的调用顺序规则
 
+（1）先初始化基类的构造函数
+（2）再初始化派生类的
+
+析构则是完全反过来
+
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260321222235.png)
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260321222248.png)
 ![image.png](https://typora-1310242472.cos.ap-nanjing.myqcloud.com/typora_img/20260321222317.png)
